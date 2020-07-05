@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="无权图最短路径LC127 单词接龙LC286 墙与门LC542 01矩阵 DAG与拓扑排序LC207 课程表LC210 课程表IILC269 火星词典 欧拉轨迹(Eulerian Path)LC332 重新安排行程LC753 破解保险箱 无根树LC582 杀死进程LC261 以图判树LC1361 验证二叉树|周赛177LC1245 树的直径LC310 最小高度树LC834 树中距离之和 其他LC1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图(施工中)">
+<meta property="og:url" content="http://xyfu.me/posts/ee040603/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="无权图最短路径LC127 单词接龙LC286 墙与门LC542 01矩阵 DAG与拓扑排序LC207 课程表LC210 课程表IILC269 火星词典 欧拉轨迹(Eulerian Path)LC332 重新安排行程LC753 破解保险箱 无根树LC582 杀死进程LC261 以图判树LC1361 验证二叉树|周赛177LC1245 树的直径LC310 最小高度树LC834 树中距离之和 其他LC1">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-02-27T14:59:36.000Z">
+<meta property="article:modified_time" content="2020-03-01T00:10:42.904Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="图">
+<meta property="article:tag" content="DFS">
+<meta property="article:tag" content="BFS">
+<meta property="article:tag" content="DAG">
+<meta property="article:tag" content="无根树">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/ee040603/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>图(施工中) | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/ee040603/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图(施工中)
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-27 22:59:36" itemprop="dateCreated datePublished" datetime="2020-02-27T22:59:36+08:00">2020-02-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 08:10:42" itemprop="dateModified" datetime="2020-03-01T08:10:42+08:00">2020-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.8k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>无权图最短路径<br><a href="https://xyfu.me/posts/ee040603/#%E6%97%A0%E6%9D%83%E5%9B%BE%E5%8D%95%E6%BA%90%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">LC127 单词接龙</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%97%A0%E6%9D%83%E5%9B%BE%E5%A4%9A%E6%BA%90%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">LC286 墙与门</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%97%A0%E6%9D%83%E5%9B%BE%E5%A4%9A%E6%BA%90%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">LC542 01矩阵</a></p>
+<p>DAG与拓扑排序<br><a href="https://xyfu.me/posts/ee040603/#%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F">LC207 课程表</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F">LC210 课程表II</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F">LC269 火星词典</a></p>
+<p>欧拉轨迹(Eulerian Path)<br><a href="https://xyfu.me/posts/ee040603/#Heirholzer%E7%AE%97%E6%B3%95">LC332 重新安排行程</a><br><a href="https://xyfu.me/posts/ee040603/#De_Bruijn_%E5%BA%8F%E5%88%97">LC753 破解保险箱</a></p>
+<p>无根树<br><a href="https://xyfu.me/posts/ee040603/#%E6%A0%91%E4%B8%AD%E8%B7%AF%E5%BE%84%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7">LC582 杀死进程</a><br><a href="https://xyfu.me/posts/ee040603/#%E5%88%A4%E6%96%AD%E6%97%A0%E5%90%91%E5%9B%BE%E6%98%AF%E5%90%A6%E4%B8%BA%E6%A0%91">LC261 以图判树</a><br><a href="https://xyfu.me/posts/ee040603/#%E5%88%A4%E6%96%AD%E6%97%A0%E5%90%91%E5%9B%BE%E6%98%AF%E5%90%A6%E4%B8%BA%E6%A0%91">LC1361 验证二叉树|周赛177</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%A0%91%E7%9A%84%E7%9B%B4%E5%BE%84">LC1245 树的直径</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%A0%91%E7%9A%84%E7%9B%B4%E5%BE%84">LC310 最小高度树</a><br><a href="https://xyfu.me/posts/ee040603/#%E8%B7%9D%E7%A6%BB%E5%92%8C%E9%97%AE%E9%A2%98">LC834 树中距离之和</a></p>
+<p>其他<br><a href="https://xyfu.me/posts/ee040603/#%E5%85%B6%E4%BB%96">LC133 克隆图</a></p>
+<a id="more"></a>
+<h1 id="图的遍历"><a href="#图的遍历" class="headerlink" title="图的遍历"></a>图的遍历</h1><h2 id="BFS"><a href="#BFS" class="headerlink" title="BFS"></a>BFS</h2><h2 id="DFS"><a href="#DFS" class="headerlink" title="DFS"></a>DFS</h2><h3 id="边的类型"><a href="#边的类型" class="headerlink" title="边的类型"></a>边的类型</h3><p>有向图：</p>
+<ul>
+<li>树边：第一次由<code>u</code>探索到<code>v</code>时，<code>v</code>为白色</li>
+<li>后向边：第一次由<code>u</code>探索到<code>v</code>时，<code>v</code>为灰色。</li>
+<li>前向边：第一次由<code>u</code>探索到<code>v</code>时，<code>v</code>为黑色，且<code>u</code>的发现时间早于<code>v</code>的发现时间。</li>
+<li>横向遍：第一次由<code>u</code>探索到<code>v</code>时，<code>v</code>为黑色，且<code>u</code>的发现时间晚于<code>v</code>的发现时间。</li>
+</ul>
+<p>无向图：</p>
+<p>可以证明，对在无向图进行DFS时，每条边要么是树边，要么是后向边。</p>
+<ul>
+<li>树边：第一次由<code>u</code>探索到<code>v</code>时，<code>v</code>为白色。</li>
+<li>后向边：第一次由<code>u</code>探索到<code>v</code>时，<code>v</code>为灰色。</li>
+</ul>
+<p>因此我们在DFS无向图时，可以只将一个节点标记为”白色”或”灰色”。当由<code>u</code>探索到<code>v</code>，再由<code>v</code>开始深入探索时，会发现<code>v</code>已经被探索。但是由于在无向图中<code>(u, v)</code>和<code>(v, u)</code>是同一条边，我们只记录第一次发现边<code>(u, v)</code>时的类型。我们可以修改DFS，传入一个父亲节点的标号。在我们由<code>u</code>调用<code>dfs(child = v, parent = u)</code>后，<code>v</code>也会遍历其子节点，如果子节点等于<code>parent</code>，我们<code>continue</code>即可。</p>
+<h1 id="无权图最短路径"><a href="#无权图最短路径" class="headerlink" title="无权图最短路径"></a>无权图最短路径</h1><p>对一个无权的有向图或无向图，从一个源节点进行BFS可以发现所有其他节点到该源节点的最短路径：<br>设源节点<code>s</code>的距离<code>s.d = 0</code>。在进行BFS时每当我们从一个节点<code>a</code>的邻接链表中找到一个未发现的节点<code>b</code>时，更新<code>b</code>的距离<code>b.d = a.d + 1</code>。</p>
+<p>如果只想找到源节点<code>s</code>到某一节点<code>t</code>的最短路径，没有必要给所有节点都附上一个距离。我们可以记录当前遍历时的层次<code>level</code>。当我们发现节点<code>t</code>时，路径长度刚好是<code>level + 1</code>。</p>
+<p>如何处理路径不存在：如果从<code>s</code>到<code>t</code>的路径不存在，则<code>s</code>和<code>t</code>必然分居两个不同的BFS树中。因此如果从源节点<code>s</code>出发直到队列为空都未发现<code>t</code>，则不存在路径<code>(s, t)</code>。</p>
+<hr>
+<h2 id="无权图单源最短路径"><a href="#无权图单源最短路径" class="headerlink" title="无权图单源最短路径"></a>无权图单源最短路径</h2><p><a href="https://leetcode-cn.com/problems/word-ladder/" target="_blank" rel="noopener">LC127 单词接龙</a></p>
+<p>思路：</p>
+<ul>
+<li>将所有单词放入一个hashset中</li>
+<li>单词作为顶点</li>
+<li>如果替换一个单词的某一个字母到<code>&#39;a&#39; - &#39;z&#39;</code>中的一个字母后（替换后不同于原单词），能在hashset找到替换后的单词，则两个单词之间存在一条边。此hashset也可同时充当visited数组使用。</li>
+<li>以<code>beginWord</code>作为源节点进行BFS，如果找到<code>endWord</code>，返回当前的<code>level + 1</code>。</li>
+</ul>
+<p>注意：<br>恶心人的测试用例中，<code>wordList</code>有的包含<code>beginWord</code>，有的不包含<code>beginWord</code>。为了防止自边导致的路径长度错误，我们要求两个单词之前如果存在边，必须只能替换一个字母，且不相同。这样就排除了自边的可能性。因为<code>beginWord</code>并没有被放在hashset里，因此在BFS时，可能有<code>a-&gt;b-&gt;a</code>的路径。我们可以将一开始就将<code>beginWord</code>从hashset中删除，彻底杜绝这种路径。也可以放任不管，因为这样的路径一定不是最短路径。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">ladderLength</span><span class="params">(<span class="built_in">string</span> beginWord, <span class="built_in">string</span> endWord, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; wordList)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">unordered_set</span>&lt;<span class="built_in">string</span>&gt; words(wordList.begin(), wordList.end());</span><br><span class="line">        <span class="built_in">queue</span>&lt;<span class="built_in">string</span>&gt; bfsq&#123;&#125;;</span><br><span class="line">        bfsq.push(beginWord);</span><br><span class="line">        <span class="keyword">if</span>(words.count(beginWord)) words.erase(beginWord);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> level = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>(!bfsq.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> level_size = bfsq.size();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; level_size; ++i)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> node = bfsq.front();</span><br><span class="line">                bfsq.pop();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">auto</span> it = node.begin(); it != node.end(); ++it)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">auto</span> c = *it;</span><br><span class="line">                    <span class="keyword">for</span>(<span class="keyword">char</span> i = <span class="string">'a'</span>; i &lt;= <span class="string">'z'</span>; ++i)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span>(i != c)</span><br><span class="line">                        &#123;</span><br><span class="line">                            *it = i;</span><br><span class="line">                            <span class="keyword">if</span>(words.count(node))</span><br><span class="line">                            &#123;</span><br><span class="line">                                <span class="keyword">if</span>(node == endWord)</span><br><span class="line">                                &#123;</span><br><span class="line">                                    <span class="keyword">return</span> level + <span class="number">1</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                                words.erase(node);</span><br><span class="line">                                bfsq.push(node);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    *it = c;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">            ++level;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        将word枚举抽象成类的code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">wordEnum</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="built_in">string</span>&amp; node;</span><br><span class="line">        <span class="built_in">string</span>::iterator it;</span><br><span class="line">        <span class="keyword">char</span> i;</span><br><span class="line">        <span class="keyword">char</span> c;</span><br><span class="line"></span><br><span class="line">        wordEnum(<span class="built_in">string</span>&amp; node)</span><br><span class="line">        :node(node)</span><br><span class="line">        ,it(node.begin())</span><br><span class="line">        ,i(<span class="string">'a'</span>)</span><br><span class="line">        ,c(*it)</span><br><span class="line">        &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">bool</span> <span class="title">next</span><span class="params">()</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">if</span>(it != node.end())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(i != c)</span><br><span class="line">                &#123;</span><br><span class="line">                    *it = i;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                ++i;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span>(i &gt; <span class="string">'z'</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    i = <span class="string">'a'</span>;</span><br><span class="line">                    *it = c;</span><br><span class="line">                    ++it;</span><br><span class="line">                    c = *it;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> it != node.end();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">ladderLength</span><span class="params">(<span class="built_in">string</span> beginWord, <span class="built_in">string</span> endWord, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; wordList)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">unordered_set</span>&lt;<span class="built_in">string</span>&gt; words(wordList.begin(), wordList.end());</span><br><span class="line">        <span class="built_in">queue</span>&lt;<span class="built_in">string</span>&gt; bfsq&#123;&#125;;</span><br><span class="line">        bfsq.push(beginWord);</span><br><span class="line">        <span class="keyword">if</span>(words.count(beginWord)) words.erase(beginWord);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> level = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>(!bfsq.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> level_size = bfsq.size();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; level_size; ++i)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> node = bfsq.front();</span><br><span class="line">                bfsq.pop();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">auto</span> wordenum = wordEnum(node);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">while</span>(wordenum.next())</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span>(words.count(node))</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span>(node == endWord)</span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> level + <span class="number">1</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        words.erase(node);</span><br><span class="line">                        bfsq.push(node);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            ++level;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>优化：双端搜索 //TODO</p>
+<hr>
+<h2 id="无权图多源最短路径"><a href="#无权图多源最短路径" class="headerlink" title="无权图多源最短路径"></a>无权图多源最短路径</h2><p><a href="https://leetcode-cn.com/problems/walls-and-gates/" target="_blank" rel="noopener">LC286 墙与门</a></p>
+<ul>
+<li>反过来去找门到所有空房间的最短距离</li>
+<li>将所有的门放入一个队列</li>
+<li>BFS，记录层数，直到队列为空<ul>
+<li>探索上下左右，不是INF的忽略</li>
+<li>发现INF时，用层数填充INF</li>
+</ul>
+</li>
+</ul>
+<p>技巧：把一个点移动四个方向，如果每次在移动前判断这个点能否朝某个方向移动，会导致程序逻辑分支很多，而且也容易写错。不如我们将四个方向<code>{ {1, 0}, {-1, 0}, {0, 1}, {0, -1} }</code>预先放置在一个数组里，在移动时先加后判断。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum</span></span><br><span class="line">    &#123;</span><br><span class="line">        WALL  = <span class="number">-1</span>,</span><br><span class="line">        DOOR  = <span class="number">0</span> ,</span><br><span class="line">        EMPTY = INT_MAX</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">point</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">        point(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span><br><span class="line">        :x(x)</span><br><span class="line">        ,y(y)</span><br><span class="line">        &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">friend</span> point <span class="keyword">operator</span>+(point lhs, point rhs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;lhs.x + rhs.x, lhs.y + rhs.y&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">wallsAndGates</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; rooms)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(rooms.empty() || rooms.front().empty()) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">size_t</span> row = rooms.size();</span><br><span class="line">        <span class="keyword">size_t</span> col = rooms.front().size();</span><br><span class="line">        <span class="keyword">auto</span> DIRECTIONS = <span class="built_in">vector</span>&lt;point&gt;&#123;&#123;<span class="number">1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">-1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">0</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">-1</span>&#125;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">queue</span>&lt;point&gt; bfsq&#123;&#125;;</span><br><span class="line">        <span class="comment">// find all the doors </span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; row; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">0</span>; j &lt; col; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(rooms[i][j] == DOOR)</span><br><span class="line">                &#123;</span><br><span class="line">                    bfsq.emplace(i, j);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> level = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(!bfsq.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> level_size = bfsq.size();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; level_size; ++i)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> p = bfsq.front();</span><br><span class="line">                bfsq.pop();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; direction : DIRECTIONS)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">auto</span> np = p + direction;</span><br><span class="line">                    <span class="keyword">if</span>( np.x &lt; <span class="number">0</span> || </span><br><span class="line">                        np.y &lt; <span class="number">0</span> || </span><br><span class="line">                        np.x &gt;= row || </span><br><span class="line">                        np.y &gt;= col || </span><br><span class="line">                        rooms[np.x][np.y] != EMPTY)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">continue</span>;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    rooms[np.x][np.y] = level;</span><br><span class="line">                    bfsq.push(np);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            ++level;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/01-matrix/" target="_blank" rel="noopener">LC542 01矩阵</a></p>
+<p>同上题，将所有的为1的元素改为不可能存在的距离，比如-1。并将所有的0的坐标放入队列中。定义四个运动方向。进行BFS即可。<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">enum</span></span><br><span class="line">    &#123;</span><br><span class="line">        EMPTY = <span class="number">0</span>,</span><br><span class="line">        WALL  = <span class="number">-1</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">point</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">        point(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span><br><span class="line">        :x(x)</span><br><span class="line">        ,y(y)</span><br><span class="line">        &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">friend</span> point <span class="keyword">operator</span>+(<span class="keyword">const</span> point&amp; lhs, <span class="keyword">const</span> point&amp; rhs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;lhs.x + rhs.x, lhs.y + rhs.y&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> row;</span><br><span class="line">    <span class="keyword">int</span> col;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">static</span> <span class="built_in">vector</span>&lt;point&gt; DIRECTIONS;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; updateMatrix(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix) &#123;</span><br><span class="line">        <span class="keyword">if</span>(matrix.empty() || matrix.front().empty()) <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line"></span><br><span class="line">        row = matrix.size();</span><br><span class="line">        col = matrix.front().size();</span><br><span class="line"></span><br><span class="line">        <span class="built_in">queue</span>&lt;point&gt; bfsq&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; row; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">0</span>; j &lt; col; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(<span class="keyword">auto</span>&amp; pt = matrix[i][j]; pt == <span class="number">1</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    pt = WALL;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(pt == <span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    bfsq.emplace(i, j);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> level = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(!bfsq.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> level_size = bfsq.size();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; level_size; ++i)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> pt = bfsq.front();</span><br><span class="line">                bfsq.pop();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; direction : DIRECTIONS)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">auto</span>&amp;&amp; tmp = pt + direction;</span><br><span class="line">                    <span class="keyword">if</span>( tmp.x &lt; <span class="number">0</span> || </span><br><span class="line">                        tmp.y &lt; <span class="number">0</span> || </span><br><span class="line">                        tmp.x &gt;= row || </span><br><span class="line">                        tmp.y &gt;= col || </span><br><span class="line">                        matrix[tmp.x][tmp.y] != WALL)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">continue</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    matrix[tmp.x][tmp.y] = level;</span><br><span class="line">                    bfsq.emplace(tmp);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            ++level;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> matrix;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">vector</span>&lt;Solution::point&gt; Solution::DIRECTIONS = &#123;&#123;<span class="number">1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">-1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">0</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">-1</span>&#125;&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/the-maze/" target="_blank" rel="noopener">LC490 迷宫</a></p>
+<p>无权图的路径问题。BFS即可。<br>产生一个点的四个边：</p>
+<ul>
+<li>像前一题<a href="https://leetcode-cn.com/problems/walls-and-gates/" target="_blank" rel="noopener">LC286 墙与门</a>一样定义四个移动方向。不断使点向一个方向移动，直到再移动会碰到障碍物 或 超出边界 为止。如果该点移动后和原来点一样，则不是一个可行的方向。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">enum</span></span><br><span class="line">    &#123;</span><br><span class="line">        EMPTY = <span class="number">0</span>,</span><br><span class="line">        WALL = <span class="number">1</span>,</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">point</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">        point(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span><br><span class="line">        :x(x)</span><br><span class="line">        ,y(y)</span><br><span class="line">        &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">friend</span> point <span class="keyword">operator</span>+(<span class="keyword">const</span> point&amp; lhs, <span class="keyword">const</span> point&amp; rhs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;lhs.x + rhs.x, lhs.y + rhs.y&#125;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">friend</span> <span class="keyword">bool</span> <span class="keyword">operator</span>==(<span class="keyword">const</span> point&amp; lhs, <span class="keyword">const</span> point&amp; rhs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> lhs.x == rhs.x &amp;&amp; lhs.y == rhs.y;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">vector</span>&lt;point&gt; nextValidPoint(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; maze)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> pts = <span class="built_in">vector</span>&lt;point&gt;&#123;&#125;;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; d : VALID_DIRECTIONS)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> tmp = point(<span class="keyword">this</span>-&gt;x, <span class="keyword">this</span>-&gt;y);</span><br><span class="line">                <span class="keyword">while</span>(isValidPoint(tmp + d, maze))</span><br><span class="line">                &#123;</span><br><span class="line">                    tmp = tmp + d;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span>(!(tmp == *<span class="keyword">this</span>)) pts.push_back(tmp);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> pts;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">bool</span> <span class="title">isValidPoint</span><span class="params">(point p, <span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; maze)</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> !(   p.x &lt; <span class="number">0</span> || </span><br><span class="line">                        p.y &lt; <span class="number">0</span> || </span><br><span class="line">                        p.x &gt;= maze.size() || </span><br><span class="line">                        p.y &gt;= maze.front().size() || </span><br><span class="line">                        maze[p.x][p.y] == WALL</span><br><span class="line">                    );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pointHash</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="keyword">size_t</span> <span class="keyword">operator</span>()(<span class="keyword">const</span> point&amp; p) <span class="keyword">const</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> hash&lt;<span class="keyword">int</span>&gt;()(p.x) ^ hash&lt;<span class="keyword">int</span>&gt;()(p.y);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">unordered_set</span>&lt;point, pointHash&gt; visited;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">static</span> <span class="built_in">vector</span>&lt;point&gt; VALID_DIRECTIONS;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">hasPath</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; maze, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; start, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; destination)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> start_pt = point&#123;start[<span class="number">0</span>], start[<span class="number">1</span>]&#125;;</span><br><span class="line">        <span class="keyword">auto</span> dest_pt = point&#123;destination[<span class="number">0</span>], destination[<span class="number">1</span>]&#125;;</span><br><span class="line">        <span class="built_in">queue</span>&lt;point&gt; bfsq;</span><br><span class="line">        bfsq.push(start_pt);</span><br><span class="line">        visited.insert(start_pt);</span><br><span class="line">         </span><br><span class="line">        <span class="keyword">while</span>(!bfsq.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> p = bfsq.front();</span><br><span class="line">            bfsq.pop();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> pt : p.nextValidPoint(maze))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(pt == dest_pt) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">if</span>(!visited.count(pt))</span><br><span class="line">                &#123;</span><br><span class="line">                    visited.insert(pt);</span><br><span class="line">                    bfsq.push(pt);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">vector</span>&lt;Solution::point&gt; Solution::VALID_DIRECTIONS = &#123;&#123;<span class="number">1</span>,<span class="number">0</span>&#125;, &#123;<span class="number">-1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">-1</span>&#125;&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<h1 id="有向无环图-DAG"><a href="#有向无环图-DAG" class="headerlink" title="有向无环图(DAG)"></a>有向无环图(DAG)</h1><h2 id="拓扑排序的实现"><a href="#拓扑排序的实现" class="headerlink" title="拓扑排序的实现"></a>拓扑排序的实现</h2><h3 id="DFS实现"><a href="#DFS实现" class="headerlink" title="DFS实现"></a>DFS实现</h3><h3 id="入度实现"><a href="#入度实现" class="headerlink" title="入度实现"></a>入度实现</h3><p>思路：</p>
+<ul>
+<li>统计所有点的入度。</li>
+<li>循环直到图为空<ul>
+<li>选择一个入度为0的顶点，将其和其所有的出边从图中移除</li>
+<li>如果不存在入度为0的顶点，图中有环，结束算法。</li>
+<li>将该点放入输出中。<br>实现：</li>
+</ul>
+</li>
+<li>建立一个hashmap或数组，统计所有点的入度。</li>
+<li>建立一个栈，其中放入所有入度为0的点。</li>
+<li>当栈非空时循环：<ul>
+<li>从栈中取出一个顶点，将其输出</li>
+<li>减少所有和该顶点相邻的顶点的入度，如果减少后入度变为0，放入栈中</li>
+</ul>
+</li>
+<li>检查输出的大小和原来的顶点数是否一致。如果不一致则存在环。</li>
+</ul>
+<h2 id="拓扑排序"><a href="#拓扑排序" class="headerlink" title="拓扑排序"></a>拓扑排序</h2><hr>
+<p><a href="https://leetcode-cn.com/problems/course-schedule/" target="_blank" rel="noopener">LC207 课程表</a><br><a href="https://leetcode-cn.com/problems/course-schedule-ii/" target="_blank" rel="noopener">LC210 课程表II</a><br><a href="https://leetcode-cn.com/problems/course-schedule-iii/" target="_blank" rel="noopener">LC639 课程表III</a> —&gt;时间安排，贪心</p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/alien-dictionary/" target="_blank" rel="noopener">LC269 火星词典</a></p>
+<ul>
+<li>为所有出现的字符在图中生成节点</li>
+<li>从头遍历两个相邻的字符串：<ul>
+<li>如果两个字符相等，查看下面两个字符</li>
+<li>如果两个字符不相等，说明从前一个字符到后一个字符之间存在一条边。</li>
+</ul>
+</li>
+<li>将所有字符节点进行拓扑排序</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">graph</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Node</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="keyword">int</span> inDegree;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt; neighbors;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;<span class="keyword">char</span>, Node*&gt; nodes;</span><br><span class="line">    <span class="function">Node* <span class="title">getOrCreateVertex</span><span class="params">(<span class="keyword">char</span> vertex)</span></span>;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">createVertex</span><span class="params">(<span class="keyword">char</span> vertex)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insertEdge</span><span class="params">(<span class="keyword">char</span> from, <span class="keyword">char</span> to)</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">topological_sort</span><span class="params">()</span></span>;</span><br><span class="line">    ~graph();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> graph::createVertex(<span class="keyword">char</span> vertex)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(nodes.count(vertex)) <span class="keyword">return</span>;</span><br><span class="line">    nodes[vertex] = <span class="keyword">new</span> Node&#123;&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">graph::~graph()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; pair : nodes)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">delete</span> pair.second;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">graph::Node* graph::getOrCreateVertex(<span class="keyword">char</span> vertex)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(nodes.count(vertex)) </span><br><span class="line">        <span class="keyword">return</span> nodes[vertex];</span><br><span class="line">    <span class="keyword">auto</span> node = <span class="keyword">new</span> Node&#123;&#125;;</span><br><span class="line">    nodes[vertex] = node;</span><br><span class="line">    <span class="keyword">return</span> node;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> graph::insertEdge(<span class="keyword">char</span> from, <span class="keyword">char</span> to)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> from_node = getOrCreateVertex(from);</span><br><span class="line">    <span class="keyword">auto</span> to_node = getOrCreateVertex(to);</span><br><span class="line">    from_node-&gt;neighbors.push_back(to);</span><br><span class="line">    ++to_node-&gt;inDegree;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">string</span> graph::topological_sort()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> tpsort = <span class="built_in">string</span>&#123;&#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt; st&#123;&#125;;</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;<span class="keyword">char</span>, <span class="keyword">int</span>&gt; inDegrees&#123;&#125;;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; pair : nodes)</span><br><span class="line">    &#123;</span><br><span class="line">        inDegrees[pair.first] = pair.second-&gt;inDegree;</span><br><span class="line">        <span class="keyword">if</span>(pair.second-&gt;inDegree == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            st.push_back(pair.first);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(!st.empty())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">auto</span> node = st.back();</span><br><span class="line">        tpsort += node;</span><br><span class="line">        st.pop_back();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; neighbor : nodes[node]-&gt;neighbors)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(--inDegrees[neighbor] == <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                st.push_back(neighbor);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tpsort.size() == nodes.size() ? tpsort : <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    graph g;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">alienOrder</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(words.empty()) <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line">        <span class="keyword">if</span>(words.size() == <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> words.front();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; word : words)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)</span><br><span class="line">            &#123;</span><br><span class="line">                g.createVertex(c);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> it1 = words.begin();</span><br><span class="line">        <span class="keyword">auto</span> it2 = ++words.begin();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(it2 != words.end())</span><br><span class="line">        &#123;</span><br><span class="line">            insertEdge(*it1, *it2);</span><br><span class="line">            ++it1; ++it2;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> g.topological_sort();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insertEdge</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; w1, <span class="keyword">const</span> <span class="built_in">string</span>&amp; w2)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> it1 = w1.begin();</span><br><span class="line">        <span class="keyword">auto</span> it2 = w2.begin();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(it1 != w1.end() &amp;&amp; it2 != w2.end())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(*it1 != *it2)</span><br><span class="line">            &#123;</span><br><span class="line">                g.insertEdge(*it1, *it2);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            ++it1; ++it2;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="无根树"><a href="#无根树" class="headerlink" title="无根树"></a>无根树</h1><p>无根树是一个连通无向无环图。<br>在对无根树进行DFS时，只存在树边。因此遍历过程中不需要标记颜色，只要验证继续遍历的child不是其parent即可。<br>在对无根树进行BFS时，仍然需要visited数组。</p>
+<p><a href="https://zh.wikipedia.org/wiki/%E6%A0%91_(%E5%9B%BE%E8%AE%BA" target="_blank" rel="noopener">树(图论), Wikipedia</a>)<br>如果一个无向简单图$G$满足以下互相等价的条件之一，那么$G$是一棵树：</p>
+<ul>
+<li>$G$是没有回路的连通图。</li>
+<li>$G$没有回路，但是在$G$内添加任意一条边，就会形成一个回路。</li>
+<li>$G$是连通的，但是如果去掉任意一条边，就不再连通。</li>
+<li>$G$内的任意两个顶点能被唯一路径所连通。</li>
+</ul>
+<hr>
+<h2 id="树中路径的唯一性"><a href="#树中路径的唯一性" class="headerlink" title="树中路径的唯一性"></a>树中路径的唯一性</h2><p><a href="https://leetcode-cn.com/problems/kill-process/" target="_blank" rel="noopener">LC582 杀死进程</a></p>
+<p>利用树的性质：$G$内的任意两个顶点能被唯一路径所连通。我们只需遍历所有的PID，找到其到PID0进程的路径。如果被kill的进程是该PID的祖先，那么被kill的进程一定在该路径上。因此，如果某一PID到PID0的路径上中包含被kill的进程，则认为该进程是被kill进程的后代，因此也需要被kill。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; killProcess(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; pid, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; ppid, <span class="keyword">int</span> kill) &#123;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; pid_map&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pid.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            pid_map[pid[i]] = ppid[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> p : pid)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> tmp = p;</span><br><span class="line">            <span class="keyword">while</span>(tmp)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(tmp == kill) </span><br><span class="line">                &#123;</span><br><span class="line">                    res.push_back(p);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                tmp = pid_map[tmp];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="判断无向图是否为树"><a href="#判断无向图是否为树" class="headerlink" title="判断无向图是否为树"></a>判断无向图是否为树</h2><p>用DFS对一无向图进行搜索，未发现后向边且只有一个连通分量。</p>
+<p><a href="https://leetcode-cn.com/problems/graph-valid-tree/" target="_blank" rel="noopener">LC261 以图判树</a></p>
+<p>给定一个无向图，判断是否为树。</p>
+<p>思路一：<br>一个无向图是树，当且仅当其没有后向边且连通分量为1时。用DFS检查后向边和连通分量即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        DFS code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">bool</span> backEdge;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; visited;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; adjList;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">validTree</span><span class="params">(<span class="keyword">int</span> n, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        visited.resize(n);</span><br><span class="line">        adjList.resize(n);</span><br><span class="line">        backEdge = <span class="literal">false</span>;</span><br><span class="line">        <span class="comment">// since C++03 POD vector is guaranteed to be continuous</span></span><br><span class="line">        <span class="built_in">memset</span>(&amp;visited[<span class="number">0</span>], <span class="number">0</span>, <span class="keyword">sizeof</span>(<span class="keyword">int</span>) * visited.size());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : edges)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// undirected graph</span></span><br><span class="line">            adjList[edge[<span class="number">0</span>]].push_back(edge[<span class="number">1</span>]);</span><br><span class="line">            adjList[edge[<span class="number">1</span>]].push_back(edge[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        bfs(<span class="number">0</span>, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> !backEdge &amp;&amp; !count(visited.begin(), visited.end(), <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">bfs</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> parent)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(backEdge) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        visited[x] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> child : adjList[x])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(child == parent)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(visited[child])</span><br><span class="line">            &#123;</span><br><span class="line">                backEdge = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">                 bfs(child, x);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<p>思路二：</p>
+<p>不断地去合并边上的两个节点：</p>
+<ul>
+<li>如果两个节点在没有合并之前就在同一个集合之中，则图中有环。</li>
+<li>如果所有节点在合并之后，有多个根节点，则连通分量不为1。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">disjoint_set</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt; tree;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt; size;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    disjoint_set(<span class="keyword">size_t</span> sz)</span><br><span class="line">    : tree(sz)</span><br><span class="line">    , size(sz, <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        iota(tree.begin(), tree.end(), <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">size_t</span> find(<span class="keyword">size_t</span> idx)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt; ids&#123;&#125;;</span><br><span class="line">        <span class="keyword">while</span>(idx != tree[idx])</span><br><span class="line">        &#123;</span><br><span class="line">            ids.push_back(idx);</span><br><span class="line">            idx = tree[idx];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> x : ids) tree[x] = idx;</span><br><span class="line">        <span class="keyword">return</span> idx;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">connect</span><span class="params">(<span class="keyword">size_t</span> idx1, <span class="keyword">size_t</span> idx2)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> rt1 = find(idx1);</span><br><span class="line">        <span class="keyword">auto</span> rt2 = find(idx2);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(rt1 == rt2) </span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(size[rt1] &lt; size[rt2]) </span><br><span class="line">            swap(rt1, rt2);</span><br><span class="line">        </span><br><span class="line">        tree[rt2] = rt1;</span><br><span class="line">        rt1 += size[rt2];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">single_set</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> adjacent_find(tree.begin(), tree.end(), [<span class="keyword">this</span>](<span class="keyword">auto</span> lhs, <span class="keyword">auto</span> rhs)&#123;<span class="keyword">return</span> find(lhs) != find(rhs);&#125;) == tree.end();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">validTree</span><span class="params">(<span class="keyword">int</span> n, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line">        <span class="function">disjoint_set <span class="title">dset</span><span class="params">(n)</span></span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : edges)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(!dset.connect(edge[<span class="number">0</span>], edge[<span class="number">1</span>]))</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dset.single_set();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/validate-binary-tree-nodes/" target="_blank" rel="noopener">LC1361 验证二叉树|周赛177</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">disjoint_set</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt; tree;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt; size;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    disjoint_set(<span class="keyword">size_t</span> sz)</span><br><span class="line">    : tree(sz)</span><br><span class="line">    , size(sz, <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        iota(tree.begin(), tree.end(), <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">size_t</span> find(<span class="keyword">size_t</span> idx)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt; ids&#123;&#125;;</span><br><span class="line">        <span class="keyword">while</span>(idx != tree[idx])</span><br><span class="line">        &#123;</span><br><span class="line">            ids.push_back(idx);</span><br><span class="line">            idx = tree[idx];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> x : ids) tree[x] = idx;</span><br><span class="line">        <span class="keyword">return</span> idx;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">connect</span><span class="params">(<span class="keyword">size_t</span> idx1, <span class="keyword">size_t</span> idx2)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> rt1 = find(idx1);</span><br><span class="line">        <span class="keyword">auto</span> rt2 = find(idx2);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(rt1 == rt2) </span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(size[rt1] &lt; size[rt2]) </span><br><span class="line">            swap(rt1, rt2);</span><br><span class="line">        </span><br><span class="line">        tree[rt2] = rt1;</span><br><span class="line">        rt1 += size[rt2];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">single_set</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> adjacent_find(tree.begin(), tree.end(), [<span class="keyword">this</span>](<span class="keyword">auto</span> lhs, <span class="keyword">auto</span> rhs)&#123;<span class="keyword">return</span> find(lhs) != find(rhs);&#125;) == tree.end();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">validateBinaryTreeNodes</span><span class="params">(<span class="keyword">int</span> n, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; leftChild, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; rightChild)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// find the root</span></span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; isRoot(n, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(leftChild[i] != <span class="number">-1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                isRoot[leftChild[i]] = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(rightChild[i] != <span class="number">-1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                isRoot[rightChild[i]] = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(count(isRoot.begin(), isRoot.end(), <span class="number">1</span>) != <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">using</span> edge = pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;;</span><br><span class="line">        <span class="built_in">vector</span>&lt;edge&gt; edges&#123;&#125;;</span><br><span class="line">        <span class="comment">// generate all the edges</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(leftChild[i] == i || </span><br><span class="line">              rightChild[i] == i || </span><br><span class="line">              (leftChild[i] == rightChild[i] &amp;&amp; leftChild[i] != <span class="number">-1</span>))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(leftChild[i] &gt; i)</span><br><span class="line">            &#123;</span><br><span class="line">                edges.emplace_back(i, leftChild[i]);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(rightChild[i] &gt; i)</span><br><span class="line">            &#123;</span><br><span class="line">                edges.emplace_back(i, rightChild[i]);</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        disjoint_set dset&#123;n&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : edges)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(!dset.connect(edge.first, edge.second))</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="树的直径"><a href="#树的直径" class="headerlink" title="树的直径"></a>树的直径</h2><p><a href="https://leetcode-cn.com/problems/tree-diameter/" target="_blank" rel="noopener">LC1245 树的直径</a></p>
+<p>树中所有<em>最短路径</em>中的<em>最大值</em>。</p>
+<p>思路一：<br>对树中的每一个节点都做一次BFS。由于BFS一定会给出该节点到无根树中所有其他节点的<em>最短距离</em>，因此求所有<em>最短距离</em>的最大值即可。节点个数为$N$的无根树上做一次BFS复杂度为$\Theta(N)$，要做$N$次，则复杂度为$\Theta(N^2)$。</p>
+<p>思路二：<br>对任意一个节点x做BFS找到距离它最远的节点s，再对s做BFS找到距离它最远的节点t。则$\delta(s, t)$即为直径。</p>
+<blockquote>
+<p>证明参考：<a href="https://ikely.me/2014/09/21/%E6%A0%91%E7%9A%84%E7%9B%B4%E5%BE%84/" target="_blank" rel="noopener">树的直径 Dedication</a></p>
+</blockquote>
+<p>思路三：<br>可以将BFS换成需要维护状态较少的DFS。因为无根树是连通的，所以DFS也可以用来找到距离x最远的节点。虽然都是$\Theta(N)$的算法，但可以明显发现DFS速度要比BFS快很多。而且DFS的代码采用递归，写起来也比BFS更简洁。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        两次BFS
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; adjList;</span><br><span class="line">    <span class="keyword">int</span> vec_num;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">treeDiameter</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line">        vec_num = edges.size() + <span class="number">1</span>;</span><br><span class="line">        adjList.resize(vec_num);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : edges)</span><br><span class="line">        &#123;</span><br><span class="line">            adjList[edge[<span class="number">0</span>]].push_back(edge[<span class="number">1</span>]);</span><br><span class="line">            adjList[edge[<span class="number">1</span>]].push_back(edge[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> bfs(bfs(<span class="number">0</span>).first).second - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; bfs(<span class="keyword">int</span> start)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; bfsq&#123;&#125;;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; visited(vec_num, <span class="number">0</span>);</span><br><span class="line">        bfsq.push_back(start);</span><br><span class="line">        visited[start] = <span class="number">1</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> level = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> vec   = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(!bfsq.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> level_size = bfsq.size();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; level_size; ++i)</span><br><span class="line">            &#123;</span><br><span class="line">                vec = bfsq.front();</span><br><span class="line">                bfsq.pop_front();</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">auto</span> child : adjList[vec])</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span>(!visited[child])</span><br><span class="line">                    &#123;</span><br><span class="line">                        bfsq.push_back(child);</span><br><span class="line">                        visited[child] = <span class="number">1</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            ++level;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> &#123;vec, level&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        两次DFS
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; adjList;</span><br><span class="line">    <span class="keyword">int</span> max_path_len;</span><br><span class="line">    <span class="keyword">int</span> max_path_end;</span><br><span class="line">    <span class="keyword">int</span> vec_num;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">treeDiameter</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line">        vec_num = edges.size() + <span class="number">1</span>;</span><br><span class="line">        adjList.resize(vec_num);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : edges)</span><br><span class="line">        &#123;</span><br><span class="line">            adjList[edge[<span class="number">0</span>]].push_back(edge[<span class="number">1</span>]);</span><br><span class="line">            adjList[edge[<span class="number">1</span>]].push_back(edge[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        max_path_len = <span class="number">0</span>;</span><br><span class="line">        max_path_end = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">       dfs(<span class="number">0</span>, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">       max_path_len = <span class="number">0</span>;</span><br><span class="line">       dfs(max_path_end, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">       <span class="keyword">return</span> max_path_len;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span> vec, <span class="keyword">int</span> parent, <span class="keyword">int</span> path_len)</span></span></span><br><span class="line"><span class="function">    </span>&#123;     </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> child : adjList[vec])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(child != parent)</span><br><span class="line">            &#123;</span><br><span class="line">                dfs(child, vec, path_len + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(path_len &gt; max_path_len)</span><br><span class="line">        &#123;</span><br><span class="line">            max_path_len = path_len;</span><br><span class="line">            max_path_end = vec;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/minimum-height-trees/" target="_blank" rel="noopener">LC310 最小高度树</a></p>
+<p>思路一：<br>直径是无根树中最长的最短路径。<br>猜想：如果选出一个节点i作为该无根树的根节点，使得形成的树的高度最小，则该节点必然在此无根树的直径上，且是直径的中点：</p>
+<ul>
+<li>如果该节点i不在无根树的直径上：因为无根树是连通的，则必然存在一条路径$\delta(i,j)$连接i到直径上的一点j。假设j是该直径$\delta(s, t)$的中点，那么形成的树的高度至少也是$\delta(i,j) + \frac\delta(s, t)}{2}$。</li>
+<li>如果该节点i在无根树的直径上，要想让形成的树高度最小，就得让他能把直径分成尽量相等的两部分。所以i应该是直径的中点。</li>
+</ul>
+<p>同上题使用DFS。第一次DFS找到直径的一个端点。第二次DFS找到直径长度。第三次DFS用回溯将直径构造出来，并切一旦找到长度为直径的path，其余遍历可全部剪掉。如果直径的长度为奇数，返回中点。如果直径的长度为偶数，就返回中间的两个点。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        3次DFS
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> diameter_vec;</span><br><span class="line">    <span class="keyword">int</span> diameter;</span><br><span class="line">    <span class="keyword">bool</span> path_found;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; path;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; adjList;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; findMinHeightTrees(<span class="keyword">int</span> n, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges) &#123;</span><br><span class="line">        adjList.resize(n);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : edges)</span><br><span class="line">        &#123;</span><br><span class="line">            adjList[edge[<span class="number">0</span>]].push_back(edge[<span class="number">1</span>]);</span><br><span class="line">            adjList[edge[<span class="number">1</span>]].push_back(edge[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        diameter_vec = <span class="number">0</span>;</span><br><span class="line">        diameter = <span class="number">0</span>;</span><br><span class="line">        path_found = <span class="literal">false</span>;</span><br><span class="line">        dfs(<span class="number">0</span>, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">        diameter = <span class="number">0</span>;</span><br><span class="line">        dfs(diameter_vec, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">        dfs_path(diameter_vec, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(path.size() &amp; <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;path[path.size() / <span class="number">2</span>]&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;path[path.size() / <span class="number">2</span>], path[path.size() / <span class="number">2</span> - <span class="number">1</span>]&#125;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span> vec, <span class="keyword">int</span> parent, <span class="keyword">int</span> sum)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> child : adjList[vec])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(child != parent)</span><br><span class="line">            &#123;</span><br><span class="line">                dfs(child, vec, sum + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(diameter &lt; sum)</span><br><span class="line">        &#123;</span><br><span class="line">            diameter = sum;</span><br><span class="line">            diameter_vec = vec;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs_path</span><span class="params">(<span class="keyword">int</span> vec, <span class="keyword">int</span> parent, <span class="keyword">int</span> sum)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(path_found) <span class="keyword">return</span>;</span><br><span class="line">        path.push_back(vec);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> child : adjList[vec])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(child != parent)</span><br><span class="line">            &#123;</span><br><span class="line">                dfs_path(child, vec, sum + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(path_found || diameter == sum)</span><br><span class="line">        &#123;</span><br><span class="line">            path_found = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        path.pop_back();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="树的重心"><a href="#树的重心" class="headerlink" title="树的重心"></a>树的重心</h2><p>在无根树中找到这样一个节点i，当以i为根时，使i所有子树的节点数的最大值最小。</p>
+<hr>
+<h2 id="距离和问题"><a href="#距离和问题" class="headerlink" title="距离和问题"></a>距离和问题</h2><p><a href="https://leetcode-cn.com/problems/sum-of-distances-in-tree/" target="_blank" rel="noopener">LC834 树中距离之和</a></p>
+<p>利用无根树的性质：去掉无根树中任意一条边，无根树就不再连通，并且分成两个无根树。假设无根树中存在两个节点$x$, $y$，并且$x$和$y$是相邻的($\delta(x, y) = 1$)。则所有其他节点到$x$的路径和</p>
+<p>= 以x为根的树中所有节点到x的路径和 + 以y为根的树中所有节点到y的路径和 + 以y为根的树中所有节点到x的路径和<br>= 以x为根的树中所有节点到x的路径和 + 以y为根的树中所有节点到y的路径和 + 以y为根的树中节点的个数<br>= 以x为根的树中所有节点到x的路径和 + 以y为根的树中所有节点到y的路径和 + 节点总数 - 以x为根的树中节点的个数</p>
+<p>其他所有节点到$y$的路径和为：以y为根的树中所有节点到x的路径和 + 以x为根的树中所有节点到y的路径和 + 节点总数 - 以y为根的树中节点的个数</p>
+<p>所以我们有：<br>其他所有节点到$x$的路径和 - 其他所有节点到$y$的路径和 = 以$y$为根的树中节点的个数 - 以$x$为根的树中节点的个数<br>因此：<br>其他所有节点到$x$的路径和<br>= 其他所有节点到$y$的路径和 + 以$y$为根的树中节点的个数 - 以$x$为根的树中节点的个数<br>= 其他所有节点到$y$的路径和 + 节点总数 - 2 * 以$x$为根的树中节点的个数</p>
+<ul>
+<li>以一个节点为根的树的节点总数为：所有以其孩子为根的子树的节点总数的和 + 1</li>
+<li>以一个节点为根的树的路径和为：所有以其孩子为根的子树的路径和的和 + 以该节点为根的树的节点总数 - 1<br>如果一个节点没有孩子</li>
+<li>以该节点为根的树的节点总数为1</li>
+<li>以该节点为根的树的路径和为0</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; subsum;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; count;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; adjList;</span><br><span class="line">    <span class="keyword">int</span> N;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; sumOfDistancesInTree(<span class="keyword">int</span> N, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;N = N;</span><br><span class="line">        subsum.resize(N);</span><br><span class="line">        count.resize(N);</span><br><span class="line">        adjList.resize(N);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// initialize these vectors</span></span><br><span class="line">        fill(subsum.begin(), subsum.end(), <span class="number">0</span>);</span><br><span class="line">        fill(count.begin(), count.end(), <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : edges)</span><br><span class="line">        &#123;</span><br><span class="line">            adjList[edge[<span class="number">0</span>]].push_back(edge[<span class="number">1</span>]);</span><br><span class="line">            adjList[edge[<span class="number">1</span>]].push_back(edge[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        dfs(<span class="number">0</span>, <span class="number">-1</span>);</span><br><span class="line">        dfs_sum(<span class="number">0</span>, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> subsum;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span> root, <span class="keyword">int</span> parent)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> child : adjList[root])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(child != parent)</span><br><span class="line">            &#123;</span><br><span class="line">                dfs(child, root);</span><br><span class="line">                count[root]  += count[child];</span><br><span class="line">                subsum[root] += subsum[child] + count[child];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs_sum</span><span class="params">(<span class="keyword">int</span> root, <span class="keyword">int</span> parent)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> child : adjList[root])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(child != parent)</span><br><span class="line">            &#123;</span><br><span class="line">                subsum[child] = subsum[root] + N - count[child] - count[child];</span><br><span class="line">                dfs_sum(child, root);            </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h1 id="欧拉轨迹"><a href="#欧拉轨迹" class="headerlink" title="欧拉轨迹"></a>欧拉轨迹</h1><p>在图G中找到一条路径，这条路径包含图G中所有的边，且没有重复的边。这样的一条路径被称为欧拉路径(Eulerian path)。如果路径闭合，则称为欧拉回路(Eulerian cycle)。存在欧拉路径但不存在欧拉回路的图被称为半欧拉图(semi-Eulerian graph)。存在欧拉回路的图被称为欧拉图(Eulerian graph)</p>
+<p>对于无向图：</p>
+<ul>
+<li>连通的无向图G存在欧拉路径的充要条件是：G中度数为奇数的顶点的数目为0或2。</li>
+<li>连通的无向图G存在欧拉回路的充要条件是：G中度数为奇数的顶点的数目为0。</li>
+<li>连通的无向图G存在不是欧拉回路的欧拉路径的充要条件是：G中度数为奇数的顶点的数目为2。</li>
+</ul>
+<p>对于有向图：</p>
+<ul>
+<li>连通的有向图G存在欧拉路径的充要条件是：G中所有顶点的入度数等于出度数 或 有且仅有两个顶点，其中一个入度数比出度数大1，另一个出度数比入度数大1。</li>
+<li>连通的有向图G存在欧拉回路的充要条件是：G中所有顶点的入度数等于出度数。</li>
+<li>连通的有向图G存在不是欧拉回路的欧拉路径的充要条件是：有且仅有两个顶点，其中一个入度数比出度数大1，另一个出度数比入度数大1。</li>
+</ul>
+<h2 id="Heirholzer算法"><a href="#Heirholzer算法" class="headerlink" title="Heirholzer算法"></a>Heirholzer算法</h2><p>在一个欧拉图或半欧拉图中，从任意一个顶点出发，做DFS。在从顶点<code>u</code>经过边<code>(u, v)</code>进入顶点<code>v</code>之前，删除边<code>(u, v)</code>。当一个顶点已经没有边时，将该顶点放入一个栈中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dfs(node):</span><br><span class="line">    while(u存在一条边(u, v)):</span><br><span class="line">        删除边(u, v)</span><br><span class="line">        dfs(v)</span><br><span class="line">    将u加入栈中</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果图是欧拉图，那么栈的底部必然是开始遍历时的起点。</li>
+<li>如果图是半欧拉图，那么栈的底部必然是异于开始遍历时的起点的一个顶点，且该顶点为奇度数顶点。</li>
+<li>栈中自底到顶的第n个顶点就是欧拉回路上的第n的顶点。</li>
+</ul>
+<blockquote>
+<p>参考<br><a href="https://zhuanlan.zhihu.com/p/108411618" target="_blank" rel="noopener">『图论』入门以及 Hierholzer 算法 - zxbsmk</a><br><a href="https://ikely.me/2015/06/28/%E6%AC%A7%E6%8B%89%E8%B7%AF/" target="_blank" rel="noopener">欧拉回路 - Dedication</a></p>
+</blockquote>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/reconstruct-itinerary/" target="_blank" rel="noopener">LC332 重新安排行程</a></p>
+<p>思路：典型的求欧拉轨迹的问题。麻烦的地方在于其要求生成的行程必须是按字典许排列最大的。我们自然想到将顶点的出边按字典序排序。但如果我们将每个顶点的所有出边按照正字典序排序，得到的欧拉路径反而是按字典序排列最小的。[//TODO：原因可能跟函数调用栈返回的顺序有关，因为最后输出的欧拉路径也是相反的。]因此我们需要将顶点的出边按照逆字典序排序。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; path;</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;<span class="built_in">string</span>, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; adjList;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; findItinerary(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt;&amp; tickets) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; edge : tickets)</span><br><span class="line">        &#123;</span><br><span class="line">            adjList[edge[<span class="number">0</span>]].push_back(edge[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp; node : adjList)</span><br><span class="line">        &#123;</span><br><span class="line">            sort(node.second.begin(), node.second.end(), greater&lt;<span class="built_in">string</span>&gt;&#123;&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">      </span><br><span class="line">        dfs(<span class="string">"JFK"</span>);</span><br><span class="line">        reverse(path.begin(), path.end());</span><br><span class="line">        <span class="keyword">return</span> path;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span>&amp; neighbors = adjList[node];</span><br><span class="line">        <span class="keyword">while</span>(!neighbors.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span>&amp;&amp; neighbor = neighbors.back();</span><br><span class="line">            neighbors.pop_back();</span><br><span class="line">            dfs(neighbor);</span><br><span class="line">        &#125;</span><br><span class="line">        path.push_back(node);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="De-Bruijn-序列"><a href="#De-Bruijn-序列" class="headerlink" title="De_Bruijn_序列"></a>De_Bruijn_序列</h2><p>De Bruijn 序列$B(k, n)$是</p>
+<ul>
+<li>由k种元素构成。</li>
+<li>是一个循环序列。</li>
+<li>所有长度为$n$的子串<em>恰好</em>组成长度为n的k种符号的所有排列。</li>
+</ul>
+<p>比如$01100$为$B(2,2)$序列中的一个，他恰好组成所有排列$01,\,11,\,10,\,00$：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">+--------------+</span><br><span class="line">| 0| 1| 1| 0| 0|</span><br><span class="line">+--------------+</span><br><span class="line">| 0| 1|  |  |  |</span><br><span class="line">+--------------+</span><br><span class="line">|  | 1| 1|  |  |</span><br><span class="line">+--------------+</span><br><span class="line">|  |  | 1| 0|  |</span><br><span class="line">+--------------+</span><br><span class="line">|  |  |  | 0| 0|</span><br><span class="line">+--+--+--+------</span><br></pre></td></tr></table></figure>
+<p>构造方法：</p>
+<ul>
+<li>将k元素$(n-1)$位的所有排列视为顶点</li>
+<li>将k元素n位的所有排列视为边</li>
+<li>一个顶点如果加上一个元素，其后$(n-1)$位能成为另一个顶点，则两个顶点之间存在一条边。</li>
+<li>图中所有顶点必然有k个出边，$k$个入边，因此这样构造的图必然为欧拉图，存在欧拉环路。</li>
+<li>利用Heirholzer算法，从任意顶点出发。求出其欧拉环路按顺序经过的边，记录为产生这些边而在顶点后加上的数字。将这些数字放入一个栈中。将这些数字从栈中取出(逆序)，在其序列头上附上出发顶点，即为一个De Brujin序列。</li>
+</ul>
+<p>比如B(2,2)的例子：0加上0之后形成00，00的后1位仍然是0，则0存在自边。0加上1后形成01，01的后一位是1，则01之间存在一条边。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">       +---------------+</span><br><span class="line">       |      01       |</span><br><span class="line">       |               v</span><br><span class="line">  +-----+             +-----+</span><br><span class="line">00|   |0|             |1|   |11</span><br><span class="line">  +--&gt;--+             +--&lt;--+</span><br><span class="line">       ^               |</span><br><span class="line">       |      10       |</span><br><span class="line">       +---------------+</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dfs(vertex):</span><br><span class="line">    for(i &#x3D; 0; i &lt; n; ++i):</span><br><span class="line">        if((vertex.append(i)) is not visited):</span><br><span class="line">            set vertex.append(i) visited</span><br><span class="line">            dfs(vertex.append(i).substr(1))</span><br><span class="line">            path.append(i)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参考<br><a href="https://zhouer.org/DeBruijn/" target="_blank" rel="noopener">De Beruijn sequence - En-Jan Chou</a></p>
+</blockquote>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/cracking-the-safe/" target="_blank" rel="noopener">LC753 破解保险箱</a></p>
+<p>密码的每一位都由k种元素之一构成，一共有n位。保险箱会自动记住最后的n位。因此我们要生成含有所有排列的最短序列，即生成De Beruijn序列$B(k, n)$。 思路同上。实现欧拉算法时比较麻烦的问题在于如何<em>删除</em>已经遍历的边。我们可以将已经遍历的边加入到一个hashset当中做查询。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">unordered_set</span>&lt;<span class="built_in">string</span>&gt; visited;</span><br><span class="line">    <span class="built_in">string</span> ans;</span><br><span class="line">    <span class="keyword">int</span> k;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">crackSafe</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;k = k;</span><br><span class="line">        <span class="keyword">auto</span> start = <span class="built_in">string</span>&#123;&#125;;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n <span class="number">-1</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            start += <span class="string">"0"</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        dfs(start);</span><br><span class="line">        ans += start;</span><br><span class="line">        reverse(ans.begin(), ans.end());</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="built_in">string</span> node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">string</span> edge = node + to_string(i);</span><br><span class="line">            <span class="keyword">if</span>(!visited.count(edge))</span><br><span class="line">            &#123;</span><br><span class="line">                visited.insert(edge);  </span><br><span class="line">                dfs(edge.substr(<span class="number">1</span>));</span><br><span class="line">                ans += to_string(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p><a href="https://leetcode-cn.com/problems/clone-graph/" target="_blank" rel="noopener">LC133 克隆图</a><br>思路类似<a href="https://leetcode-cn.com/problems/copy-list-with-random-pointer/" target="_blank" rel="noopener">LC138 复制带随机指针的链表</a></p>
+<p>首先遍历图并复制一份所有图的节点。复制过程用建立<code>&lt;原节点，新节点&gt;</code>的对应hashmap。复制后再遍历hashmap，通过原节点到新节点的对应关系，恢复新节点之间的对应关系。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">Node* <span class="title">cloneGraph</span><span class="params">(Node* node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!node) <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;Node*, Node*&gt; mp&#123;&#125;;</span><br><span class="line">        <span class="built_in">deque</span>&lt;Node*&gt; bfsq&#123;&#125;;</span><br><span class="line">        bfsq.push_back(node);</span><br><span class="line">        mp[node] = <span class="keyword">new</span> Node(node-&gt;val);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(!bfsq.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> nd = bfsq.front();</span><br><span class="line">            bfsq.pop_front();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> neighbor : nd-&gt;neighbors)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(!mp.count(neighbor))</span><br><span class="line">                &#123;</span><br><span class="line">                    mp[neighbor] = <span class="keyword">new</span> Node(neighbor-&gt;val);</span><br><span class="line">                    bfsq.push_back(neighbor);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; pair : mp)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> neighbor : pair.first-&gt;neighbors)</span><br><span class="line">            &#123;</span><br><span class="line">                pair.second-&gt;neighbors.push_back(mp[neighbor]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> mp[node];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div><link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9B%BE/" rel="tag"># 图</a>
+              <a href="/tags/DFS/" rel="tag"># DFS</a>
+              <a href="/tags/BFS/" rel="tag"># BFS</a>
+              <a href="/tags/DAG/" rel="tag"># DAG</a>
+              <a href="/tags/%E6%97%A0%E6%A0%B9%E6%A0%91/" rel="tag"># 无根树</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/f92eff5d/" rel="prev" title="回溯">
+      <i class="fa fa-chevron-left"></i> 回溯
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/d3225986/" rel="next" title="Leetcode题目索引">
+      Leetcode题目索引 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#图的遍历"><span class="nav-number">1.</span> <span class="nav-text">图的遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BFS"><span class="nav-number">1.1.</span> <span class="nav-text">BFS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DFS"><span class="nav-number">1.2.</span> <span class="nav-text">DFS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#边的类型"><span class="nav-number">1.2.1.</span> <span class="nav-text">边的类型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#无权图最短路径"><span class="nav-number">2.</span> <span class="nav-text">无权图最短路径</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#无权图单源最短路径"><span class="nav-number">2.1.</span> <span class="nav-text">无权图单源最短路径</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无权图多源最短路径"><span class="nav-number">2.2.</span> <span class="nav-text">无权图多源最短路径</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有向无环图-DAG"><span class="nav-number">3.</span> <span class="nav-text">有向无环图(DAG)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#拓扑排序的实现"><span class="nav-number">3.1.</span> <span class="nav-text">拓扑排序的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DFS实现"><span class="nav-number">3.1.1.</span> <span class="nav-text">DFS实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#入度实现"><span class="nav-number">3.1.2.</span> <span class="nav-text">入度实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拓扑排序"><span class="nav-number">3.2.</span> <span class="nav-text">拓扑排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#无根树"><span class="nav-number">4.</span> <span class="nav-text">无根树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#树中路径的唯一性"><span class="nav-number">4.1.</span> <span class="nav-text">树中路径的唯一性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#判断无向图是否为树"><span class="nav-number">4.2.</span> <span class="nav-text">判断无向图是否为树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#树的直径"><span class="nav-number">4.3.</span> <span class="nav-text">树的直径</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#树的重心"><span class="nav-number">4.4.</span> <span class="nav-text">树的重心</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#距离和问题"><span class="nav-number">4.5.</span> <span class="nav-text">距离和问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#欧拉轨迹"><span class="nav-number">5.</span> <span class="nav-text">欧拉轨迹</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Heirholzer算法"><span class="nav-number">5.1.</span> <span class="nav-text">Heirholzer算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#De-Bruijn-序列"><span class="nav-number">5.2.</span> <span class="nav-text">De_Bruijn_序列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他"><span class="nav-number">6.</span> <span class="nav-text">其他</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

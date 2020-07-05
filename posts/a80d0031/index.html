@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="子序列&#x2F;子串问题：LC71 编辑距离LC1143 最长公共子序列LC300 最长上升子序列⚠️ LC152 乘积最大子序列LC1048 最长字符串链 买卖股票：LC121 买卖股票的最佳时机LC122 买卖股票的最佳时机IILC122 买卖股票的最佳时机IIILC188 买卖股票的最佳时机IVLC309 最佳买卖股票时机含冷冻期LC714 买卖股票的最佳时机含手续费 打家劫舍：LC337 打家劫舍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态规划">
+<meta property="og:url" content="http://xyfu.me/posts/a80d0031/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="子序列&#x2F;子串问题：LC71 编辑距离LC1143 最长公共子序列LC300 最长上升子序列⚠️ LC152 乘积最大子序列LC1048 最长字符串链 买卖股票：LC121 买卖股票的最佳时机LC122 买卖股票的最佳时机IILC122 买卖股票的最佳时机IIILC188 买卖股票的最佳时机IVLC309 最佳买卖股票时机含冷冻期LC714 买卖股票的最佳时机含手续费 打家劫舍：LC337 打家劫舍">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-09-03T16:11:07.000Z">
+<meta property="article:modified_time" content="2020-03-02T03:14:20.078Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="动态规划">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/a80d0031/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>动态规划 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/a80d0031/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          动态规划
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-09-04 00:11:07" itemprop="dateCreated datePublished" datetime="2019-09-04T00:11:07+08:00">2019-09-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-02 11:14:20" itemprop="dateModified" datetime="2020-03-02T11:14:20+08:00">2020-03-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>12k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>子序列/子串问题：<br><a href="https://xyfu.me/posts/a80d0031/#%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB">LC71 编辑距离</a><br><a href="https://xyfu.me/posts/a80d0031/#LCS">LC1143 最长公共子序列</a><br><a href="https://xyfu.me/posts/a80d0031/#LIS">LC300 最长上升子序列</a><br>⚠️ <a href="https://xyfu.me/posts/a80d0031/#%E4%B9%98%E7%A7%AF%E6%9C%80%E5%A4%A7%E5%AD%90%E5%BA%8F%E5%88%97">LC152 乘积最大子序列</a><br><a href="https://xyfu.me/posts/a80d0031/#%E6%9C%80%E9%95%BF%E5%AD%97%E7%AC%A6%E4%B8%B2%E9%93%BE">LC1048 最长字符串链</a></p>
+<p>买卖股票：<br><a href="https://xyfu.me/posts/a80d0031/#%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8">LC121 买卖股票的最佳时机</a><br><a href="https://xyfu.me/posts/a80d0031/#%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8">LC122 买卖股票的最佳时机II</a><br><a href="https://xyfu.me/posts/a80d0031/#%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8">LC122 买卖股票的最佳时机III</a><br><a href="https://xyfu.me/posts/a80d0031/#%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8">LC188 买卖股票的最佳时机IV</a><br><a href="https://xyfu.me/posts/a80d0031/#%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8">LC309 最佳买卖股票时机含冷冻期</a><br><a href="https://xyfu.me/posts/a80d0031/#%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8">LC714 买卖股票的最佳时机含手续费</a></p>
+<p>打家劫舍：<br><a href="https://xyfu.me/posts/a80d0031/#%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8D">LC337 打家劫舍III</a></p>
+<p>矩阵中的路径问题：<br><a href="https://xyfu.me/posts/a80d0031/#%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%9A%84%E8%B7%AF%E5%BE%84">LC62 不同路径</a><br><a href="https://xyfu.me/posts/a80d0031/#%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%9A%84%E8%B7%AF%E5%BE%84">LC64 最小路径和</a></p>
+<p>01背包问题：<br><a href="https://xyfu.me/posts/a80d0031/#01%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98">LC494 目标和</a>[装满解的数目]<br>完全背包问题：<br><a href="https://xyfu.me/posts/a80d0031/#%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85">LC279 完全平方数</a><br><a href="https://xyfu.me/posts/a80d0031/#%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85">LC322 Coin Change</a><br><a href="https://xyfu.me/posts/a80d0031/#%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85">LC518 Coin Change 2</a><br>二维费用的背包问题：<br><a href="https://xyfu.me/posts/a80d0031/#%E4%BA%8C%E7%BB%B4%E8%B4%B9%E7%94%A8%E7%9A%84%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98">LC474 Ones and Zeroes</a></p>
+<p><a href="https://xyfu.me/posts/a80d0031/#%E6%9C%80%E5%A4%A7%E6%AD%A3%E6%96%B9%E5%BD%A2">LC221 最大正方形</a></p>
+<hr>
+<p>推荐读物：</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/tianyicui/pack/master/V2.pdf" target="_blank" rel="noopener">背包九讲</a></li>
+<li>《算法设计指南（第2版）》，第8章 动态规划，Steven S.Skiena著，谢勰译，清华大学出版社。</li>
+<li><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/solution/yi-ge-fang-fa-tuan-mie-6-dao-gu-piao-wen-ti-by-lab/" target="_blank" rel="noopener">一个方法团列6道股票问题</a>, 作者：labuladong</li>
+</ul>
+<a id="more"></a>
+<h1 id="子序列-子串"><a href="#子序列-子串" class="headerlink" title="子序列/子串"></a>子序列/子串</h1><h2 id="编辑距离"><a href="#编辑距离" class="headerlink" title="编辑距离"></a>编辑距离</h2><p>设模式串为P，文本串为T。我们定义对文本串T上某个字符$T[k]$的三种操作：</p>
+<ul>
+<li>替换：将文本串上的字符$T[k]$替换成另一个字符$c$。记替换代价为$\mathrm{match}(T[k], c)$。一般我们认为：<ul>
+<li>如果两个字符相同，则不需要付出代价，即$\mathrm{match}(a, a) = 0$。</li>
+<li>如果两个字符不同$a \neq b$，则需要付出$\mathrm{match}(a, b) = 1$的代价。</li>
+</ul>
+</li>
+<li>插入：在文本串$T$上的字符$T[k]$之后插入一个字符$c$。</li>
+<li>删除：删除文本串$T$上的字符$T[k]$。</li>
+</ul>
+<p>定义$S_i = [s_1, s_2, \cdots, s_i]$为序列S的一个前缀，且$S_0 = \varnothing$为空。我们一般考虑的编辑距离都是对称的$d(i, j) = d(j, i)$，所以我们可以认为被修改的对象是文本串$T$，也可以等价的认为被修改的对象是模式串$P$。<br>$P_i$到$T_j$的编辑距离$d(i,j)$是下面三种操作所产生的编辑距离当中的最小值，则我们有：$d(i, j) = \mathrm{max}(d_{\mathrm{substitute}}(i,j), d_{\mathrm{insert}}(i,j), d_{\mathrm{insert}}(i,j))$</p>
+<p>我们认为被修改的是文本串$T$：</p>
+<p>状态转移方程：</p>
+<ul>
+<li>替换： <ul>
+<li>尝试将文本串中的T[j]替换为模式串中的P[i]的费用：$\mathrm{match}(P[i], T[j])$</li>
+<li>匹配剩余部分$P_{i - 1}$和$T_{j - 1}$的费用：$d(i - 1, j - 1)$。</li>
+<li>总费用为两者之和：$d_{\mathrm{substitute}}(i,j) = d(i - 1, j - 1) + \mathrm{match}(P[i], T[j])$</li>
+</ul>
+</li>
+<li>插入：<ul>
+<li>在文本串字符$T[j]$之后插入模式串字符$P[i]$的费用：$\mathrm{insert}(P[i])$</li>
+<li>匹配剩余部分$P_{i - 1}$ 和 $T_{j}$的费用：$d(i - 1, j)$</li>
+<li>$d_{\mathrm{insert}}(i,j) = d(i - 1, j) + \mathrm{insert}(P[i])$</li>
+</ul>
+</li>
+<li>删除：<ul>
+<li>删除掉文本串字符$T[j]$的费用：$\mathrm{delete}(T[j])$</li>
+<li>匹配剩余部分$P_{i}$ 和 $T_{j - 1}$的费用：$d(i, j - 1)$<br>$d_{\mathrm{insert}}(i,j) = d(i, j - 1) + \mathrm{delete}(T[j])$</li>
+</ul>
+</li>
+</ul>
+<p>初始化：</p>
+<p>$d(i,0)$的含义为：模式串$P_{i}$和文本串$T_{0} = \varnothing$的匹配距离。为了正确匹配我们只能不断地向文本串中增加字符。因此有：<br>$d(i,0) = d(i - 1, 0) + \mathrm{insert}(P[i])$</p>
+<p>$d(0,j)$的含义为：模式串$P_{0} = \varnothing$和文本串$T_{j}$的匹配距离。为了正确匹配我们只能不断地删除文本串上的字符。因此有：<br>$d(0,j) = d(0, j - 1) + \mathrm{delete}(T[j])$</p>
+<hr>
+<p>类似地，我们也可以认为被修改的是模式串$P$：</p>
+<p>状态转移方程：</p>
+<ul>
+<li>替换： <ul>
+<li>尝试将模式串中的P[i]替换为文本串中的T[j]的费用：$\mathrm{match}(T[j], P[i])$</li>
+<li>匹配剩余部分$P_{i - 1}$和$T_{j - 1}$的费用：$d(i - 1, j - 1)$。</li>
+<li>总费用为两者之和：$d_{\mathrm{substitute}}(i,j) = d(i - 1, j - 1) + \mathrm{match}(T[j], P[i])$</li>
+</ul>
+</li>
+<li>插入：<ul>
+<li>在模式串字符$P[i]$之后插入文本串字符$T[j]$的费用：$\mathrm{insert}(T[j])$</li>
+<li>匹配剩余部分$P_{i - 1}$ 和 $T_{j}$的费用：$d(i, j - 1)$</li>
+<li>$d_{\mathrm{insert}}(i,j) = d(i, j - 1) + \mathrm{insert}(T[j])$</li>
+</ul>
+</li>
+<li>删除：<ul>
+<li>删除掉模式串字符$P[i]$的费用：$\mathrm{delete}(P[i])$</li>
+<li>匹配剩余部分$P_{i - 1}$ 和 $T_{j}$的费用：$d(i - 1, j)$<br>$d_{\mathrm{insert}}(i,j) = d(i - 1, j) + \mathrm{delete}(P[i])$</li>
+</ul>
+</li>
+</ul>
+<p>初始化：</p>
+<p>$d(i,0)$的含义为：模式串$P_{i}$和文本串$T_{0} = \varnothing$的匹配距离。为了正确匹配我们只能不断地删除模式串中的字符。因此有：<br>$d(i,0) = d(i - 1, 0) + \mathrm{delete}(P[i])$</p>
+<p>$d(0,j)$的含义为：模式串$P_{0} = \varnothing$和文本串$T_{j}$的匹配距离。为了正确匹配我们只能不断地增加模式串上的字符。因此有：<br>$d(0,j) = d(0, j - 1) + \mathrm{insert}(T[j])$</p>
+<hr>
+<p>两个空串的编辑距离一般定义为0<br>$d(0,0) = 0$</p>
+<p>$P_m$和$T_n$的编辑距离的目标单元为d(m, n)，即dp矩阵的右下角。</p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/edit-distance/submissions/" target="_blank" rel="noopener">LC72 编辑距离</a><br>这是一个将插入和删除费用设置为常数1，替换则是相等为0，不等为1的题目。正常初始化。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">minDistance</span><span class="params">(<span class="built_in">string</span> word1, <span class="built_in">string</span> word2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> m = word1.size() + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> n = word2.size() + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// fill in the base cases</span></span><br><span class="line">        iota(dp.front().begin(), dp.front().end(), <span class="number">0</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; m; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = i;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">       </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; m; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">1</span>; j &lt; n; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                dp[i][j] = min(&#123;</span><br><span class="line">                    dp[i - <span class="number">1</span>][j - <span class="number">1</span>] + match(word1[i - <span class="number">1</span>], word2[j - <span class="number">1</span>]),</span><br><span class="line">                    dp[i][j - <span class="number">1</span>] + <span class="number">1</span>,</span><br><span class="line">                    dp[i - <span class="number">1</span>][j] + <span class="number">1</span></span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp.back().back();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">match</span><span class="params">(<span class="keyword">char</span> lhs, <span class="keyword">char</span> rhs)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> lhs == rhs ? <span class="number">0</span> : <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="LCS"><a href="#LCS" class="headerlink" title="LCS"></a>LCS</h2><p><a href="https://leetcode.com/problems/longest-common-subsequence/" target="_blank" rel="noopener">LC1143 Longest Common Subsequence</a></p>
+<p>思路一：</p>
+<p>令$X = [x_1, x_2, x_3, \cdots, x_m]$, $Y = [y_1, y_2, y_3, \cdots, y_n]$, $Z = [z_1, z_2, z_3, \cdots, z_k]$。Z为X和Y的任意一个LCS。定义$S_i = [s_1, s_2, \cdots, s_i]$为序列S的一个前缀，且$S_0 = \varnothing$为空。则有以下三个推论：</p>
+<ol>
+<li>如果 $x_m = y_n$，则有：<ul>
+<li>$z_k = x_m = y_n$</li>
+<li>$z_{k-1}$是$X_{m-1}$和$Y_{n - 1}$的一个LCS。</li>
+</ul>
+</li>
+<li>如果 $x_m \neq y_n$，则$z_k \neq x_m \Rightarrow$ $Z$ 是 $X_{m -1}$和$Y_{n}$的一个LCS。</li>
+<li>如果 $x_m \neq y_n$，则$z_k \neq y_n \Rightarrow$ $Z$ 是 $X_{m}$和$Y_{n - 1}$的一个LCS。</li>
+</ol>
+<p>证明：</p>
+<ol>
+<li>如果 $x_m = y_n$：<ul>
+<li>假设$z_k \neq x_m$，则我们现在把$x_m = y_n$放在$Z$这个序列的末尾，就会形成一个长度为$k+1$的LCS，这和$Z$是$X$和$Y$的一个LCS相矛盾。</li>
+<li>假设存在这样一个序列$M$，它的长度$l$比Z_{k-1}的长度$k-1$长。那么我们把$x_m = y_n$放在$M$的末尾，就会形成一个长度为$l + 1$的序列，并且$l + 1 &gt; k - 1 + 1 = k$，这与$Z$是$X$和$Y$的一个LCS相矛盾。</li>
+</ul>
+</li>
+<li>如果 $x_m \neq y_n$ 并且 $z_k \neq x_m$：<br> $Z$必然也是$X_{m - 1}$和$Y$的一个CS。假设$M$是一个$X_{m - 1}$和$Y$的CS，且$M$的长度大于$k$，那么$M$必然也是$X$和$Y$的CS。然而$X$和$Y$的LCS的长度才只有$k$，这和假设相矛盾。</li>
+<li>同2</li>
+</ol>
+<p>通过以上三个推论，我们知道：</p>
+<ul>
+<li>如果$x_m = y_n$，想要找到$X$和$Y$的LCS，我们需要先找到$X_{m - 1}$和$Y_{n - 1}$的LCS。</li>
+<li>如果$x_m \neq y_n$，想要找到$X$和$Y$的LCS，我们需要先找到$X_{m - 1}$和$Y_{n}$的LCS与$X_{m}$和$Y_{n - 1}$的LCS中的较长者。<br>设状态$c[i, j]$为$X_i$和$Y_j$的LCS的长度，则状态转移方程：</li>
+</ul>
+<p><code>c[i, j] = c[i - 1, j - 1] + 1, if X[i] == Y[j] &amp;&amp; i &gt; 0 &amp;&amp; j &gt; 0</code><br><code>c[i, j] = max(c[i -1, j], c[j - 1, i]), if X[i] != Y[j] &amp;&amp; i &gt; 0 &amp;&amp; j &gt; 0</code></p>
+<p>初始化：<br><code>c[i, j] = 0, if i = 0 || j = 0</code></p>
+<p>注意到<code>i</code>和<code>j</code>都依赖到<code>i - 1</code>和<code>j - 1</code>，所以我们需要从按<code>i</code>从小到大，<code>j</code>从小到大来填表。注意这里两个序列的下标是从1开始的，因此<code>i</code>一共有$0 \cdots m$一共$m + 1$种取值。同理<code>j</code>也有$n + 1$种取值。我们需要初始化一个$(m + 1) \times (n + 1)$的矩阵来完成填表。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">longestCommonSubsequence</span><span class="params">(<span class="built_in">string</span> text1, <span class="built_in">string</span> text2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> m = text1.size() + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> n = text2.size() + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// initilize the dp matrix, initialize it with zeros </span></span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// the row i == 0 and the col j == 0 have already been </span></span><br><span class="line">        <span class="comment">// intialized as zeros</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; text1.size() + <span class="number">1</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">1</span>; j &lt; text2.size() + <span class="number">1</span>; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(text1[i - <span class="number">1</span>] == text2[j - <span class="number">1</span>])</span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = dp[i - <span class="number">1</span>][j - <span class="number">1</span>] + <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = max(dp[i][j - <span class="number">1</span>], dp[i - <span class="number">1</span>][j]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp[m - <span class="number">1</span>][n - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p>空间上的改进：</p>
+<p>注意到<code>c[i, j]</code>的状态仅仅和<code>c[i - 1, j]</code>,<code>c[i, j - 1]</code>,<code>c[i - 1, j - 1]</code>相关。因此我们可以只用两行长度为<code>i</code>的数组就能完成填表。但是这仅仅适用于求LCS的长度，不可能只靠这两行来恢复LCS序列。</p>
+<hr>
+<p>思路二：</p>
+<p>LCS问题可被证明通过编辑距离解决。我们需要在计算编辑距离的时候禁用字符串替换。将编辑距离中的match函数改写为：</p>
+<ul>
+<li>如果字符<code>a == b</code>，返回0</li>
+<li>如果字符<code>a != b</code>，返回一个绝不可能取到的值（比如两个带匹配串的最大长度）或二倍的插入距离。</li>
+</ul>
+<p>这样得到的编辑距离和LCS的关系是(来自<a href="https://en.wikipedia.org/wiki/Longest_common_subsequence_problem" target="_blank" rel="noopener">Longest common subsequence, Wikipedia</a>)：<br>$d(X, Y) = m + n - 2 * |LCS(x,y)|$<br>其中m是X串的长度，n是Y串的长度</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        通过编辑距离求解
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">longestCommonSubsequence</span><span class="params">(<span class="built_in">string</span> word1, <span class="built_in">string</span> word2)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> m = word1.size() + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> n = word2.size() + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> max_len = max(m - <span class="number">1</span>, n - <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// fill in the base cases</span></span><br><span class="line">        iota(dp.front().begin(), dp.front().end(), <span class="number">0</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; m; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = i;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">       </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; m; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">1</span>; j &lt; n; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                dp[i][j] = min(&#123;</span><br><span class="line">                    dp[i - <span class="number">1</span>][j - <span class="number">1</span>] + match(word1[i - <span class="number">1</span>], word2[j - <span class="number">1</span>], max_len),</span><br><span class="line">                    dp[i][j - <span class="number">1</span>] + <span class="number">1</span>,</span><br><span class="line">                    dp[i - <span class="number">1</span>][j] + <span class="number">1</span></span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> dis = dp.back().back();</span><br><span class="line">        <span class="keyword">auto</span> lcs_len = (<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(m + n - <span class="number">2</span>) - dis) / <span class="number">2</span>;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">return</span> lcs_len;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">match</span><span class="params">(<span class="keyword">char</span> lhs, <span class="keyword">char</span> rhs, <span class="keyword">int</span> max)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> lhs == rhs ? <span class="number">0</span> : max;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="LIS"><a href="#LIS" class="headerlink" title="LIS"></a>LIS</h2><p><a href="https://leetcode.com/problems/longest-increasing-subsequence/" target="_blank" rel="noopener">LC300 Longest Increasing Subsequence</a></p>
+<p>状态转移方程：</p>
+<script type="math/tex; mode=display">P_i = \max_{0 \leq j < i}\left\{P_j | N_i < N_j\right\} + 1</script><script type="math/tex; mode=display">P_0 = 0</script><p>思路一：</p>
+<ul>
+<li>初始化<code>dp</code>数组值全部为1，即最长上升子序列最小也是1。</li>
+<li>自底向上遍历时时会自动保持条件<code>j &lt; i</code>。判断<code>nums[j] &lt; nums[i]</code>，如果成立，就找到尝试更新<code>dp[i]</code>。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">lengthOfLIS</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums.size() &lt; <span class="number">2</span>) <span class="keyword">return</span> nums.size();</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; (nums.size(), <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; i; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(nums[j] &lt; nums[i])</span><br><span class="line">                    <span class="comment">// update dp[i] if we found such j</span></span><br><span class="line">                    dp[i] = max(dp[i], dp[j] + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// find the maximum in dp[]</span></span><br><span class="line">            res = max(res, dp[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p>❓思路二[仍然不是很理解]：</p>
+<p>每次计算<code>dp[i]</code>的时候需要查询所有的<code>j &lt; i</code>，查询时间为线性。我们尝试优化该查询时间。我们重新定义<code>dp[]</code>状态数组：<code>dp[i]</code>是长度为<code>i</code>的最长上升子序列的最小末尾。可以证明如果给定$i &lt; j$则必然有$dp[i] &lt; dp[j]$。我们用反证法来证明上述结论：</p>
+<p>假设$i &lt; j$时，有$dp[i] \geq dp[j]$。因为$j &gt; i$，所以我们必然可以从数组$dp[j]$上裁剪下来一个长度为$i$的子数组。因为是上升序列，则裁剪下来的子树组的末尾元素必然比原数组的末尾元素要小。因此存在一个长度是<code>i</code>，但末尾值比<code>dp[j]</code>要小的子序列。这和<code>dp[i] &gt; dp[j]</code>矛盾。</p>
+<p>因此新的状态数组<code>dp[i]</code>必然是递增的。我们就可以在这个有序数组上做二分查找。</p>
+<ul>
+<li>如果<code>dp</code>数组中存在<code>dp[j] &gt; nums[i]</code>，则更新<code>dp[j] = nums[i]</code>。因为此时我们完全可以用<code>nums[i]</code>来替代<code>dp[j]</code>。</li>
+<li>如果<code>dp</code>数组中不存在<code>dp[j] &gt; nums[i]</code>，则<code>nums[i]</code>可以接在<code>dp[last]</code>位置，形成更长的递增子序列。因此将<code>nums[i]</code>放入<code>dp</code>数组尾部。</li>
+<li>最后<code>dp</code>数组的长度即为所求。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Feb/20/2020 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">lengthOfLIS</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> n : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">auto</span> it = lower_bound(dp.begin(), dp.end(), n);</span><br><span class="line">               it == dp.end())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// we cannot find a bigger tail, we could expand </span></span><br><span class="line">                <span class="comment">// the sequence</span></span><br><span class="line">                dp.push_back(n);                </span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (*it &gt; n)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// we found a smaller tail end of the sequence </span></span><br><span class="line">                *it = n;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp.size();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">lengthOfLIS</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums.size() &lt;= <span class="number">1</span>) <span class="keyword">return</span> nums.size();</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> num : nums)</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = lower_bound(dp.begin(), dp.end(), num);</span><br><span class="line">               it == dp.end()) dp.push_back(num);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(num &lt; *it) *it = num;</span><br><span class="line">        <span class="keyword">return</span> dp.size();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p>思路三：<br>指定终点的最长路径问题：将数组中所有的数$N_i$看作图的顶点，如果$j &lt; i$且$N_j &lt; N_i$则存在边$(i, j)$。并定义$N_0 = -\infty$。求$\mathrm{path}(N_i, N_0)$的最大长度。</p>
+<hr>
+<p>思路四：</p>
+<p>可以证明最大单调子序列问题可以通过LCS来求解</p>
+<ul>
+<li>复制一份待求LIS的数组，记原来数组为<code>T</code>，复制的数组为<code>P</code>。</li>
+<li>将<code>P</code>排序后去重。</li>
+<li>求<code>T</code>和<code>P</code>的LCS，即是<code>T</code>和<code>P</code>的LIS。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">lengthOfLIS</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> nums2 = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(nums);</span><br><span class="line">        sort(nums2.begin(), nums2.end());</span><br><span class="line">        nums2.erase(unique(nums2.begin(), nums2.end()), nums2.end());</span><br><span class="line">        <span class="keyword">return</span> longestCommonSubsequence(nums, nums2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">longestCommonSubsequence</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; text1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; text2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> m = text1.size() + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> n = text2.size() + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// initilize the dp matrix, initialize it with zeros </span></span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// the row i == 0 and the col j == 0 have already been </span></span><br><span class="line">        <span class="comment">// intialized as zeros</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; text1.size() + <span class="number">1</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">1</span>; j &lt; text2.size() + <span class="number">1</span>; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(text1[i - <span class="number">1</span>] == text2[j - <span class="number">1</span>])</span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = dp[i - <span class="number">1</span>][j - <span class="number">1</span>] + <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = max(dp[i][j - <span class="number">1</span>], dp[i - <span class="number">1</span>][j]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp[m - <span class="number">1</span>][n - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="最长公共子串"><a href="#最长公共子串" class="headerlink" title="最长公共子串"></a>最长公共子串</h2><p><strong>子串</strong>要求字符串是连续的。设<code>dp[i, j]</code>为以字符<code>X[i]</code>和<code>Y[j]</code>为结尾的最长公共子串的长度。则状态转移方程为<br><code>dp[i][j] = dp[i - 1][j - 1] + 1, if X[i] == Y[j]</code><br><code>dp[i][j] = 0, if X[i] != Y[j]</code> </p>
+<hr>
+<h2 id="乘积最大子序列"><a href="#乘积最大子序列" class="headerlink" title="乘积最大子序列"></a>乘积最大子序列</h2><p><a href="https://leetcode-cn.com/problems/maximum-product-subarray/" target="_blank" rel="noopener">LC152 乘积最大子序列</a></p>
+<p>因为负数的存在，前一步累计的最大值会变成最小值，前一步累计的最小值会变成最大值。因此需要维护两个dp数组。设max[i]为以nums[i]为结尾的子序列的最大乘积。min[i]为以nums[i]为结尾的子序列的最小乘积。</p>
+<p>因此状态转移方程为：</p>
+<p>min[i] = min(nums[i], max[i - 1] <em> nums[i], min[i - 1] </em> nums[i])<br>max[i] = max(nums[i], max[i - 1] <em> nums[i], min[i - 1] </em> nums[i])</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProduct</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> res = INT_MIN;</span><br><span class="line">        <span class="keyword">int</span> dp_min = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> dp_max = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> x : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> dp_min_temp = dp_min;</span><br><span class="line">            dp_min = min(&#123;x, dp_max * x, dp_min * x&#125;);</span><br><span class="line">            dp_max = max(&#123;x, dp_max * x, dp_min_temp * x&#125;);</span><br><span class="line">            res = max(res, dp_max);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="最长字符串链"><a href="#最长字符串链" class="headerlink" title="最长字符串链"></a>最长字符串链</h2><p><a href="https://leetcode.com/problems/longest-string-chain/" target="_blank" rel="noopener">LC1048 Longest String Chain</a><br>不固定起点和终点的DAG最长路径问题。类似最长上升子序列，没有要求<code>j &lt; i</code>。所以对原来的字符串数组按长度排序即可。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">longestStrChain</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        sort(words.begin(), words.end(), [](<span class="keyword">const</span> <span class="built_in">string</span>&amp; lhs, <span class="keyword">const</span> <span class="built_in">string</span>&amp; rhs)&#123;<span class="keyword">return</span> lhs.size() &lt; rhs.size();&#125;);</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(words.size(), <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; words.size(); ++i)&#123;</span><br><span class="line">            <span class="keyword">auto</span> s = <span class="built_in">unordered_set</span>&lt;<span class="built_in">string</span>&gt;&#123;&#125;;</span><br><span class="line">            <span class="keyword">auto</span>&amp; word = words[i];</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; word.size(); ++k)&#123;</span><br><span class="line">                <span class="keyword">auto</span> copy = word;</span><br><span class="line">                copy.erase(copy.begin() + k);</span><br><span class="line">                s.insert(copy);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; i; ++j)</span><br><span class="line">                <span class="keyword">if</span>(s.find(words[j]) != s.end() &amp;&amp; dp[i] &lt; dp[j] ) dp[i] = dp[j];</span><br><span class="line">            ++dp[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> *max_element(dp.begin(), dp.end());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<hr>
+<h1 id="买卖股票"><a href="#买卖股票" class="headerlink" title="买卖股票"></a>买卖股票</h1><p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/solution/yi-ge-fang-fa-tuan-mie-6-dao-gu-piao-wen-ti-by-lab/" target="_blank" rel="noopener">一个方法团列6道股票问题, Leetcode题解</a></p>
+<p>设三个状态变量：第i天，交易了k次，是否持有股票。那么状态可以表示为dp[i,k,0]或dp[i,k,1]，即第i天交易了k次未持有股票时的最大收益 和 第i天交易了k次持有股票时的最大收益。</p>
+<p>状态转移方程：</p>
+<ul>
+<li>dp[i,k,0] = max(dp[i - 1, k, 0], dp[i - 1, k, 1] + price[i]) 今天我未持有股票—&gt;前一天我未持有股票，今天我也没买 或 前一天我持有股票，今天我把他卖了。</li>
+<li>dp[i,k,1] = max(dp[i - 1, k, 1], dp[i - 1, k - 1, 0] - price[i])<br>今天我持有股票—&gt;前一天我未持有股票，今天我买了股票，交易次数增多了一次。或者我前一天就持有股票，今天继续持有。</li>
+</ul>
+<p>初始状态：</p>
+<ul>
+<li>dp[i,0,0] = 0    ：一次都没交易，也没持有股票，那么收益必然是0。</li>
+<li>dp[i,0,1] = -inf ：一次都没交易，但是持有了股票，不允许的状态，设为-inf，让他必然被排除掉。</li>
+<li>dp[-1,k,0] = 0   ：在一切发生之前，不管做了多少交易，与当前所求无关，设收益是0。</li>
+<li>dp[-1,k,1] = -inf：在一切发生之前，不管做了多少交易，不能留着股票不卖，不允许的状态，设为-inf，让他必然被排除掉。</li>
+</ul>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/" target="_blank" rel="noopener">LC121 买卖股票的最佳时机</a><br>只允许买卖一次，即k必然为0或1。</p>
+<p>状态转移方程：</p>
+<ul>
+<li>dp[i,1,0] = max(dp[i - 1, 1, 0], dp[i - 1, 1, 1] + price[i]) ：该状态k必然为1，可以省去</li>
+<li>dp[i,0,0] = max(dp[i - 1, 0, 0], dp[i - 1, 0, 1] + price[i]) ：该状态为初始状态，必然为0，不需要转移。</li>
+<li>dp[i,1,1] = max(dp[i - 1, 1, 1], dp[i - 1, 0, 0] - price[i]) ：dp[i - 1, 0, 0]必然为0。</li>
+<li>dp[i,0,1] = max(dp[i - 1, 0, 1], dp[i - 1, - 1, 0] - price[i]) ：不可能的状态，排除</li>
+</ul>
+<p>因为所有k都为1，k=0的状态都为初始状态被隐去。所以状态转移方程可以化简为：</p>
+<ul>
+<li>dp[i,0] = max(dp[i - 1, 0], dp[i - 1, 1] + price[i])</li>
+<li>dp[i,1] = max(dp[i - 1, 1], - price[i])</li>
+</ul>
+<p>初始状态为</p>
+<ul>
+<li>dp[-1, 0] = 0, dp[-1,1] = -inf —&gt; dp[0,0] = 0</li>
+<li>dp[-1, 1] = -inf, -price[0] = -price[0] —&gt; dp[0,1] = -price[0]</li>
+</ul>
+<p>因为状态转移方程只和前一状态有关，因此只需两个变量即可完成迭代更新<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dp_i0 &#x3D; 0</span><br><span class="line">dp_i1 &#x3D; -price[0]</span><br><span class="line"></span><br><span class="line">for i &#x3D; 1 to N</span><br><span class="line">    dp_i0 &#x3D; max(dp_i0, dp_i1 + price[i])</span><br><span class="line">    dp_i1 &#x3D; max(dp_i1, -price[i])</span><br></pre></td></tr></table></figure></p>
+<p>最后所求为dp_i0。因为dp_i0必然大于等于dp_i1，因为手上持有的股票还没卖出去的收益肯定小于已经卖出去的收益。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.empty())<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> dp_i0 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp_i1 = -prices[<span class="number">0</span>];</span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> it = ++prices.begin(); it != prices.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            dp_i0 = max(dp_i0, dp_i1 + *it);</span><br><span class="line">            <span class="comment">// notice that dp_i1 has no relationship with dp_i0, we do not need </span></span><br><span class="line">            <span class="comment">// to make a copy of dp_i0.</span></span><br><span class="line">            dp_i1 = max(dp_i1, -(*it));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp_i0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/" target="_blank" rel="noopener">LC122 买卖股票的最佳时机II</a></p>
+<p>对交易次数不设限制。</p>
+<p>状态转移方程：</p>
+<ul>
+<li>dp[i,k,0] = max(dp[i - 1, k, 0], dp[i - 1, k, 1] + price[i])</li>
+<li>dp[i,k,1] = max(dp[i - 1, k, 1], dp[i - 1, k - 1, 0] - price[i])</li>
+</ul>
+<p>由于对k不设限制，所以k这个维度已经失去意义。</p>
+<ul>
+<li>dp[i,0] = max(dp[i - 1, 0], dp[i - 1, 1] + price[i])</li>
+<li>dp[i,1] = max(dp[i - 1, 1], dp[i - 1, 0] - price[i])</li>
+</ul>
+<p>初始状态</p>
+<ul>
+<li>dp[0,0] = max(dp[- 1, 0], dp[- 1, 1] + price[0]) —&gt; max(0, -inf + price[0]) = 0</li>
+<li>dp[0,1] = max(dp[- 1, 1], dp[- 1, 0] - price[0]) —&gt; max(-inf, 0 - price[0]) = -price[0]</li>
+</ul>
+<p>由于状态只和前一状态有关<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dp_i0 &#x3D; 0</span><br><span class="line">dp_i1 &#x3D; -price[0]</span><br><span class="line"></span><br><span class="line">for i &#x3D; 1 to N</span><br><span class="line">    tmp   &#x3D; dp_i0</span><br><span class="line">    dp_i0 &#x3D; max(dp_i0, dp_i1 + price[i])</span><br><span class="line">    dp_i1 &#x3D; max(dp_i1, tmp - price[i])</span><br></pre></td></tr></table></figure></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp_i0 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp_i1 = -prices[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = ++prices.begin(); it != prices.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> dp_i0_tmp = dp_i0;</span><br><span class="line">            dp_i0 = max(dp_i0, dp_i1 + *it);</span><br><span class="line">            dp_i1 = max(dp_i1, dp_i0_tmp - (*it));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp_i0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/" target="_blank" rel="noopener">LC122 买卖股票的最佳时机III</a></p>
+<p>最多完成两笔交易。</p>
+<p>状态转移方程：</p>
+<ul>
+<li>dp[i,k,0] = max(dp[i - 1, k, 0], dp[i - 1, k, 1] + price[i])</li>
+<li>dp[i,k,1] = max(dp[i - 1, k, 1], dp[i - 1, k - 1, 0] - price[i])</li>
+</ul>
+<p>k = 0,1,2</p>
+<p>初始状态</p>
+<ul>
+<li>dp[-1,k,0] = 0</li>
+<li>dp[-1,k,1] = -inf</li>
+<li>dp[i,0,1] = -inf</li>
+<li>dp[i,0,0] = 0</li>
+</ul>
+<p>因为每个状态都和之前两个状态有关(k = 1,2)，所以需要两个长度为2的数组。而且要从后往前更新，否则会覆盖状态。</p>
+<p>dp[i,0,1] = max(dp[i - 1, 0, 1], dp[i - 1, - 1, 0] - price[i]) —&gt; dp[i - 1, - 1, 0] 为不允许的状态。<br>因此：<br>dp[i,0,1] = dp[i - 1, 0, 1]</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">for k &#x3D; 1 to 2</span><br><span class="line">    dp_i0[k] &#x3D; 0</span><br><span class="line">    dp_i1[k] &#x3D; -inf</span><br><span class="line"></span><br><span class="line">for i &#x3D; 1 to N</span><br><span class="line">    for k &#x3D; 2 to 1</span><br><span class="line">        dp_i0[k] &#x3D; max(dp_i0[k], dp_i1[k] + price[i])</span><br><span class="line">        dp_i1[k] &#x3D; max(dp_i1[k], dp_i0[k - 1] - price[i])</span><br></pre></td></tr></table></figure>
+<p>返回的应该为dp_i0[]数组中的最大值。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp_i0 = <span class="built_in">array</span>&lt;<span class="keyword">int</span>, <span class="number">3</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> dp_i1 = <span class="built_in">array</span>&lt;<span class="keyword">int</span>, <span class="number">3</span>&gt;&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> k = <span class="number">0</span>; k &lt;= <span class="number">2</span>; ++k)</span><br><span class="line">        &#123;</span><br><span class="line">            dp_i0[k] = <span class="number">0</span>;</span><br><span class="line">            dp_i1[k] = INT_MIN;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; prices.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k = <span class="number">2</span>; k &gt;= <span class="number">1</span>; --k)</span><br><span class="line">            &#123;</span><br><span class="line">                dp_i0[k] = max(dp_i0[k], dp_i1[k] + prices[i]);</span><br><span class="line">                dp_i1[k] = max(dp_i1[k], dp_i0[k - <span class="number">1</span>] - prices[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> *(max_element(dp_i0.begin(), dp_i0.end()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iv/submissions/" target="_blank" rel="noopener">LC188 买卖股票的最佳时机IV</a></p>
+<p>和前一题基本一致，只不过这次k成为了变量。麻烦的问题在于当k很大的时候，生成的数组会爆堆。因为一次交易（一买一卖）至少也需要两天(A股T+1？)。所以我们认为如果<code>max_k &gt; prices.size() / 2</code>，k对整个问题就没有任何限制作用了。我们就可以用无限次的交易的函数来计算了。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span> max_k, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span>(max_k&gt; prices.size() / <span class="number">2</span>) <span class="keyword">return</span> maxProfit_infk(prices);</span><br><span class="line">        <span class="keyword">auto</span> dp_i0 = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(max_k + <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">auto</span> dp_i1 = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(max_k + <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> k = <span class="number">0</span>; k &lt;= max_k; ++k)</span><br><span class="line">        &#123;</span><br><span class="line">            dp_i0[k] = <span class="number">0</span>;</span><br><span class="line">            dp_i1[k] = INT_MIN;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; prices.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k = max_k; k &gt;= <span class="number">1</span>; --k)</span><br><span class="line">            &#123;</span><br><span class="line">                dp_i0[k] = max(dp_i0[k], dp_i1[k] + prices[i]);</span><br><span class="line">                dp_i1[k] = max(dp_i1[k], dp_i0[k - <span class="number">1</span>] - prices[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> *(max_element(dp_i0.begin(), dp_i0.end()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProfit_infk</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp_i0 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp_i1 = -prices[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = ++prices.begin(); it != prices.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> dp_i0_tmp = dp_i0;</span><br><span class="line">            dp_i0 = max(dp_i0, dp_i1 + *it);</span><br><span class="line">            dp_i1 = max(dp_i1, dp_i0_tmp - (*it));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp_i0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/" target="_blank" rel="noopener">LC309 最佳买卖股票时机含冷冻期</a></p>
+<p>不限制交易次数，但是出现了冷冻期。<br>观察原来的状态转移方程</p>
+<ul>
+<li>dp[i,k,0] = max(dp[i - 1, k, 0], dp[i - 1, k, 1] + price[i])</li>
+<li>dp[i,k,1] = max(dp[i - 1, k, 1], dp[i - 1, k - 1, 0] - price[i])</li>
+</ul>
+<p>不限制交易次数，k这个维度已经失去了意义</p>
+<ul>
+<li>dp[i,0] = max(dp[i - 1, 0], dp[i - 1, 1] + price[i])</li>
+<li>dp[i,1] = max(dp[i - 1, 1], dp[i - 1, 0] - price[i])</li>
+</ul>
+<p>买入股票的时候，由于存在冷却期，所以不能从i - 1这个状态转移，要从i - 2转移。这个影响第一次购买股票，因为我们只需要设置到初始条件即可。</p>
+<ul>
+<li>dp[i,0] = max(dp[i - 1, 0], dp[i - 1, 1] + price[i])</li>
+<li>dp[i,1] = max(dp[i - 1, 1], dp[i - 2, 0] - price[i])</li>
+</ul>
+<p>初始条件</p>
+<p>dp[0,0] = max(dp[-1,0], dp[-1,1] + price[0]) —&gt; max(0, -inf + price[0]) —&gt; 0<br>dp[0,1] = max(dp[-1,1], dp[-2,0] - price[0]) —&gt; max(-inf, 0 - price[0]) —&gt; -price[0]</p>
+<p>dp_i0仅和前一个状态相关。但是dp_i1和前两个状态相关。我们需要三个状态变量来记录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dp_i0 &#x3D; 0</span><br><span class="line">dp_i0_pre &#x3D; 0</span><br><span class="line">dp_i1 &#x3D; price[0]</span><br><span class="line"></span><br><span class="line">for i &#x3D; 0 to N</span><br><span class="line">    dp_i0_copy &#x3D; dp_i0</span><br><span class="line">    dp_i0 &#x3D; max(dp_i0, dp_i1 + prices[i])</span><br><span class="line">    dp_i1 &#x3D; max(dp_i1, dp_i0_pre - prices[i])</span><br><span class="line">    dp_i0_pre &#x3D; dp_i0_copy</span><br></pre></td></tr></table></figure>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> dp_i0 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> dp_i0_pre = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> dp_i1 = -prices[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> price : prices)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">int</span> dp_i0_copy = dp_i0;</span><br><span class="line">            dp_i0 = max(dp_i0, dp_i1 + price);</span><br><span class="line">            dp_i1 = max(dp_i1, dp_i0_pre - price);</span><br><span class="line">            dp_i0_pre = dp_i0_copy;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp_i0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/" target="_blank" rel="noopener">LC714 买卖股票的最佳时机含手续费</a></p>
+<p>不限交易次数，状态转移方程</p>
+<ul>
+<li>dp[i,0] = max(dp[i - 1, 0], dp[i - 1, 1] + price[i])</li>
+<li>dp[i,1] = max(dp[i - 1, 1], dp[i - 1, 0] - price[i])</li>
+</ul>
+<p>因为含有手续费，在卖出股票时（或者买入时），需要缴纳手续费（券商佣金+印花税？）。</p>
+<ul>
+<li>dp[i,0] = max(dp[i - 1, 0], dp[i - 1, 1] + price[i] - fee)</li>
+<li>dp[i,1] = max(dp[i - 1, 1], dp[i - 1, 0] - price[i])</li>
+</ul>
+<p>初始状态</p>
+<p>dp[0,0] = max(dp[- 1, 0], dp[-1, 1] + price[0] - fee) —&gt; 0<br>dp[0,1] = max(dp[- 1, 1], dp[- 1, 0] - price[i]) —&gt; -price[0]</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dp_i0 &#x3D; 0</span><br><span class="line">dp_i1 &#x3D; -price[0]</span><br><span class="line"></span><br><span class="line">for i &#x3D; 0 to N</span><br><span class="line">    dp_i0_copy &#x3D; dp_i0</span><br><span class="line">    dp_i0 &#x3D; max(dp_i0, dp_i1 + price[i] - fee)</span><br><span class="line">    dp_i1 &#x3D; max(dp_i1, dp_i0_copy - price[i])</span><br></pre></td></tr></table></figure>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; prices, <span class="keyword">int</span> fee)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> dp_i0 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> dp_i1 = -prices[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> price : prices)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">int</span> dp_i0_copy = dp_i0;</span><br><span class="line">            dp_i0 = max(dp_i0, dp_i1 + price - fee);</span><br><span class="line">            dp_i1 = max(dp_i1, dp_i0_copy - price);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp_i0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h1 id="矩阵中的路径"><a href="#矩阵中的路径" class="headerlink" title="矩阵中的路径"></a>矩阵中的路径</h1><p><a href="https://leetcode-cn.com/problems/unique-paths/" target="_blank" rel="noopener">LC62 不同路径</a></p>
+<p>状态转移方程<br><code>dp[i][j] = dp[i - 1][j] if j == 0</code><br><code>dp[i][j] = dp[i - 1][j] + dp[i - 1][j - 1];</code><br>i的空间上只和前一状态有关，因此只需维持一个长度为m的数组即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">uniquePaths</span><span class="params">(<span class="keyword">int</span> m, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(m, <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; n; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; m; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                dp[j] = dp[j] + dp[j - <span class="number">1</span>];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp.back();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/unique-paths-ii/" target="_blank" rel="noopener">LC63 不同路径II</a></p>
+<p>可以用回溯法+hashmap记录已经遍历过的路径，速度也不差。<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        backtrack with hashmap code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">hash_pair</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    hash&lt;T1&gt; hash_t1;</span><br><span class="line">    hash&lt;T2&gt; hash_t2;</span><br><span class="line">    <span class="keyword">size_t</span> <span class="keyword">operator</span>()(<span class="keyword">const</span> pair&lt;T1, T2&gt;&amp; pair) <span class="keyword">const</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> hash_t1(pair.first) ^ hash_t2(pair.second);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> m;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;, <span class="keyword">int</span>, hash_pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&gt; lookup_table;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">uniquePathsWithObstacles</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; obstacleGrid)</span> </span>&#123;</span><br><span class="line">        m = obstacleGrid.size();</span><br><span class="line">        n = obstacleGrid.front().size();</span><br><span class="line">        <span class="keyword">if</span>(m == <span class="number">0</span> || n == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// if there is an obstable on the finish point or on the start point</span></span><br><span class="line">        <span class="keyword">if</span>(obstacleGrid.back().back() == <span class="number">1</span> || obstacleGrid.front().front() == <span class="number">1</span>) </span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> backtrack(obstacleGrid, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; obstacleGrid, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// invalid path</span></span><br><span class="line">        <span class="keyword">if</span>(x &gt;= m || y &gt;= n || obstacleGrid[x][y] == <span class="number">1</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// arrived at the finish point</span></span><br><span class="line">        <span class="keyword">if</span>(x == m - <span class="number">1</span> &amp;&amp; y == n - <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; moveLeft  = &#123;x + <span class="number">1</span>, y&#125;;</span><br><span class="line">        pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; moveRight = &#123;x, y + <span class="number">1</span>&#125;; </span><br><span class="line">        <span class="comment">// move down and move right</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> left = lookup_table.count(moveLeft)      ? </span><br><span class="line">                    lookup_table[moveLeft]           : </span><br><span class="line">                    backtrack(obstacleGrid, x + <span class="number">1</span>, y);</span><br><span class="line">        <span class="keyword">int</span> right = lookup_table.count(moveRight)      ? </span><br><span class="line">                   lookup_table[moveRight]           : </span><br><span class="line">                   backtrack(obstacleGrid, x, y + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// put it into the hashmap</span></span><br><span class="line">        lookup_table[&#123;x, y&#125;] = left + right;</span><br><span class="line">        <span class="keyword">return</span> left + right;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/minimum-path-sum/" target="_blank" rel="noopener">LC64 最小路径和</a><br>定义状态<code>dp[i][j]</code>为从左上角走到i,j处的最小路径和。由于每个状态只能从其左边(i, j -1)或其上边(i - 1, j)转移。所以状态转移方程为：<code>dp[i][j] = grid[i][j] + min(dp[i - 1][j], dp[i][j - 1])</code>。<br>注意：</p>
+<ul>
+<li>边界判断问题。</li>
+<li><code>size_t</code>不能为负数的问题。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">minPathSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(grid.empty() || grid.front().empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> row = grid.size();</span><br><span class="line">        <span class="keyword">auto</span> col = grid.front().size();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(row, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(col, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; row; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">0</span>; j &lt; col; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>( (i == <span class="number">0</span>) &amp;&amp; (j == <span class="number">0</span>) )</span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = grid[i][j];</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span>(i == <span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = grid[i][j] + dp[i][j - <span class="number">1</span>];</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span>(j == <span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = grid[i][j] + dp[i - <span class="number">1</span>][j];</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                dp[i][j] = grid[i][j] + min(dp[i - <span class="number">1</span>][j], dp[i][j - <span class="number">1</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp.back().back();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h1 id="背包问题"><a href="#背包问题" class="headerlink" title="背包问题"></a>背包问题</h1><h2 id="背包问题的通解形式"><a href="#背包问题的通解形式" class="headerlink" title="背包问题的通解形式"></a>背包问题的通解形式</h2><h3 id="01背包"><a href="#01背包" class="headerlink" title="01背包"></a>01背包</h3><p>一个容量为$V$的背包和$N$件物品。将第$i$件物品放入背包的费用是$C_i$，获得的收益是$W_i$。每种物品只有一件。设前$i$件物品放入容量为$v$的背包中获得的最大价值为$F[i,v]$。</p>
+<p>则状态转移方程为<em>拿第$i$件物品后的价值</em>和<em>不拿第$i$件物品</em>的最大值：<br>$F[i,v] = F[i - 1, v], F[i - 1, v - C_i] + W_i$<br>注意在$i$的维度上，每个状态仅跟上一个状态$i - 1$相关。因此我们可以采用一个数组F[v]就可以记录所有的状态。<br>为了不覆盖先前的状态，我们从底向上反向填表：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for i &#x3D; 1 to N:</span><br><span class="line">    for v &#x3D; V to C_i:</span><br><span class="line">        F[v] &#x3D; max(F[v], F[v - Ci] + Wi)</span><br></pre></td></tr></table></figure><br>初始化问题：</p>
+<ul>
+<li>如果要保证背包填满，将F[0]初始化为0，其他初始化为负无穷大。</li>
+<li>如果不需要保证背包填满，将所有初始化为0即可。</li>
+</ul>
+<h3 id="完全背包"><a href="#完全背包" class="headerlink" title="完全背包"></a>完全背包</h3><p>一个容量为$V$的背包和$N$件物品。将第$i$件物品放入背包的费用是$C_i$，获得的收益是$W_i$。每种物品有无数件。设前$i$件物品放入容量为$v$的背包中获得的最大价值为$F[i,v]$。</p>
+<p>只需将01背包的填表顺序反过来，即从$C_i$到$V$填表：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for i &#x3D; 1 to N:</span><br><span class="line">    for v &#x3D; C_i to V:</span><br><span class="line">        F[v] &#x3D; max(F[v], F[v - Ci] + Wi)</span><br></pre></td></tr></table></figure></p>
+<h3 id="求填满背包的最少物品数量"><a href="#求填满背包的最少物品数量" class="headerlink" title="求填满背包的最少物品数量"></a>求填满背包的最少物品数量</h3><p>将初始化值变为F[0] = 0，其他初始化为F[i] = INT_MAX。之后将状态转移方程换成min，并且所有物品的价值设置成Wi = 1。</p>
+<h3 id="求装满背包解的数目"><a href="#求装满背包解的数目" class="headerlink" title="求装满背包解的数目"></a>求装满背包解的数目</h3><p>将初始化值变为F[0] = 1，其他初始化为F[i] = 0。状态转移方程变为sum。物品价值无用，设置为0。</p>
+<h2 id="01背包题目"><a href="#01背包题目" class="headerlink" title="01背包题目"></a>01背包题目</h2><p><a href="https://leetcode-cn.com/problems/target-sum/" target="_blank" rel="noopener">LC494 目标和</a></p>
+<p>给定一个非负整数数组，a1, a2, …, an, 和一个目标数，S。现在你有两个符号 + 和 -。对于数组中的任意一个整数，你都可以从 + 或 -中选择一个符号添加在前面。</p>
+<p>思路：</p>
+<ul>
+<li>默认所有数字前面都是正号，将所有数字加起来得到一个和sum</li>
+<li>如果sum比S小，因为数组中的都是<em>非负整数</em>，那么无论我们给哪个数加符号，都会使得sum更小。所以无解。</li>
+<li>如果sum == S，首先如果一个符号都不动是一个解决。要产生其他的解，那我们只能改0前面的符号。找找数组中有几个零，这些零前面正负号的组合共有$2^n$种。没有零的话，就是一种$2^0$。所以返回$2^n$</li>
+<li>如果sum &gt; S，我们看看sum和S的差是不是能被2整除，如果不能被2整除，无解。</li>
+<li>如果sum &gt; S且能被2整除，问题转换为01背包问题，求解装满背包的解的数量。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findTargetSumWays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> S)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> sum = accumulate(nums.begin(), nums.end(), <span class="number">0</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// a_i &gt;= 0, change sign will only make sum even smaller</span></span><br><span class="line">        <span class="keyword">if</span> (sum &lt; S) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// a_i &gt;= 0, we can only change the signs of zeros</span></span><br><span class="line">        <span class="comment">// there are 2^(num_of_zeros) possible solutions</span></span><br><span class="line">        <span class="keyword">if</span> (sum == S)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> num_of_zeros = count(nums.begin(), nums.end(), <span class="number">0</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span> &lt;&lt; num_of_zeros;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// sum &gt; S</span></span><br><span class="line">        <span class="comment">// change a_i will decrease S by 2 * a_i, which indicates that</span></span><br><span class="line">        <span class="comment">// (sum - S) mod 2 == 0, otherwise there will be no solution</span></span><br><span class="line">        <span class="keyword">if</span> ((sum - S) % <span class="number">2</span> != <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// all a_i that change its sign must accumulate to (sum - S) / 2</span></span><br><span class="line">        sum = (sum - S) / <span class="number">2</span>;</span><br><span class="line">        <span class="comment">// we could use each number exactly one time</span></span><br><span class="line">        <span class="comment">// this is a 0-1 knapsack problem.</span></span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(sum + <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// item's cost is the number nums[i]</span></span><br><span class="line">        <span class="comment">// volume is the sum</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = sum; j &gt;= nums[i]; --j)</span><br><span class="line">            &#123;</span><br><span class="line">                </span><br><span class="line">                dp[j] = dp[j] + dp[j - nums[i]];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[sum];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="完全背包-1"><a href="#完全背包-1" class="headerlink" title="完全背包"></a>完全背包</h2><h3 id="完全平方数"><a href="#完全平方数" class="headerlink" title="完全平方数"></a>完全平方数</h3><p><a href="https://leetcode-cn.com/problems/perfect-squares/" target="_blank" rel="noopener">LC279 完全平方数</a></p>
+<p>完全背包。要求填满背包。统计最少物品个数。</p>
+<p>思路：</p>
+<ul>
+<li>正向遍历数组</li>
+<li>初始化数组除了<code>dp[0]=0</code>，其他全为<code>INT_MAX</code></li>
+<li><code>max</code>改为<code>min</code></li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">numSquares</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n + <span class="number">1</span>, INT_MAX);</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// there are floor(sqrt(n)) possible items.</span></span><br><span class="line">        <span class="comment">// the cost of item i is i * i</span></span><br><span class="line">        <span class="comment">// the value of every item is -1</span></span><br><span class="line">        <span class="keyword">auto</span> last_item = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(<span class="built_in">sqrt</span>(n));</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= last_item; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = i * i; j &lt; n + <span class="number">1</span>; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                dp[j] = min(dp[j], dp[j - i * i] + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp.back();</span><br><span class="line">    &#125; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h3 id="换硬币"><a href="#换硬币" class="headerlink" title="换硬币"></a>换硬币</h3><p><a href="https://leetcode.com/problems/coin-change/" target="_blank" rel="noopener">LC322 Coin Change</a><br>思路一：<br>指定起点和终点的最优路径长度问题：将剩余钱数$P$看作顶点，如果$P - coins[i] \geq 0$则存在边$(P, P-coins[i])$。求$\mathrm{path}(P, 0)$的最小长度。如果不存在$\mathrm{path}(P, 0)$，则返回-1。<br>基本情况</p>
+<script type="math/tex; mode=display">P_0 = 0</script><p>递归表达式</p>
+<script type="math/tex; mode=display">P_i = \min\{P_{(i - \text{coins}[j])} | i - \text{coins}[j] \geq 0\} + 1</script><p>为了处理换不成的问题，将dp数组都初始化为一个不能达到的大值<code>amount + 1</code>。这样对于不存在的路径，经过循环后其值会被更新为<code>amount + 2</code>。其他路径如果使用不可能达到的路径作为子问题的路径，最小也会超过<code>amount</code>。如果有解，则会使用较小的值。所以在最后判断<code>dp[amount] &gt; amount</code>即可。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">coinChange</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; coins, <span class="keyword">int</span> amount)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(amount == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(amount + <span class="number">1</span>, amount + <span class="number">1</span>);</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= amount; ++i)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> coin : coins)</span><br><span class="line">                <span class="keyword">if</span>(i &gt;= coin &amp;&amp; dp[i] &gt; dp[i - coin])</span><br><span class="line">                    dp[i] = dp[i - coin];</span><br><span class="line">            ++dp[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[amount] &gt; amount ? <span class="number">-1</span> : dp[amount];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>思路二：<br>这是一个完全背包问题，要求必须将背包正好装满。按《背包九讲》中把<code>dp[0]</code>初始化为0，其他为$\infty$即可。注意这里不可以用$INT_MAX$，因为<code>INT_MAX</code>上面再做加法会溢出，所以要用一个不可能取得到的大数，比如<code>amount + 1</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">coinChange</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; coins, <span class="keyword">int</span> amount)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(amount + <span class="number">1</span>, amount + <span class="number">1</span>);</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; coins.size(); ++i)</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = coins[i]; j &lt;= amount; ++j)</span><br><span class="line">                dp[j] = min(dp[j], dp[j - coins[i]] + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> dp[amount] &lt; amount + <span class="number">1</span> ? dp[amount] : <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="换硬币解的个数"><a href="#换硬币解的个数" class="headerlink" title="换硬币解的个数"></a>换硬币解的个数</h3><p><a href="https://leetcode.com/problems/coin-change-2/" target="_blank" rel="noopener">LC518 Coin Change 2</a></p>
+<p>完全背包问题，求可行解的个数，只需将完全背包中的<code>max</code>换成<code>sum</code>，令<code>dp[0] = 1</code>即可。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">change</span><span class="params">(<span class="keyword">int</span> amount, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; coins)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(amount == <span class="number">0</span> &amp;&amp; coins.empty()) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(coins.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(amount + <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; coins.size(); ++i)</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = coins[i]; j &lt;= amount; ++j)</span><br><span class="line">                dp[j] = dp[j] + dp[j - coins[i]];</span><br><span class="line">        <span class="keyword">return</span> dp[amount];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="钢条切割"><a href="#钢条切割" class="headerlink" title="钢条切割"></a>钢条切割</h3><p>CLRS动态规划的例题。<br>思路一：<br>指定起点和终点的最大权路径问题。顶点$P$和$P-1, \cdots, P-i, \cdots, 0$之间都有边，边的权重为$price(i)$。寻找路径$\text{path}(P, 0)$的加权最大值。</p>
+<p>递归表达式</p>
+<script type="math/tex; mode=display">\left\{ \begin{align}&P_0 = 0\\&P_n = \max_{1 \leq i \leq n}(P_i + P_{n - i}) \end{align}\right.</script><p>思路二：要求背包恰好装满的完全背包问题。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">rodCut</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    rodCut()</span><br><span class="line">    :memo&#123;&#125;</span><br><span class="line">    ,cut&#123;&#125;</span><br><span class="line">    &#123;memo.fill(INT_MIN);memo[<span class="number">0</span>] = <span class="number">0</span>;memo[<span class="number">1</span>] = <span class="number">1</span>;cut.fill(INT_MIN);&#125;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">top_down_naive</span><span class="params">(<span class="keyword">int</span> length)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(length == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> q = INT_MIN;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= length; ++i)</span><br><span class="line">           q = max(q, price[i] + top_down_naive(length - i));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> q;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">top_down_memoized</span><span class="params">(<span class="keyword">int</span> length)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(memo[length] &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> q = INT_MIN;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= length; ++i)</span><br><span class="line">                q = max(q, price[i] + top_down_memoized(length - i));</span><br><span class="line">            memo[length] = q;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> memo[length];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">bottom_up</span><span class="params">(<span class="keyword">int</span> length)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(memo[length] &lt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">3</span>; j &lt;= length; ++j)</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= j; ++i)</span><br><span class="line">                    <span class="keyword">if</span>(<span class="keyword">auto</span> q = price[i] + memo[j - i]; memo[j] &lt; q)&#123;</span><br><span class="line">                        memo[j] = q;</span><br><span class="line">                        cut[j] = i;</span><br><span class="line">                    &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> memo[length];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; solution(<span class="keyword">int</span> length)&#123;</span><br><span class="line">        <span class="keyword">if</span>(length == <span class="number">0</span> || memo[length] &lt; <span class="number">0</span>) <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> sol = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">while</span>(length &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            sol.push_back(cut[length]);</span><br><span class="line">            length -= cut[length];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sol;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 11&gt; price</span><br><span class="line">    = &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">20</span>, <span class="number">24</span>, <span class="number">30</span>&#125;;</span><br><span class="line">    <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 11&gt; memo;</span><br><span class="line">    <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 11&gt; cut;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="二维费用的背包问题"><a href="#二维费用的背包问题" class="headerlink" title="二维费用的背包问题"></a>二维费用的背包问题</h2><p><a href="https://leetcode.com/problems/ones-and-zeroes/" target="_blank" rel="noopener">LC474 Ones and Zeroes</a><br>典型的《背包九讲》中二维费用的01背包问题。每种物品都有两个代价，<code>c</code>是该物品1的个数，<code>d</code>是该物品0的个数。m，n则是你这两种背包的容量。用一个二维数组<code>dp[v][u]</code>按照01背包的思路，反向做内层循环即可解决。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findMaxForm</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; strs, <span class="keyword">int</span> m, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(strs.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> nStr = strs.size();</span><br><span class="line">        <span class="keyword">auto</span> c = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(nStr);</span><br><span class="line">        <span class="keyword">auto</span> d = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(nStr);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nStr; ++i)</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ch : strs[i])&#123;</span><br><span class="line">                <span class="keyword">if</span>(ch == <span class="string">'0'</span>) ++c[i];</span><br><span class="line">                <span class="keyword">else</span> ++d[i];</span><br><span class="line">            &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &gt;(m + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp; vec : dp) vec.resize(n + <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; nStr; ++i)</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> v = m; v &gt;= c[i]; --v)</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> u = n; u &gt;= d[i]; --u)</span><br><span class="line">                    dp[v][u] = max(dp[v][u], dp[v - c[i]][u - d[i]] + <span class="number">1</span>);</span><br><span class="line">                                    </span><br><span class="line">        <span class="keyword">return</span> dp[m][n];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<hr>
+<h1 id="最大正方形"><a href="#最大正方形" class="headerlink" title="最大正方形"></a>最大正方形</h1><p><a href="https://leetcode-cn.com/problems/maximal-square/" target="_blank" rel="noopener">LC221 最大正方形</a></p>
+<p>如果一个点是1</p>
+<ul>
+<li>以他为右下角，能形成的最小正方形边长为1。</li>
+<li>以他为右下角，能形成的最大正方形长取决于这三个当中的最小值 + 1<ul>
+<li>以他上方的点为右下角，能形成的正方形边长</li>
+<li>以他左上方的点为右下角，能形成的正方形边长</li>
+<li>以他左边的点为右下角，能形成的正方形边长<br>状态转移方程：<br>如果<code>matrix[i][j] == &#39;1&#39;</code>，<code>dp[i][j] = min({dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]}) + 1</code><br>如果<code>matrix[i][j] == &#39;0&#39;</code>，<code>dp[i][j] = 0</code><br>初始状态<code>dp[0][0] = matrix[0][0] - &#39;0&#39;</code></li>
+</ul>
+</li>
+</ul>
+<p>注意：</p>
+<ul>
+<li>处理i和j的下标溢出问题很麻烦。不如我们给dp矩阵左边和上边增加一行0。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maximalSquare</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; matrix)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(matrix.empty() || matrix.front().empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> row = matrix.size();</span><br><span class="line">        <span class="keyword">auto</span> col = matrix.front().size();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// create a dp matrix</span></span><br><span class="line">        <span class="comment">// add a row and a col to avoid underflow </span></span><br><span class="line">        <span class="keyword">auto</span> dp = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(row + <span class="number">1</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(col + <span class="number">1</span>, <span class="number">0</span>));</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; row + <span class="number">1</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">1</span>; j &lt; col + <span class="number">1</span>; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(matrix[i - <span class="number">1</span>][j - <span class="number">1</span>] == <span class="string">'0'</span>) dp[i][j] = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    dp[i][j] = min(&#123;dp[i - <span class="number">1</span>][j], dp[i][j - <span class="number">1</span>], dp[i - <span class="number">1</span>][j - <span class="number">1</span>]&#125;) + <span class="number">1</span>;</span><br><span class="line">                    res = max(res, dp[i][j]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res * res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="打家劫舍"><a href="#打家劫舍" class="headerlink" title="打家劫舍"></a>打家劫舍</h1><p><a href="https://leetcode-cn.com/problems/house-robber-iii/" target="_blank" rel="noopener">LC337 打家劫舍III</a></p>
+<p>思路一：</p>
+<ul>
+<li>记录当前node是否被劫掠，并传给一个bool给递归调用的子node</li>
+<li>如果该节点的双亲节点被劫掠，那么这个节点不可以被劫掠。</li>
+<li>如果该节点的双亲节点没被劫掠，那么这个节点可以被劫掠，也可以不被劫掠。</li>
+</ul>
+<p>最后一个case TLE，估计是函数调用太多了。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        TLE code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">rob</span><span class="params">(TreeNode* root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> max(rob(root, <span class="literal">true</span>), rob(root, <span class="literal">false</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">rob</span><span class="params">(TreeNode* root, <span class="keyword">bool</span> isParentRobbed)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// you rob void, you get void</span></span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// if its parent is robbed, we cannot rob this node</span></span><br><span class="line">        <span class="keyword">if</span>(isParentRobbed)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> rob(root-&gt;left, <span class="literal">false</span>) </span><br><span class="line">                 + rob(root-&gt;right, <span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// else, its parent is not robbed, free to rob this node</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> robbed = root-&gt;val + rob(root-&gt;left, <span class="literal">true</span>)</span><br><span class="line">                       +rob(root-&gt;right, <span class="literal">true</span>);</span><br><span class="line">            <span class="keyword">auto</span> not_robbed =  rob(root-&gt;left, <span class="literal">false</span>)</span><br><span class="line">                            +rob(root-&gt;right, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> max(robbed, not_robbed);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>思路二：</p>
+<ul>
+<li>不需要告诉子node自己是否被劫掠，而是每次都返回两个值，一个是被劫掠的收益，另一个是不被劫掠的收益。</li>
+<li>被劫掠的收益 = 当前节点的值 + 不劫掠左孩子 + 不劫掠右孩子</li>
+<li>不被劫掠的收益 = max(劫掠左 + 劫掠右, 不劫掠左 + 劫掠右， 劫掠左 + 不劫掠右， 不劫掠左 + 不劫掠右)</li>
+</ul>
+<p>减少了非常多的函数调用开始，可以超过近97%的解</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <pre><code class="lang-cpp">class Solution {
+public:
+    int rob(TreeNode* root) {
+        auto [r,nr] = rob_(root);
+        return max(r, nr);
+    }
+
+    pair&lt;int, int&gt; rob_(TreeNode* root)
+    {
+        // you cannot rob void
+        if(!root) return {0, 0};
+
+        auto [l_robbed, l_not_robbed] = rob_(root-&gt;left);
+        auto [r_robbed, r_not_robbed] = rob_(root-&gt;right);
+
+        return {
+            // this node is robbed
+            root-&gt;val + l_not_robbed + r_not_robbed,
+            // this node is not robbed
+                max({l_robbed + r_robbed, 
+                     l_not_robbed + r_not_robbed,
+                     l_not_robbed + r_robbed,
+                     l_robbed + r_not_robbed})};
+    }
+};
+</code></pre>
+
+    </div>
+</div>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag"># 动态规划</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/3a3ae49d/" rel="prev" title="顺序统计量">
+      <i class="fa fa-chevron-left"></i> 顺序统计量
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/69c852d4/" rel="next" title="二叉堆">
+      二叉堆 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#子序列-子串"><span class="nav-number">1.</span> <span class="nav-text">子序列&#x2F;子串</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#编辑距离"><span class="nav-number">1.1.</span> <span class="nav-text">编辑距离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LCS"><span class="nav-number">1.2.</span> <span class="nav-text">LCS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LIS"><span class="nav-number">1.3.</span> <span class="nav-text">LIS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最长公共子串"><span class="nav-number">1.4.</span> <span class="nav-text">最长公共子串</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#乘积最大子序列"><span class="nav-number">1.5.</span> <span class="nav-text">乘积最大子序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最长字符串链"><span class="nav-number">1.6.</span> <span class="nav-text">最长字符串链</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#买卖股票"><span class="nav-number">2.</span> <span class="nav-text">买卖股票</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#矩阵中的路径"><span class="nav-number">3.</span> <span class="nav-text">矩阵中的路径</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#背包问题"><span class="nav-number">4.</span> <span class="nav-text">背包问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#背包问题的通解形式"><span class="nav-number">4.1.</span> <span class="nav-text">背包问题的通解形式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#01背包"><span class="nav-number">4.1.1.</span> <span class="nav-text">01背包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完全背包"><span class="nav-number">4.1.2.</span> <span class="nav-text">完全背包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#求填满背包的最少物品数量"><span class="nav-number">4.1.3.</span> <span class="nav-text">求填满背包的最少物品数量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#求装满背包解的数目"><span class="nav-number">4.1.4.</span> <span class="nav-text">求装满背包解的数目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#01背包题目"><span class="nav-number">4.2.</span> <span class="nav-text">01背包题目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完全背包-1"><span class="nav-number">4.3.</span> <span class="nav-text">完全背包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#完全平方数"><span class="nav-number">4.3.1.</span> <span class="nav-text">完全平方数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#换硬币"><span class="nav-number">4.3.2.</span> <span class="nav-text">换硬币</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#换硬币解的个数"><span class="nav-number">4.3.3.</span> <span class="nav-text">换硬币解的个数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#钢条切割"><span class="nav-number">4.3.4.</span> <span class="nav-text">钢条切割</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二维费用的背包问题"><span class="nav-number">4.4.</span> <span class="nav-text">二维费用的背包问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最大正方形"><span class="nav-number">5.</span> <span class="nav-text">最大正方形</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#打家劫舍"><span class="nav-number">6.</span> <span class="nav-text">打家劫舍</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

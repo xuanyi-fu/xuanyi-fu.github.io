@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="TopK：LC215 Kth Largest Element in an ArrayLC973 K Closest Points to OriginLC378 Kth Smallest Element in a Sorted Matrix [pq存序号，访问后标记] 中位数：LC4 排序数组的中位数 [只需[first, last)区间的条件]LC295 数据流中的中位数 [两个pq]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="顺序统计量">
+<meta property="og:url" content="http://xyfu.me/posts/3a3ae49d/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="TopK：LC215 Kth Largest Element in an ArrayLC973 K Closest Points to OriginLC378 Kth Smallest Element in a Sorted Matrix [pq存序号，访问后标记] 中位数：LC4 排序数组的中位数 [只需[first, last)区间的条件]LC295 数据流中的中位数 [两个pq]">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-09-02T05:04:49.000Z">
+<meta property="article:modified_time" content="2020-02-29T22:08:41.691Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="二叉堆">
+<meta property="article:tag" content="划分">
+<meta property="article:tag" content="选择">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/3a3ae49d/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>顺序统计量 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/3a3ae49d/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          顺序统计量
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-09-02 13:04:49" itemprop="dateCreated datePublished" datetime="2019-09-02T13:04:49+08:00">2019-09-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 06:08:41" itemprop="dateModified" datetime="2020-03-01T06:08:41+08:00">2020-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.1k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>TopK：<br><a href="https://xyfu.me/posts/3a3ae49d/#%E9%80%89%E6%8B%A9">LC215 Kth Largest Element in an Array</a><br><a href="https://xyfu.me/posts/3a3ae49d/#TopK%E9%97%AE%E9%A2%98">LC973 K Closest Points to Origin</a><br><a href="https://xyfu.me/posts/3a3ae49d/#%E7%9F%A9%E9%98%B5%E4%B8%8A%E7%9A%84TopK">LC378 Kth Smallest Element in a Sorted Matrix</a> [pq存序号，访问后标记]</p>
+<p>中位数：<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0">LC4 排序数组的中位数</a> [只需[first, last)区间的条件]<br><a href="https://xyfu.me/posts/3a3ae49d/#%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0">LC295 数据流中的中位数</a> [两个pq]</p>
+<a id="more"></a>
+<h1 id="二叉堆-heap"><a href="#二叉堆-heap" class="headerlink" title="二叉堆(heap)"></a>二叉堆(heap)</h1><p>见<a href="https://xyfu.me/posts/69c852d4/">二叉堆</a></p>
+<h1 id="划分-partition"><a href="#划分-partition" class="headerlink" title="划分(partition)"></a>划分(partition)</h1><h2 id="Hoare划分-推荐"><a href="#Hoare划分-推荐" class="headerlink" title="Hoare划分(推荐)"></a>Hoare划分(推荐)</h2><p>更适合C++ STL左闭右开区间的一种划分方式，而且相比Lomuto划分，交换次数要少很多。</p>
+<ul>
+<li>选择数组第一个元素作为枢纽元P(假设其指针为first)。初始化两个指针(L,R)在数组first+1位置和last位置</li>
+<li>开始循环(<code>while(true)</code>)<ul>
+<li>开始循环(<code>while(L &lt; end &amp;&amp; !(P &lt; *L))</code>)<ul>
+<li><code>++L</code></li>
+</ul>
+</li>
+<li>开始循环(<code>while(P &lt; *R)</code>) <ul>
+<li><code>--R</code></li>
+</ul>
+</li>
+<li>如果(R &lt; L) 结束循环</li>
+<li><code>swap(*L, *R)</code></li>
+</ul>
+</li>
+<li>返回<code>L-1</code><br>下面这个是SGI STL的partition实现。 来自《STL源码剖析》侯捷。这个算法不能用作其他需要partition算法的子算法，因为其实现不能满足<a href="https://xyfu.me/2019/09/02/%E5%88%92%E5%88%86%E4%B8%8E%E9%80%89%E6%8B%A9/#%E4%B8%A5%E6%A0%BC%E5%BC%B1%E5%BA%8F%E5%85%B3%E7%B3%BB">严格弱序关系</a>。注意算法中的<code>!(pred(*first))</code>，当传入一个比较函数时，可能会使得划分一侧区间全为空，而使上一级算法陷入死循环。一个典型的例子是对于一个<code>vector&lt;int&gt;{1,1,1,1,1,1}</code>使用<code>auto comp = less&lt;int&gt;{}</code>做<code>nth_element</code>时(假设该<code>nth_element</code>使用的是这个<code>partition</code>)。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Pred&gt;</span><br><span class="line"><span class="function">It <span class="title">partition_hoare</span><span class="params">(It first, It last, Pred pred)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">            <span class="keyword">if</span>(first == last)</span><br><span class="line">                <span class="keyword">return</span> first;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(!(pred(*first)))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                ++first;</span><br><span class="line">        --last;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">            <span class="keyword">if</span>(first == last)</span><br><span class="line">                <span class="keyword">return</span> first;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(pred(*last))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                --last;</span><br><span class="line">        iter_swap(first, last);</span><br><span class="line">        ++first;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="Lomuto划分-不推荐"><a href="#Lomuto划分-不推荐" class="headerlink" title="Lomuto划分(不推荐)"></a>Lomuto划分(不推荐)</h2><ul>
+<li>选择数组a最后一个元素为枢纽元(P)。初始化两个指针(i,j)在数组起始位置。</li>
+<li>循环直到 j == a.size() - 1<ul>
+<li>如果a[i] &lt;= P, 交换i,j的内容，++i,++j.</li>
+<li>如果a[i] &gt;  P, ++j.</li>
+</ul>
+</li>
+<li>交换i,j的内容，返回i.</li>
+</ul>
+<p>维护的循环不变式：</p>
+<ul>
+<li>[begin, i)区间的元素都&lt;=P</li>
+<li>[i, j)区间的元素都&gt;P.</li>
+<li>j &lt;= a.size() - 1.</li>
+</ul>
+<p>Lumuto划分只能保证a[i]&lt;=P部分的元素（即前半部分元素）划分后是稳定的。因为a[i]&gt;P（即后半部分元素）可能是由前面交换过来的。<br>下面是一个简单的Lomuto划分实现（不保证正确）：</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Less&gt;</span><br><span class="line"><span class="function">It <span class="title">partition_lomuto</span><span class="params">(It first, It last, Less less)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(first == last)     <span class="keyword">return</span> first;</span><br><span class="line">    <span class="keyword">auto</span> pivot = last - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">auto</span> P = *pivot;</span><br><span class="line">    <span class="keyword">auto</span> i = first;</span><br><span class="line">    <span class="keyword">auto</span> j = first;</span><br><span class="line">    <span class="keyword">while</span>(j &lt; pivot)&#123;</span><br><span class="line">        <span class="keyword">if</span>(!less(P, *j))&#123;</span><br><span class="line">            swap(*i, *j);</span><br><span class="line">            ++i;++j;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(less(P, *j)) ++j;</span><br><span class="line">    &#125;</span><br><span class="line">    swap(*i, *pivot);</span><br><span class="line">    <span class="keyword">return</span> i+<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="unguarded-partition（用于其他算法作为子算法）"><a href="#unguarded-partition（用于其他算法作为子算法）" class="headerlink" title="unguarded_partition（用于其他算法作为子算法）"></a>unguarded_partition（用于其他算法作为子算法）</h2><p>下面是SGI STL的unguarded_partition实现。同样来自《STL源码剖析》。这个partition的实现，可以防止左侧元素为空的情况，用于其他使用partition作为子算法的算法，比如随机选择和快速排序。但是仍然无法防止因为传入的比较函数不满足严格弱序关系而导致的死循环。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> T, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line"><span class="function">It <span class="title">unguarded_partition_hoare</span><span class="params">(It first, It last, T pivot, Compare comp)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">        <span class="keyword">while</span>(comp(*first, pivot)) ++first;</span><br><span class="line">        --last;</span><br><span class="line">        <span class="keyword">while</span>(comp(pivot,*last)) --last;</span><br><span class="line">        <span class="keyword">if</span>(!(first &lt; last)) <span class="keyword">return</span> first;</span><br><span class="line">        iter_swap(first, last);</span><br><span class="line">        ++first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="严格弱序关系-Strict-weak-Ordering"><a href="#严格弱序关系-Strict-weak-Ordering" class="headerlink" title="严格弱序关系(Strict weak Ordering)"></a>严格弱序关系(Strict weak Ordering)</h2><p>如果比较函数对相等的值返回了true, 即使是unguarded_partition也会导致一边为空。这会使得后面的随机选择算法<code>random_partition</code>进入死循环。</p>
+<p>使比较函数对相等的值返回true还会有很多其他奇妙的事情产生：</p>
+<ul>
+<li>set可能存在看起来不等价的元素<br>  在这样的<code>set&lt;int, less_equal&lt;int&gt; &gt;</code>中，即使用<code>&lt;=</code>作为<code>set</code>的比较函数。这会使相等的元素不等价，即<code>!(a&lt;=a) &amp;&amp; !(a&lt;=a) == false</code>。在相等的元素不等价的情况下，一个set里就可能会有两个<code>a</code>同时存在。</li>
+<li>multiset的<code>equal_range()</code>不会包含所有看起来等价的元素<br>  在这样的<code>multiset&lt;int, less_equal&lt;int&gt; &gt;</code>中，如果你插入两个相同值<code>a</code>，当你使用<code>equal_range</code>时，两个不会都在<code>equal_range</code>的返回区间里，因为两个<code>a</code>不等价。</li>
+</ul>
+<p>事实上对于<code>sort</code>, <code>nth_element</code>, 和其他的一些使用等价关系的C++容器和算法，传入的比较函数必须满足<strong>严格弱序关系(strict weak ordering)</strong>，简单的来讲，需要满足以下性质：</p>
+<ul>
+<li>对于所有 a，<code>comp(a,a)==false</code></li>
+<li>若 <code>comp(a,b)==true</code> 则 <code>comp(b,a)==false</code></li>
+<li>若 <code>comp(a,b)==true</code> 且 <code>comp(b,c)==true</code> 则 <code>comp(a,c)==true</code></li>
+</ul>
+<p>LLVM(clang)的nth_element，即使传入一个使相等值返回true的比较函数，也不会进入死循环。原因：<strong>TODO</strong></p>
+<hr>
+<p>参考：</p>
+<blockquote>
+<p>Effective STL, Scott Meyers, Item 21: Always have comparison functions return false for equal values.<br><a href="https://en.wikipedia.org/wiki/Weak_ordering" target="_blank" rel="noopener">Weak ordering - Wikipedia</a><br><a href="https://zh.cppreference.com/w/cpp/named_req/Compare" target="_blank" rel="noopener">C++ 具名要求： Compare</a></p>
+</blockquote>
+<p>关于<code>iter_swap</code>:</p>
+<blockquote>
+<p>Strictly speaking, iter_swap is redundant. It exists only for technical reasons: in some circumstances, some compilers have difficulty performing the type deduction required to interpret <code>swap(*a, *b)</code>.<br><a href="https://stackoverflow.com/questions/14024228/iter-swap-versus-swap-whats-the-difference" target="_blank" rel="noopener">iter_swap() versus swap() — what’s the difference? - stackoverflow</a></p>
+</blockquote>
+<hr>
+<h2 id="稳定的划分算法"><a href="#稳定的划分算法" class="headerlink" title="稳定的划分算法"></a>稳定的划分算法</h2><p>STL中稳定划分算法：<code>stable_partition</code>有以下复杂度保证：给定 N = last - first，若有充足内存，则准确应用 N 次谓词及交换 O(N) 次。若内存不充足，则至多交换 N log N 次(猜测是直接使用了<code>sort</code>)。</p>
+<hr>
+<h1 id="选择"><a href="#选择" class="headerlink" title="选择"></a>选择</h1><p><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">LC215 Kth Largest Element in an Array</a></p>
+<h2 id="最大值与最小值"><a href="#最大值与最小值" class="headerlink" title="最大值与最小值"></a>最大值与最小值</h2><p><code>std::minmax_element</code>和<code>std::minmax</code> 一次遍历，同时找到最大值和最小值。对于N个元素，最多3N/2次比较。同时记录最大值和最小值。在每次比较时，对输入元素成对处理，先比较两个输入元素的大小。将其中较大的元素和最大值比较，较小的元素和最小值比较。</p>
+<h2 id="顺序统计量-TopK问题"><a href="#顺序统计量-TopK问题" class="headerlink" title="顺序统计量(TopK问题)"></a>顺序统计量(TopK问题)</h2><h3 id="优先级队列"><a href="#优先级队列" class="headerlink" title="优先级队列"></a>优先级队列</h3><p>时间复杂度为$\Theta(k\log N)$：在给定数组上建一个最大堆<code>make_heap()</code>，后再<code>pop_heap()</code>k次即可。就地算法。不稳定。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        make_heap & pop_heap, klogN code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findKthLargest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        --k;</span><br><span class="line">        make_heap(nums.begin(), nums.end());</span><br><span class="line">        <span class="keyword">auto</span> end = nums.end();</span><br><span class="line">        <span class="keyword">while</span>(k)</span><br><span class="line">        &#123;</span><br><span class="line">            pop_heap(nums.begin(), end--);</span><br><span class="line">            --k;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> *nums.begin();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>时间复杂度为%\Theta(N\log k)%：建立一个大小为k的最小堆。遍历给定数组，当堆未满时，将元素<code>push_heap()</code>。当堆满了时，比较堆顶元素(即堆中最小的元素)和当前遍历元素，如果当前遍历元素比堆顶元素大，将堆顶元素<code>pop_heap()</code>后<code>push_heap()</code>当前遍历的元素。遍历结束后，堆中元素即为最大的k个元素。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        push_heap & pop_heap Nlogk code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findKthLargest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        priority_queue&lt;<span class="keyword">int</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;, greater&lt;<span class="keyword">int</span>&gt; &gt; pq(greater&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> n : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(pq.size() &lt; k)</span><br><span class="line">            &#123;</span><br><span class="line">                pq.push(n);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(n &gt; pq.top())</span><br><span class="line">            &#123;</span><br><span class="line">                pq.pop();</span><br><span class="line">                pq.push(n);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> pq.top();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h3 id="期望为线性时间的选择"><a href="#期望为线性时间的选择" class="headerlink" title="期望为线性时间的选择"></a>期望为线性时间的选择</h3><p>STL中的随机选择算法实现比较巧妙。输入为三个迭代器。<code>first</code>是序列头，<code>last</code>是序列尾。下面来自<a href="https://zh.cppreference.com/w/cpp/algorithm/nth_element" target="_blank" rel="noopener">std::nth_element - cppreference</a>:</p>
+<p>nth_element 是部分排序算法，它重排 [first, last) 中元素，使得：</p>
+<ul>
+<li>nth 所指向的元素被更改为假如 [first, last) 已排序则该位置会出现的元素。</li>
+<li>这个新的 nth 元素前的所有元素小于或等于新的 nth 元素后的所有元素。</li>
+</ul>
+<p>如果想要找第k小的元素，应该这么调用<code>nth_element(nums.begin(), nums.begin() + k - 1, nums.end())</code>。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        random_select code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findKthLargest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123; </span><br><span class="line">        random_select(nums.begin(), nums.begin() + k - <span class="number">1</span>, nums.end());</span><br><span class="line">        <span class="keyword">return</span> nums[k - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">random_select</span><span class="params">(It first, It nth, It last)</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(last - first &gt; <span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">auto</span> pivot = *(last - <span class="number">1</span>);</span><br><span class="line">            <span class="keyword">auto</span> cut = unguarded_partition_hoare(first, last, pivot, greater&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">            <span class="keyword">if</span>(cut &lt;= nth) first = cut;</span><br><span class="line">            <span class="keyword">else</span>           last = cut;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> T, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line">    <span class="function">It <span class="title">unguarded_partition_hoare</span><span class="params">(It first, It last, T pivot, Compare comp)</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">            <span class="keyword">while</span>(comp(*first, pivot)) ++first;</span><br><span class="line">            --last;</span><br><span class="line">            <span class="keyword">while</span>(comp(pivot,*last)) --last;</span><br><span class="line">            <span class="keyword">if</span>(!(first &lt; last)) <span class="keyword">return</span> first;</span><br><span class="line">            iter_swap(first, last);</span><br><span class="line">            ++first;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<p>事实上STL中该算法的实现为<strong>内省选择(introselect)</strong>, 来自<a href="https://en.wikipedia.org/wiki/David_Musser" target="_blank" rel="noopener">David Musser</a></p>
+<ul>
+<li>使用<code>median_of_three</code>作为<code>pivot</code>，防止因为传入已经排序的数组导致的性能下降。</li>
+<li>因为也存在对<code>median_of_three</code>方法的破解序列，因此当<code>first - last</code>小于某一值时使用插入排序将该区间排序。使该算法平均与<code>std::distance(first, last)</code>成线性。即期望时间复杂度为$O(N)$。</li>
+</ul>
+<p>算法原理：</p>
+<ul>
+<li>循环不变式：<code>nth</code>永远在区间[first, last)中，因此必须保证[first, last)非空，即<code>last - first &gt; 1</code>。</li>
+<li>使用<code>median_of_three</code>作为<code>pivot</code>，用该pivot对区间做划分，将划分点记为<code>cut</code></li>
+<li>如果<code>cut &lt;= nth</code>，为了保证<code>nth</code>仍然落在[first, last)中，将<code>cut</code>的位置赋给<code>first</code></li>
+<li>如果<code>cut &gt; nth</code>，为了保证<code>nth</code>仍然落在[first, last)中，将<code>cut</code>的位置赋给<code>last</code></li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        未使用insertion_sort的introselect
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ext/algorithm&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findKthLargest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        introselect(nums.begin(), nums.begin() + k - <span class="number">1</span>, nums.end());</span><br><span class="line">        <span class="keyword">return</span> *(nums.begin() + k - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">introselect</span><span class="params">(It first, It nth, It last)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(last - first &gt; <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> pivot = __gnu_cxx::__median(*first, *(first + (last - first) / <span class="number">2</span>), *(last - <span class="number">1</span>));</span><br><span class="line">            <span class="keyword">auto</span> cut = unguarded_partition(first, last, pivot);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// invariance: nth in [first, last)</span></span><br><span class="line">            <span class="keyword">if</span>(cut &lt;= nth)</span><br><span class="line">            &#123;</span><br><span class="line">                first = cut;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="comment">// cut &gt; nth</span></span><br><span class="line">            &#123;</span><br><span class="line">                last = cut;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function">It <span class="title">unguarded_partition</span><span class="params">(It first, It last, <span class="keyword">typename</span>  iterator_traits&lt;It&gt;::value_type pivot)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span>(*first &gt; pivot) ++first;</span><br><span class="line">            --last;</span><br><span class="line">            <span class="keyword">while</span>(pivot &gt; *last ) --last;</span><br><span class="line">            <span class="keyword">if</span>(!(first &lt; last)) <span class="keyword">return</span> first;</span><br><span class="line">            iter_swap(first, last);</span><br><span class="line">            ++first;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h1 id="TopK问题"><a href="#TopK问题" class="headerlink" title="TopK问题"></a>TopK问题</h1><h2 id="数组上的TopK"><a href="#数组上的TopK" class="headerlink" title="数组上的TopK"></a>数组上的TopK</h2><p><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">LC973 K Closest Points to Origin</a></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; kClosest(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; points, <span class="keyword">int</span> K) &#123;</span><br><span class="line">        <span class="keyword">auto</span> cmp = [](<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; lhs, <span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; rhs)&#123;</span><br><span class="line">            <span class="keyword">return</span> lhs[<span class="number">0</span>]*lhs[<span class="number">0</span>]+lhs[<span class="number">1</span>]*lhs[<span class="number">1</span>] &lt; rhs[<span class="number">0</span>]*rhs[<span class="number">0</span>]+rhs[<span class="number">1</span>]*rhs[<span class="number">1</span>];</span><br><span class="line">        &#125;;</span><br><span class="line">        random_select(points.begin(), points.begin() + K - <span class="number">1</span>, points.end(), cmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(points.begin(), points.begin() + K);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp&gt;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">random_select</span><span class="params">(It first, It nth, It last, Comp comp)</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(last - first &gt; <span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">auto</span> cut = unguarded_partition_hoare(first, last, *(last - <span class="number">1</span>), comp);</span><br><span class="line">            <span class="keyword">if</span>(cut &lt;= nth) first = cut;</span><br><span class="line">            <span class="keyword">else</span>           last  = cut;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> T, <span class="keyword">typename</span> Comp&gt;</span><br><span class="line">    <span class="function">It <span class="title">unguarded_partition_hoare</span><span class="params">(It first, It last, T pivot, Comp comp)</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">            <span class="keyword">while</span>(comp(*first, pivot)) ++first;</span><br><span class="line">            --last;</span><br><span class="line">            <span class="keyword">while</span>(comp(pivot, *last)) --last;</span><br><span class="line">            <span class="keyword">if</span>(!(first &lt; last)) <span class="keyword">return</span> first;</span><br><span class="line">            iter_swap(first, last);</span><br><span class="line">            ++first;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="矩阵上的TopK"><a href="#矩阵上的TopK" class="headerlink" title="矩阵上的TopK"></a>矩阵上的TopK</h2><p>在一个$m \times n$的杨氏矩阵中，每一行的数据都是从左到右排序的，每一列的数据都是从上到下排序的。不存在的元素会被填充为$\infty$。我们容易知道以下性质：</p>
+<ul>
+<li>$Y(1,1) = \infty$ 代表矩阵为空。</li>
+<li>$Y(m,n) &lt; \infty$ 代表矩阵为满。</li>
+</ul>
+<p>[CLRS]6-3, <a href="https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/" target="_blank" rel="noopener">LC378 Kth Smallest Element in a Sorted Matrix</a></p>
+<p>维持一个最小堆。将左上角的元素放入堆中并标记。每次从堆顶中取出一个元素，并尝试将其右边和下方的未标记元素放入堆中。将放入堆中的元素做标记。直到从堆中取出了k个元素。该元素即为第k小的元素。</p>
+<p>复杂度分析：<br>最外层循环进行k次，每次循环有一次pop，最多两次push。因此队列长度会不断增长，最大长度为k。所以运行时间为<br>$T = 3 \times(\log 1 + \log 2 + \log 3 + \cdots + \log k) = O(\log(k!)) = \Theta(k\log k)$</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Feb/19/2020 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pos</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">size_t</span> x;</span><br><span class="line">    <span class="keyword">size_t</span> y;</span><br><span class="line">    <span class="keyword">int</span>  val;</span><br><span class="line">    pos(<span class="keyword">size_t</span> x, <span class="keyword">size_t</span> y, <span class="keyword">int</span> val)</span><br><span class="line">    :x(x)</span><br><span class="line">    ,y(y)</span><br><span class="line">    ,val(val)</span><br><span class="line">    &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">friend</span> <span class="keyword">bool</span> <span class="keyword">operator</span>&lt;(<span class="keyword">const</span> pos&amp; lhs, <span class="keyword">const</span> pos&amp; rhs)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> rhs.val &lt; lhs.val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">int</span> EXPLORED = INT_MAX;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">kthSmallest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> row = matrix.size();</span><br><span class="line">        <span class="keyword">auto</span> col = matrix.front().size();</span><br><span class="line">        priority_queue&lt;pos&gt; pq&#123;&#125;;</span><br><span class="line">        <span class="comment">// we start from the top left corner of the matrix</span></span><br><span class="line">        pq.emplace(<span class="number">0</span>, <span class="number">0</span>, matrix[<span class="number">0</span>][<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(k)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> [x, y, val] = pq.top();</span><br><span class="line">            --k;</span><br><span class="line">            res = val;</span><br><span class="line">            pq.pop();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(x &lt; row - <span class="number">1</span> &amp;&amp; matrix[x + <span class="number">1</span>][y] != EXPLORED)</span><br><span class="line">            &#123;</span><br><span class="line">                pq.emplace(x + <span class="number">1</span>, y, matrix[x + <span class="number">1</span>][y]);</span><br><span class="line">                matrix[x + <span class="number">1</span>][y] = EXPLORED;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(y &lt; col - <span class="number">1</span> &amp;&amp; matrix[x][y + <span class="number">1</span>] != EXPLORED)</span><br><span class="line">            &#123;</span><br><span class="line">                pq.emplace(x, y + <span class="number">1</span>, matrix[x][y + <span class="number">1</span>]);</span><br><span class="line">                matrix[x][y + <span class="number">1</span>] = EXPLORED;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">kthSmallest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">using</span> t = <span class="built_in">std</span>::tuple&lt;<span class="keyword">size_t</span>, <span class="keyword">size_t</span>, <span class="keyword">int</span>&gt;; </span><br><span class="line">        <span class="keyword">auto</span> cmp = [](<span class="keyword">const</span> t&amp; lhs, <span class="keyword">const</span> t&amp; rhs)&#123;<span class="keyword">return</span> get&lt;<span class="number">2</span>&gt;(lhs) &gt; get&lt;<span class="number">2</span>&gt;(rhs);&#125;;</span><br><span class="line">        <span class="keyword">auto</span> pq = priority_queue&lt;t, <span class="built_in">vector</span>&lt;t&gt;, <span class="keyword">decltype</span>(cmp) &gt;&#123;cmp&#125;;</span><br><span class="line">        <span class="keyword">auto</span> len = matrix.size();</span><br><span class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">        pq.push(make_tuple(<span class="number">0</span>, <span class="number">0</span>, matrix[<span class="number">0</span>][<span class="number">0</span>]));</span><br><span class="line">        matrix[<span class="number">0</span>][<span class="number">0</span>] = INT_MAX;</span><br><span class="line">        <span class="keyword">while</span>(k--)&#123;</span><br><span class="line">            <span class="keyword">auto</span> pv = pq.top();</span><br><span class="line">            pq.pop();</span><br><span class="line">            result = get&lt;<span class="number">2</span>&gt;(pv);</span><br><span class="line">            <span class="keyword">auto</span> x = get&lt;<span class="number">0</span>&gt;(pv);</span><br><span class="line">            <span class="keyword">auto</span> y = get&lt;<span class="number">1</span>&gt;(pv);</span><br><span class="line">            <span class="keyword">if</span>(x &lt; len - <span class="number">1</span> &amp;&amp; y &lt; len &amp;&amp; matrix[x + <span class="number">1</span>][y] != INT_MAX)&#123;</span><br><span class="line">                pq.push(make_tuple(x + <span class="number">1</span>, y, matrix[x + <span class="number">1</span>][y]));</span><br><span class="line">                matrix[x + <span class="number">1</span>][y] = INT_MAX;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(x &lt; len &amp;&amp; y &lt; len - <span class="number">1</span> &amp;&amp; matrix[x][y + <span class="number">1</span>] != INT_MAX)&#123;</span><br><span class="line">                pq.push(make_tuple(x, y + <span class="number">1</span>, matrix[x][y + <span class="number">1</span>]));</span><br><span class="line">                matrix[x][y + <span class="number">1</span>] = INT_MAX;</span><br><span class="line">            &#125;</span><br><span class="line">                </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="中位数"><a href="#中位数" class="headerlink" title="中位数"></a>中位数</h1><h2 id="排序数组的中位数"><a href="#排序数组的中位数" class="headerlink" title="排序数组的中位数"></a>排序数组的中位数</h2><p><a href="https://leetcode-cn.com/problems/median-of-two-sorted-arrays/" target="_blank" rel="noopener">LC4 排序数组的中位数</a></p>
+<p>见<a href="https://xyfu.me/posts/e8eb0481/#%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0">二分查找#排序数组的中位数</a></p>
+<h2 id="数据流中的中位数"><a href="#数据流中的中位数" class="headerlink" title="数据流中的中位数"></a>数据流中的中位数</h2><p><a href="https://xyfu.me/posts/3a3ae49d/#%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0">LC295 数据流中的中位数</a></p>
+<p>维护两个二叉堆，一个是最大堆<code>maxHeap</code>，另一个是最小堆<code>minHeap</code>，保证最小堆的元素都比最大堆的元素大，两个堆的元素个数不能相差超过1。这样我们只需要取最小堆和最大堆的<code>top</code>就知道中位数了。<br>设两个堆中的元素总数为<code>size</code>，每当一个新的数据<code>num</code>到来时，如果<code>size</code>是偶数，我们就给他放进最大堆。如果<code>size</code>是奇数，我们就给他放进最小堆。但是有可能当<code>size</code>是偶数时，到来的数据比最小堆的top要大，如果我们此时还给他到最大堆里，就破坏了<strong>最小堆的元素都比最大堆的元素大</strong>的假设。所以这个时候我们要把这个元素扔到最小堆里，然后再从最小堆里拿出来一个最小的（即top）给他过继给最大堆，这样就维护了平衡。当<code>size</code>是奇数时同理。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        奇偶下标放入不同队列 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MedianFinder</span> &#123;</span>    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** initialize your data structure here. */</span></span><br><span class="line">    MedianFinder()</span><br><span class="line">    :maxHeap&#123;&#125;</span><br><span class="line">    ,minHeap&#123;&#125;</span><br><span class="line">    ,size&#123;<span class="number">0</span>&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    ~MedianFinder() = <span class="keyword">default</span>;</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addNum</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span>((size &amp; <span class="number">1</span>) == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(!minHeap.empty() &amp;&amp; num &gt; minHeap.top())&#123;</span><br><span class="line">                minHeap.push(num);</span><br><span class="line">                maxHeap.push(minHeap.top());</span><br><span class="line">                minHeap.pop();</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                maxHeap.push(num);</span><br><span class="line">            &#125;    </span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">if</span>(!maxHeap.empty() &amp;&amp; num &lt; maxHeap.top())&#123;</span><br><span class="line">                maxHeap.push(num);</span><br><span class="line">                minHeap.push(maxHeap.top());</span><br><span class="line">                maxHeap.pop();</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                minHeap.push(num);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ++size;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedian</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span>((size &amp; <span class="number">1</span>) == <span class="number">0</span>)&#123;</span><br><span class="line">           <span class="keyword">return</span> maxHeap.top() + (minHeap.top() - maxHeap.top()) / <span class="number">2.0</span>;</span><br><span class="line">       &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">           <span class="keyword">return</span> maxHeap.top();</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    priority_queue&lt;<span class="keyword">double</span>, <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt;, less&lt;<span class="keyword">double</span>&gt; &gt; maxHeap;</span><br><span class="line">    priority_queue&lt;<span class="keyword">double</span>, <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt;, greater&lt;<span class="keyword">double</span>&gt; &gt; minHeap;</span><br><span class="line">    <span class="keyword">size_t</span> size;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>事实上根本就不需要奇偶下标放入不同的容器。偶数下标优先放入最大堆，奇数下标优先放入最小堆只是为了保证在数据总数为奇数时，最大堆的大小大于最小堆的大小。这样我们在找中位数的时候，直接返回最大堆的堆顶即可。我们完全可以减少<code>addNum</code>函数中的大量判断奇偶下标的流程控制，不分奇偶：</p>
+<ul>
+<li>如果最大堆是空的，或者该数字不能放进最小堆里<code>(num &lt; minq.top())</code>，我们给他放进最大堆。放入后检查最大堆大小和最小堆大小的差是否超过了1。如果超过了，就把最大堆的最大值过继给最小堆。</li>
+<li>最小堆也是这么处理。</li>
+<li>当总数是奇数时，我们返回两个堆中<strong>元素比较多</strong>的那一个的堆顶即可。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Feb/20/2020 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MedianFinder</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    priority_queue&lt;<span class="keyword">int</span>&gt; maxq;</span><br><span class="line">    priority_queue&lt;<span class="keyword">int</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;, greater&lt;<span class="keyword">int</span>&gt;&gt; minq;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** initialize your data structure here. */</span></span><br><span class="line">    MedianFinder()</span><br><span class="line">    :maxq&#123;&#125;</span><br><span class="line">    ,minq&#123;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addNum</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// invariance: abs(maxq.size() - minq.size()) &lt; 2</span></span><br><span class="line">        <span class="comment">// invariance: maxq.top() &lt;= minq.top()</span></span><br><span class="line">        <span class="keyword">if</span>(maxq.empty() || num &lt; maxq.top())</span><br><span class="line">        &#123;</span><br><span class="line">            </span><br><span class="line">            maxq.push(num);</span><br><span class="line">            <span class="comment">// check size</span></span><br><span class="line">            <span class="keyword">if</span>(maxq.size() - minq.size()  &gt; <span class="number">1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                minq.push(maxq.top());</span><br><span class="line">                maxq.pop();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            minq.push(num);</span><br><span class="line">            <span class="keyword">if</span>(minq.size() - maxq.size() &gt; <span class="number">1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                maxq.push(minq.top());</span><br><span class="line">                minq.pop();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedian</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// size is odd</span></span><br><span class="line">        <span class="keyword">if</span>(((maxq.size() + minq.size()) &amp; <span class="number">1</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> maxq.size() &gt; minq.size() ? maxq.top() : minq.top();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> (maxq.top() + minq.top()) / <span class="number">2.</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="滑动窗口中位数"><a href="#滑动窗口中位数" class="headerlink" title="滑动窗口中位数"></a>滑动窗口中位数</h2><p><a href="https://leetcode-cn.com/problems/sliding-window-median/" target="_blank" rel="noopener">LC480 滑动窗口中位数</a></p>
+<ul>
+<li>仍然使用一个最大堆和一个最小堆</li>
+<li>每次更新滑动窗口时，会丢弃一个元素，并加入一个元素<ul>
+<li>如果窗口大小为奇数$2k+1$，设最大堆中元素个数为$k + 1$，最小堆中元素个数为$k$，记为$(k + 1, k)$<ul>
+<li>丢弃元素在最大堆，加入元素在最小堆：元素个数变为(k, k + 1)</li>
+<li>丢弃元素在最小堆，加入元素在最大堆：元素个数变为(k + 2, k - 1)，需要平衡，最大堆向最小堆过继一个元素，元素个数变为(k + 1, k)</li>
+<li>丢弃和加入在一侧，不改变。</li>
+</ul>
+</li>
+<li>如果窗口大小为奇数$2k+1$，设最大堆中元素个数为$k$，最小堆中元素个数为$k + 1$，记为$(k, k + 1)$<ul>
+<li>丢弃元素在最大堆，加入元素在最小堆：元素个数变为(k - 1, k + 2)，需要平衡，最小堆向最大堆过继一个元素，元素个数变为(k, k + 1)</li>
+<li>丢弃元素在最小堆，加入元素在最大堆：元素个数变为(k + 1, k)</li>
+<li>丢弃和加入在一侧，不改变。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BA%8C%E5%8F%89%E5%A0%86/" rel="tag"># 二叉堆</a>
+              <a href="/tags/%E5%88%92%E5%88%86/" rel="tag"># 划分</a>
+              <a href="/tags/%E9%80%89%E6%8B%A9/" rel="tag"># 选择</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/ef3a3fcc/" rel="prev" title="字符串匹配">
+      <i class="fa fa-chevron-left"></i> 字符串匹配
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/a80d0031/" rel="next" title="动态规划">
+      动态规划 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#二叉堆-heap"><span class="nav-number">1.</span> <span class="nav-text">二叉堆(heap)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#划分-partition"><span class="nav-number">2.</span> <span class="nav-text">划分(partition)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hoare划分-推荐"><span class="nav-number">2.1.</span> <span class="nav-text">Hoare划分(推荐)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lomuto划分-不推荐"><span class="nav-number">2.2.</span> <span class="nav-text">Lomuto划分(不推荐)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unguarded-partition（用于其他算法作为子算法）"><span class="nav-number">2.3.</span> <span class="nav-text">unguarded_partition（用于其他算法作为子算法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#严格弱序关系-Strict-weak-Ordering"><span class="nav-number">2.4.</span> <span class="nav-text">严格弱序关系(Strict weak Ordering)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#稳定的划分算法"><span class="nav-number">2.5.</span> <span class="nav-text">稳定的划分算法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#选择"><span class="nav-number">3.</span> <span class="nav-text">选择</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#最大值与最小值"><span class="nav-number">3.1.</span> <span class="nav-text">最大值与最小值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#顺序统计量-TopK问题"><span class="nav-number">3.2.</span> <span class="nav-text">顺序统计量(TopK问题)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优先级队列"><span class="nav-number">3.2.1.</span> <span class="nav-text">优先级队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#期望为线性时间的选择"><span class="nav-number">3.2.2.</span> <span class="nav-text">期望为线性时间的选择</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TopK问题"><span class="nav-number">4.</span> <span class="nav-text">TopK问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数组上的TopK"><span class="nav-number">4.1.</span> <span class="nav-text">数组上的TopK</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#矩阵上的TopK"><span class="nav-number">4.2.</span> <span class="nav-text">矩阵上的TopK</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#中位数"><span class="nav-number">5.</span> <span class="nav-text">中位数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#排序数组的中位数"><span class="nav-number">5.1.</span> <span class="nav-text">排序数组的中位数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据流中的中位数"><span class="nav-number">5.2.</span> <span class="nav-text">数据流中的中位数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#滑动窗口中位数"><span class="nav-number">5.3.</span> <span class="nav-text">滑动窗口中位数</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

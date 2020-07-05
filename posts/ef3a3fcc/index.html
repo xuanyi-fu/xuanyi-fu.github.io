@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="KMP算法，前缀树和AC自动机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字符串匹配">
+<meta property="og:url" content="http://xyfu.me/posts/ef3a3fcc/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="KMP算法，前缀树和AC自动机">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-31T07:15:39.000Z">
+<meta property="article:modified_time" content="2020-02-29T22:56:30.131Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="字符串">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/ef3a3fcc/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>字符串匹配 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/ef3a3fcc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          字符串匹配
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-08-31 15:15:39" itemprop="dateCreated datePublished" datetime="2019-08-31T15:15:39+08:00">2019-08-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 06:56:30" itemprop="dateModified" datetime="2020-03-01T06:56:30+08:00">2020-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>KMP算法，前缀树和AC自动机</p>
+<a id="more"></a>
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="单模式匹配"><a href="#单模式匹配" class="headerlink" title="单模式匹配"></a>单模式匹配</h2><h3 id="KMP算法-Knuth-Morris-Pratt算法"><a href="#KMP算法-Knuth-Morris-Pratt算法" class="headerlink" title="KMP算法(Knuth-Morris-Pratt算法)"></a>KMP算法(Knuth-Morris-Pratt算法)</h3><p><a href="https://leetcode.com/problems/implement-strstr/" target="_blank" rel="noopener">LC28 Implement strStr()</a><br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">strStr</span><span class="params">(<span class="built_in">string</span> haystack, <span class="built_in">string</span> needle)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(haystack.empty() &amp;&amp; needle.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span>(haystack.empty() &amp;&amp; !needle.empty()) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">if</span>(!haystack.empty() &amp;&amp; needle.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//compute the next array</span></span><br><span class="line">        <span class="keyword">auto</span> pi = <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt;(needle.length());</span><br><span class="line">        pi[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> k = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> q = <span class="number">1</span>; q &lt; needle.length(); ++q)&#123;</span><br><span class="line">            <span class="keyword">while</span>(needle[k] != needle[q] &amp;&amp; k &gt; <span class="number">0</span>) k = pi[k - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span>(needle[k] == needle[q]) ++k;</span><br><span class="line">            pi[q] = k;</span><br><span class="line">        &#125;</span><br><span class="line">        k = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; haystack.length(); ++i)&#123;</span><br><span class="line">            <span class="keyword">while</span>(haystack[i] != needle[k] &amp;&amp; k &gt; <span class="number">0</span>) k = pi[k - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span>(haystack[i] == needle[k]) ++k;</span><br><span class="line">            <span class="keyword">if</span>(k == needle.length()) <span class="keyword">return</span> i - k + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="BM算法-Boyer-Moore算法"><a href="#BM算法-Boyer-Moore算法" class="headerlink" title="BM算法(Boyer-Moore算法)"></a>BM算法(Boyer-Moore算法)</h3><!-- more -->
+<h2 id="多模式匹配"><a href="#多模式匹配" class="headerlink" title="多模式匹配"></a>多模式匹配</h2><h3 id="Tries-字典树"><a href="#Tries-字典树" class="headerlink" title="Tries(字典树)"></a>Tries(字典树)</h3><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p><strong>TODO</strong><br><a href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank" rel="noopener">LC208 Implement Trie (Prefix Tree)</a><br>看了很多这个题的答案，没有人写析构函数。自己dynamically allocated的内存，用完就给扔那里了。这个类的对象析构之后，所有申请的内存全泄漏了。Leetcode也不检查一下语法(估计也没法检查？)。</p>
+<p>下面给出几个没有内存泄漏的解法：<br>使用原生指针的实现<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Trie</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    Trie()</span><br><span class="line">    :root&#123;<span class="keyword">new</span> TrieNode&#123;&#125;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    ~Trie()&#123;</span><br><span class="line">        <span class="keyword">delete</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Inserts a word into the trie. */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="built_in">string</span> word)</span> </span>&#123;</span><br><span class="line">        TrieNode* p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)&#123;</span><br><span class="line">            <span class="keyword">auto</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(c - <span class="string">'a'</span>);</span><br><span class="line">            <span class="keyword">if</span>(p-&gt;children[i] == <span class="literal">nullptr</span>) p-&gt;children[i] = <span class="keyword">new</span> TrieNode&#123;&#125;;</span><br><span class="line">            p = p-&gt;children[i];             </span><br><span class="line">        &#125;</span><br><span class="line">        p-&gt;isWord = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/** Returns if the word is in the trie. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">search</span><span class="params">(<span class="built_in">string</span> word)</span> </span>&#123;</span><br><span class="line">       TrieNode* p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)&#123;</span><br><span class="line">            p = p-&gt;children[c - <span class="string">'a'</span>];</span><br><span class="line">            <span class="keyword">if</span>(!p) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(p-&gt;isWord) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">else</span>          <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Returns if there is any word in the trie that starts with the given prefix. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">startsWith</span><span class="params">(<span class="built_in">string</span> prefix)</span> </span>&#123;</span><br><span class="line">        TrieNode* p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : prefix)&#123;</span><br><span class="line">            p = p-&gt;children[c - <span class="string">'a'</span>];</span><br><span class="line">            <span class="keyword">if</span>(!p) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TrieNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">bool</span> isWord;</span><br><span class="line">        <span class="built_in">array</span>&lt;TrieNode*, 26&gt; children;</span><br><span class="line">        </span><br><span class="line">        TrieNode()</span><br><span class="line">        :isWord&#123;<span class="literal">false</span>&#125;</span><br><span class="line">        ,children&#123;<span class="literal">nullptr</span>&#125;</span><br><span class="line">        &#123;&#125;</span><br><span class="line">        </span><br><span class="line">        ~TrieNode()&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : children)&#123;</span><br><span class="line">                <span class="keyword">delete</span> ptr;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;    </span><br><span class="line">    TrieNode* root;   </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>使用<code>shared_ptr</code>的实现，非常的慢。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Trie</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TrieNode</span>;</span></span><br><span class="line">    <span class="keyword">using</span> TrieNodePtr = <span class="built_in">shared_ptr</span>&lt;TrieNode&gt;;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    Trie()</span><br><span class="line">    :root&#123;&#125;</span><br><span class="line">    &#123;</span><br><span class="line">        root = make_shared&lt;TrieNode&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Inserts a word into the trie. */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="built_in">string</span> word)</span> </span>&#123;</span><br><span class="line">        TrieNodePtr p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)&#123;</span><br><span class="line">            <span class="keyword">auto</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(c - <span class="string">'a'</span>);</span><br><span class="line">            <span class="keyword">if</span>(p-&gt;children[i] == <span class="literal">nullptr</span>) </span><br><span class="line">                p-&gt;children[i] = make_unique&lt;TrieNode&gt;();</span><br><span class="line">            p = p-&gt;children[i];             </span><br><span class="line">        &#125;</span><br><span class="line">        p-&gt;isWord = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/** Returns if the word is in the trie. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">search</span><span class="params">(<span class="built_in">string</span> word)</span> </span>&#123;</span><br><span class="line">       TrieNodePtr p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)&#123;</span><br><span class="line">            p = p-&gt;children[c - <span class="string">'a'</span>];</span><br><span class="line">            <span class="keyword">if</span>(!p) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(p-&gt;isWord) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">else</span>          <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Returns if there is any word in the trie that starts with the given prefix. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">startsWith</span><span class="params">(<span class="built_in">string</span> prefix)</span> </span>&#123;</span><br><span class="line">        TrieNodePtr p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : prefix)&#123;</span><br><span class="line">            p = p-&gt;children[c - <span class="string">'a'</span>];</span><br><span class="line">            <span class="keyword">if</span>(!p) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TrieNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        TrieNode()</span><br><span class="line">        :isWord&#123;<span class="literal">false</span>&#125;</span><br><span class="line">        ,children&#123;<span class="literal">nullptr</span>&#125;</span><br><span class="line">        &#123;&#125;</span><br><span class="line">        <span class="keyword">bool</span> isWord;</span><br><span class="line">        <span class="built_in">array</span>&lt;TrieNodePtr, 26&gt; children;</span><br><span class="line">    &#125;;</span><br><span class="line">    TrieNodePtr root;  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>另一个没有内存泄漏的实现：<a href="https://leetcode.com/problems/implement-trie-prefix-tree/discuss/59009/Accepted-cpp-solution-without-memory-leak" target="_blank" rel="noopener">Accepted cpp solution without memory leak - tju_xu</a></p>
+<h3 id="AC算法-Aho-Corasick算法-字符串匹配自动机"><a href="#AC算法-Aho-Corasick算法-字符串匹配自动机" class="headerlink" title="AC算法(Aho-Corasick算法,字符串匹配自动机)"></a>AC算法(Aho-Corasick算法,字符串匹配自动机)</h3><p><a href="https://www.cnblogs.com/nullzx/p/7499397.html" target="_blank" rel="noopener">多模字符串匹配算法之AC自动机—原理与实现</a><br><a href="https://zhuanlan.zhihu.com/p/80325757" target="_blank" rel="noopener">AC自动机 - 司徒正美</a></p>
+<p>思路：</p>
+<ul>
+<li>什么是fail指针？<br>  非常类似KMP算法里的next数组。next数组里存的是$next[q] = max{k : P_k 是 P_q 的 后缀}$。而fail指针所指的是：$P,Q \in {所有模式串}, max{k : Q_k 是 P_q 的后缀}$的$Q_k$. 即【从根节点开始到该节点的字符串的后缀】和【所有模式串的前缀】的最长公共子串。</li>
+<li>如何构造一个AC自动机？<ul>
+<li>把所有的模式构造成一个Trie. 这个Trie的所有TrieNode要有isWord标志和fail指针(失配指针).</li>
+<li>之后我们来为所有TrieNode来弄fail指针(失配指针).<ul>
+<li>root的fail指针赋值为<code>nullptr</code>.</li>
+<li>我们首先把root的所有孩子节点的fail指针赋值为root.因为如果一个字符串第一个字符都无法匹配，那这样的字符串就只能匹配空字符$\varepsilon$，所以回到root.</li>
+<li>之后将root的所有孩子放入队列，开始对Trie做BFS.</li>
+<li>从队列中pop出来一个，来为它(root)的所有孩子(child[i])找fail指针<ul>
+<li>设置<code>toFail</code>初始为<code>root-&gt;fail</code>.</li>
+<li>如果<code>toFail == nullptr</code><br>  这就是回到了<code>root</code>了，只能匹配空串了。设置<code>root-&gt;childs[i]-&gt;fail = root</code>。 </li>
+<li>如果<code>toFail-&gt;childs[i] != nullptr</code><br>  类似KMP算法，说明此时代表最长公共部分的<code>root-&gt;fail</code>还可以增长。那么直接设置<code>root-&gt;childs[i]-&gt;fail = toFail&gt;childs[i]</code>即可</li>
+<li>如果<code>toFail-&gt;childs[i] == nullptr</code><br>  类似KMP算法，我们需要找比这个要小的最长公共部分，所以设置<code>toFail = toFail-&gt;fail</code>后，再回到开头。</li>
+</ul>
+</li>
+<li>把一个TrieNode的所有child的fail指着都设置好后，我们把该TrieNode弹出队列。</li>
+<li>一直循环直到队列为空（BFS做完）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>如何在AC自动机里做查询？<ul>
+<li>初始化当前指针<code>currPtr = root</code></li>
+<li>首先从文本中读入一个字符c</li>
+<li>循环开始</li>
+<li>如果c是<code>currPtr</code>的孩子，自动机沿着主线进入下一个TrieNode(<code>currPtr = currPtr-&gt;child[c - &#39;a&#39;]</code>)<ul>
+<li>如果<code>currPtr-&gt;isWord</code>那么证明我们找到了一个匹配。</li>
+<li>如果<code>!currPtr-&gt;isWord</code><ul>
+<li>如果<code>currPtr-&gt;fail-&gt;isWord</code> 我们也找到了一个匹配。当前<code>!isword</code>不代表没有匹配，有可能其最长的后缀是一个匹配。</li>
+</ul>
+</li>
+<li>没有匹配任何模式，读入下一个字符串</li>
+</ul>
+</li>
+<li>如果c不是<code>currPtr</code>的孩子，自动机需要沿着fail指针(失配指针)进入下一个TrieNode(<code>currPtr = currPtr-&gt;fail</code>)<ul>
+<li>如果<code>currPtr == nullptr</code>，那就是第一个字符都无法匹配，没有匹配任何模式。</li>
+<li>回到循环头部。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><a href="https://leetcode.com/problems/stream-of-characters/" target="_blank" rel="noopener">LC1032 Stream of Characters</a><br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Trie</span>&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TrieNode</span>;</span></span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">size_t</span> NUM_OF_LETTERS = <span class="number">26</span>;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Trie()</span><br><span class="line">    :root&#123;<span class="keyword">new</span> TrieNode&#123;&#125;&#125;</span><br><span class="line">    ,currPtr&#123;root&#125;</span><br><span class="line">    &#123;&#125;   </span><br><span class="line">    Trie(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; words)</span><br><span class="line">    :root&#123;<span class="keyword">new</span> TrieNode&#123;&#125;&#125;</span><br><span class="line">    ,currPtr&#123;root&#125;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp; word : words) insert(word);</span><br><span class="line">        buildAC();</span><br><span class="line">    &#125;</span><br><span class="line">    ~Trie()&#123;</span><br><span class="line">        <span class="keyword">delete</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; word)</span></span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)&#123;</span><br><span class="line">            <span class="keyword">auto</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(c - <span class="string">'a'</span>);</span><br><span class="line">            <span class="keyword">if</span>(!p-&gt;childs[i]) p-&gt;childs[i] = <span class="keyword">new</span> TrieNode&#123;&#125;;</span><br><span class="line">            p = p-&gt;childs[i];</span><br><span class="line">        &#125;</span><br><span class="line">        p-&gt;isWord = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">buildAC</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> q = <span class="built_in">queue</span>&lt;TrieNode*&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : root-&gt;childs)&#123;</span><br><span class="line">            <span class="keyword">if</span>(ptr)&#123;</span><br><span class="line">                ptr-&gt;fail = root;</span><br><span class="line">                q.push(ptr); </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(!q.empty())&#123;</span><br><span class="line">            <span class="keyword">auto</span> curr = q.front();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; NUM_OF_LETTERS; ++i)&#123;</span><br><span class="line">                <span class="keyword">if</span>(curr-&gt;childs[i])&#123;</span><br><span class="line">                    <span class="keyword">auto</span> toFail = curr-&gt;fail;</span><br><span class="line">                    <span class="keyword">while</span>(<span class="literal">true</span>)&#123;                       </span><br><span class="line">                        <span class="keyword">if</span>(!toFail)&#123;</span><br><span class="line">                            curr-&gt;childs[i]-&gt;fail = root;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">if</span>(toFail-&gt;childs[i])&#123;</span><br><span class="line">                            curr-&gt;childs[i]-&gt;fail = toFail-&gt;childs[i];</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span> toFail = toFail-&gt;fail;                           </span><br><span class="line">                    &#125; </span><br><span class="line">                    q.push(curr-&gt;childs[i]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            q.pop();</span><br><span class="line">        &#125;   </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">inline</span> <span class="keyword">bool</span> <span class="title">nextState</span><span class="params">(<span class="keyword">char</span> c)</span> <span class="keyword">noexcept</span></span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(c - <span class="string">'a'</span>);</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(currPtr-&gt;childs[i])&#123;</span><br><span class="line">                currPtr = currPtr-&gt;childs[i];</span><br><span class="line">                <span class="keyword">if</span>(currPtr-&gt;isWord || currPtr-&gt;fail-&gt;isWord) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                currPtr = currPtr-&gt;fail;</span><br><span class="line">                <span class="keyword">if</span>(!currPtr) &#123;currPtr = root; <span class="keyword">return</span> <span class="literal">false</span>;&#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    TrieNode* root;</span><br><span class="line">    TrieNode* currPtr;</span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TrieNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">array</span>&lt;TrieNode*, NUM_OF_LETTERS&gt; childs;</span><br><span class="line">        TrieNode* fail;</span><br><span class="line">        <span class="keyword">bool</span> isWord;</span><br><span class="line"></span><br><span class="line">        TrieNode()</span><br><span class="line">        :childs&#123;<span class="literal">nullptr</span>&#125;</span><br><span class="line">        ,fail&#123;<span class="literal">nullptr</span>&#125;</span><br><span class="line">        ,isWord&#123;<span class="literal">false</span>&#125;</span><br><span class="line">        &#123;&#125;</span><br><span class="line"></span><br><span class="line">        ~TrieNode()&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : childs) <span class="keyword">delete</span> ptr;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StreamChecker</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    StreamChecker(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; words)</span><br><span class="line">    :trie&#123;<span class="keyword">new</span> Trie&#123;words&#125;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    ~StreamChecker()&#123;</span><br><span class="line">        <span class="keyword">delete</span> trie;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">query</span><span class="params">(<span class="keyword">char</span> letter)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> trie-&gt;nextState(letter);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Trie* trie;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h2 id="最长回文子串-Manacher算法"><a href="#最长回文子串-Manacher算法" class="headerlink" title="最长回文子串(Manacher算法)"></a>最长回文子串(Manacher算法)</h2><p><a href="https://leetcode-cn.com/problems/longest-palindromic-substring/" target="_blank" rel="noopener">LC5, Longest Palindromic Substring</a></p>
+<p>解法详见: </p>
+<ul>
+<li><a href="https://segmentfault.com/a/1190000008484167?utm_source=tag-newest" target="_blank" rel="noopener">segmentfault, Manacher 算法, 刘毅</a></li>
+<li><a href="https://www.zhihu.com/question/37289584?sort=created" target="_blank" rel="noopener">知乎, 有什么浅显易懂的Manacher Algorithm讲解？</a></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">longestPalindrome</span><span class="params">(<span class="built_in">string</span> s)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">string</span> str = Str2ManacherStr(s);</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt; p(str.length(), <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">size_t</span> c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> r = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> max_c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> max_r = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; str.length(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (i &lt; r)</span><br><span class="line">                p[i] = min(r - i, p[c - (i - c)]);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p[i] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">while</span>(str[i + p[i]] == str[i - p[i]]) ++p[i];</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (r &lt; i + p[i])</span><br><span class="line">            &#123;</span><br><span class="line">                r = i + p[i];</span><br><span class="line">                c = i;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (max_r &lt; p[i])</span><br><span class="line">            &#123;</span><br><span class="line">                max_r = p[i];</span><br><span class="line">                max_c = i;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ManacherStr2Str(str.substr(max_c - max_r + <span class="number">1</span>, <span class="number">2</span> * max_r - <span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">Str2ManacherStr</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">stringstream</span> ss&#123;&#125;;</span><br><span class="line">        ss&lt;&lt;<span class="string">"$#"</span>;</span><br><span class="line">        copy(s.begin(), s.end(), ostream_iterator&lt;<span class="keyword">char</span>&gt;(ss,<span class="string">"#"</span>));</span><br><span class="line">        <span class="keyword">return</span> ss.str();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">ManacherStr2Str</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">stringstream</span> ss&#123;&#125;;</span><br><span class="line">        copy_if(s.begin(),</span><br><span class="line">                s.end(),</span><br><span class="line">                ostream_iterator&lt;<span class="keyword">char</span>&gt;(ss),</span><br><span class="line">                [](<span class="keyword">char</span> c)&#123;<span class="keyword">return</span> c != <span class="string">'#'</span> &amp;&amp; c != <span class="string">'$'</span>;&#125;);</span><br><span class="line">        <span class="keyword">return</span> ss.str();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><p><a href="https://deerchao.net/tutorials/regex/regex.htm" target="_blank" rel="noopener">正则表达式30分入门教程</a></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>元字符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.</code></td>
+<td>除<code>\n</code>以外的任意字符</td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>word: 字母、数字、下划线、汉字</td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>space:空格、全角空格、Tab、<code>\n</code></td>
+</tr>
+<tr>
+<td><code>\d</code></td>
+<td>decimal:数字</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>单词的开头或结尾：前一个字符或后一个字符，不全是\w</td>
+</tr>
+<tr>
+<td><code>^</code></td>
+<td>字符串的开始</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>字符串的结束</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>限定符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{n}</code></td>
+<td>出现$r = n$次</td>
+</tr>
+<tr>
+<td><code>{n,}</code></td>
+<td>出现$r \in [n, +\infty]$次</td>
+</tr>
+<tr>
+<td><code>{n,m}</code></td>
+<td>出现$r \in [n, m]$次</td>
+</tr>
+<tr>
+<td>*</td>
+<td>出现$r \in [0, \infty]$次</td>
+</tr>
+<tr>
+<td>?</td>
+<td>出现$r \in {0,1}$次</td>
+</tr>
+<tr>
+<td>+</td>
+<td>出现$r = [1, +\infty]$次</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><h2 id="单模式匹配-1"><a href="#单模式匹配-1" class="headerlink" title="单模式匹配"></a>单模式匹配</h2><p><a href="https://leetcode.com/problems/repeated-substring-pattern/" target="_blank" rel="noopener">LC459 Repeated Substring Pattern</a><br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">repeatedSubstringPattern</span><span class="params">(<span class="built_in">string</span> s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> len = s.size();</span><br><span class="line">        <span class="keyword">auto</span> pi = <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt;(len + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">size_t</span> k = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> q = <span class="number">1</span>; q &lt; len; ++q)&#123;</span><br><span class="line">            <span class="keyword">while</span>(s[q] != s[k] &amp;&amp; k &gt; <span class="number">0</span>) k = pi[k];</span><br><span class="line">            <span class="keyword">if</span>(s[q] == s[k]) ++k;</span><br><span class="line">            pi[q+<span class="number">1</span>] = k;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> k  &amp;&amp; (len % (len - k)) == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h2 id="多模式匹配-1"><a href="#多模式匹配-1" class="headerlink" title="多模式匹配"></a>多模式匹配</h2><h3 id="Trie-字典树"><a href="#Trie-字典树" class="headerlink" title="Trie(字典树)"></a>Trie(字典树)</h3><h4 id="Map-Sum"><a href="#Map-Sum" class="headerlink" title="Map Sum"></a>Map Sum</h4><p><a href="https://leetcode.com/problems/map-sum-pairs/" target="_blank" rel="noopener">LC677 Map Sum Pairs</a></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MapSum</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">node</span>;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    MapSum()</span><br><span class="line">    :root&#123;<span class="keyword">new</span> node&#123;&#125;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    ~MapSum()&#123;</span><br><span class="line">        <span class="keyword">delete</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="built_in">string</span> key, <span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        node* p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : key)&#123;</span><br><span class="line">            <span class="keyword">size_t</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(c - <span class="string">'a'</span>);</span><br><span class="line">            <span class="keyword">if</span>(!p-&gt;children[i]) p-&gt;children[i] = <span class="keyword">new</span> node&#123;&#125;;</span><br><span class="line">            p = p-&gt;children[i];</span><br><span class="line">        &#125;</span><br><span class="line">        p-&gt;weight = val;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="built_in">string</span> prefix)</span> </span>&#123;</span><br><span class="line">        node* p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : prefix)&#123;</span><br><span class="line">            p = p-&gt;children[c - <span class="string">'a'</span>];</span><br><span class="line">            <span class="keyword">if</span>(!p) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> p-&gt;_sum(); </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    node* root;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">node</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">array</span>&lt;node*, 26&gt; children;</span><br><span class="line">        <span class="keyword">int</span> weight;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> _sum()&#123;</span><br><span class="line">            <span class="keyword">auto</span> result = weight;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : children)&#123;</span><br><span class="line">                result += ptr ? ptr-&gt;_sum() : <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        node()</span><br><span class="line">        :children&#123;<span class="literal">nullptr</span>&#125;</span><br><span class="line">        ,weight(<span class="number">0</span>)</span><br><span class="line">        &#123;&#125;</span><br><span class="line">        </span><br><span class="line">        ~node()&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : children) <span class="keyword">delete</span> ptr;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="Add-and-Search-Word"><a href="#Add-and-Search-Word" class="headerlink" title="Add and Search Word"></a>Add and Search Word</h4><p><a href="https://leetcode.com/problems/add-and-search-word-data-structure-design/" target="_blank" rel="noopener">LC211 Add and Search Word - Data structure design</a></p>
+<p>思路：</p>
+<ul>
+<li>把所有的word都放到一个Trie里</li>
+<li>做前序遍历<ul>
+<li>检查string的迭代器是不是到头了，如果到头了，并且该TrieNode还是isWord，就搜到了。</li>
+<li>如果遇到<code>&#39;.&#39;</code>我们就搜索所有子树。</li>
+<li>如果遇到其他字符我们就只搜索该字符。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WordDictionary</span> &#123;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">node</span>;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    WordDictionary()</span><br><span class="line">    :root&#123;<span class="keyword">new</span> node&#123;&#125;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    ~WordDictionary()&#123;</span><br><span class="line">        <span class="keyword">delete</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Adds a word into the data structure. */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addWord</span><span class="params">(<span class="built_in">string</span> word)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)&#123;</span><br><span class="line">            <span class="keyword">auto</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(c - <span class="string">'a'</span>);</span><br><span class="line">            <span class="keyword">if</span>(!p-&gt;children[i])</span><br><span class="line">                p-&gt;children[i] = <span class="keyword">new</span> node&#123;&#125;;</span><br><span class="line">            p = p-&gt;children[i];</span><br><span class="line">        &#125;</span><br><span class="line">        p-&gt;isWord = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">search</span><span class="params">(<span class="built_in">string</span> word)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> searchImpl(root, word, word.begin());</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    node* root;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">searchImpl</span><span class="params">(node* root, <span class="keyword">const</span> <span class="built_in">string</span>&amp; word, It c)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(c == word.end()) <span class="keyword">return</span> root-&gt;isWord;</span><br><span class="line">        <span class="keyword">if</span>(*c == <span class="string">'.'</span>)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : root-&gt;children)&#123;</span><br><span class="line">                <span class="keyword">if</span>(ptr &amp;&amp; searchImpl(ptr, word, c+<span class="number">1</span>)) <span class="keyword">return</span> <span class="literal">true</span>;    </span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;children[*c - <span class="string">'a'</span>])&#123;</span><br><span class="line">            <span class="keyword">return</span> searchImpl(root-&gt;children[*c - <span class="string">'a'</span>], word, c+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">node</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">array</span>&lt;node*, 26&gt; children;</span><br><span class="line">        <span class="keyword">bool</span>  isWord;</span><br><span class="line">        </span><br><span class="line">        node()</span><br><span class="line">        :children&#123;<span class="literal">nullptr</span>&#125;</span><br><span class="line">        ,isWord&#123;<span class="literal">false</span>&#125;</span><br><span class="line">        &#123;&#125;</span><br><span class="line">        </span><br><span class="line">        ~node()&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : children) <span class="keyword">delete</span> ptr;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><a href="https://leetcode.com/problems/longest-word-in-dictionary/" target="_blank" rel="noopener">LC720 Longest Word in Dictionary</a><br>思路：</p>
+<ul>
+<li>把所有的word都放进Trie</li>
+<li>按字典序做DFS前序遍历<ul>
+<li>如果该节点isWord并且这个时候word比max_word(result)长，就用这个word代替result即可。(这么做的原因是我们按【字典序】对Trie做的搜索，每个长度的word只要被搜出来，就一定是字典序第一个。)</li>
+<li>如果该节点是isWord，继续搜索他的所有子树。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Trie</span>&#123;</span></span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">size_t</span> NUM_OF_LETTERS = <span class="number">26</span>;</span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">size_t</span> ASCII_OF_a = <span class="number">97</span>;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TrieNode</span>;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Trie()</span><br><span class="line">    :root&#123;<span class="keyword">new</span> TrieNode&#123;&#125;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line"></span><br><span class="line">    ~Trie()&#123;</span><br><span class="line">    	<span class="keyword">delete</span> root;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; word)</span></span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> p = root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : word)&#123;</span><br><span class="line">            <span class="keyword">auto</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(c - <span class="string">'a'</span>);</span><br><span class="line">            <span class="keyword">if</span>(!p-&gt;childs[i]) p-&gt;childs[i] = <span class="keyword">new</span> TrieNode&#123;&#125;;</span><br><span class="line">            p = p-&gt;childs[i];</span><br><span class="line">        &#125;</span><br><span class="line">        p-&gt;isWord = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">dfs</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> word   = <span class="built_in">string</span>&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> result = <span class="built_in">string</span>&#123;&#125;;</span><br><span class="line">        dfsImpl(root, word, result);  </span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    TrieNode* root;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfsImpl</span><span class="params">(TrieNode* root, <span class="built_in">string</span>&amp; word, <span class="built_in">string</span>&amp; result)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;isWord &amp;&amp; word.size() &gt; result.size())</span><br><span class="line">             result = word;</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;isWord || root == <span class="keyword">this</span>-&gt;root)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; NUM_OF_LETTERS; ++i)&#123;</span><br><span class="line">                <span class="keyword">if</span>(root-&gt;childs[i])&#123;</span><br><span class="line">                    <span class="built_in">cout</span>&lt;&lt;<span class="keyword">static_cast</span>&lt;<span class="keyword">char</span>&gt;(ASCII_OF_a + i)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">                    word.push_back(<span class="keyword">static_cast</span>&lt;<span class="keyword">char</span>&gt;(ASCII_OF_a + i));</span><br><span class="line">                    dfsImpl(root-&gt;childs[i], word, result);</span><br><span class="line">                    word.pop_back();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TrieNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">array</span>&lt;TrieNode*, NUM_OF_LETTERS&gt; childs;</span><br><span class="line">        <span class="keyword">bool</span> isWord;</span><br><span class="line">        </span><br><span class="line">        TrieNode()</span><br><span class="line">        :childs&#123;<span class="literal">nullptr</span>&#125;</span><br><span class="line">        ,isWord&#123;<span class="literal">false</span>&#125;</span><br><span class="line">        &#123;&#125;</span><br><span class="line">        </span><br><span class="line">        ~TrieNode()&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> ptr : childs) <span class="keyword">delete</span> ptr;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">longestWord</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> trie = Trie&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> word : words) trie.insert(word);</span><br><span class="line">        <span class="keyword">return</span> trie.dfs();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="正则表达式匹配"><a href="#正则表达式匹配" class="headerlink" title="正则表达式匹配"></a>正则表达式匹配</h2><h3 id="由-和-构成的正则表达式匹配"><a href="#由-和-构成的正则表达式匹配" class="headerlink" title="由*和.构成的正则表达式匹配"></a>由*和.构成的正则表达式匹配</h3><p><a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="noopener">Regular Expression Matching</a><br>思路：<br>不能想着去构造DFA的方法去做这样的题，时间是不可能够的。直接用动态规划的思想。</p>
+<ul>
+<li>从文本里拿出来一个字符，和模式匹配<ul>
+<li>如果文本字符是$\varepsilon$(空)，且模式也是$\varepsilon$，则匹配成功。</li>
+<li>如果文本字符不是$\varepsilon$，但模式是$\varepsilon$，匹配失败。</li>
+<li>如果模式字符的下一个字符是<code>*</code><ul>
+<li>如果文本字符和模式字符匹配 或 文本字符不是$\varepsilon$的同时，模式字符是<code>.</code><ul>
+<li>我们可以忽略这个<code>a*</code>，让文本停留在当前字符，模式向后移动两个。</li>
+<li>我们可以不忽略这个<code>a*</code>，让匹配停留在该状态，即文本向后移动一个字符，模式不移动。</li>
+</ul>
+</li>
+<li>如果文本字符和模式字符不匹配，我们此时只能忽略<code>a*</code>，即让文本停留在当前字符，模式向后移动两个字符。</li>
+</ul>
+</li>
+<li>如果模式字符的下一个字符不是<code>*</code><ul>
+<li>如果文本字符和模式字符匹配 或 文本字符不是$\varepsilon$的同时，模式字符是<code>.</code>，我们可以让文本及模式都向后移动一个字符。</li>
+<li>否则匹配失败。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatch</span><span class="params">(<span class="built_in">string</span> a, <span class="built_in">string</span> b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> t = a.c_str();</span><br><span class="line">        <span class="keyword">auto</span> p = b.c_str();</span><br><span class="line">        <span class="keyword">return</span> isMatchImpl(t,p);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatchImpl</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* t, <span class="keyword">const</span> <span class="keyword">char</span>* p)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(*t == <span class="string">'\0'</span> &amp;&amp; *p == <span class="string">'\0'</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span>(*t != <span class="string">'\0'</span> &amp;&amp; *p == <span class="string">'\0'</span>) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span>(p + <span class="number">1</span> &amp;&amp; *(p + <span class="number">1</span>) == <span class="string">'*'</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(*t == *p || (*t != <span class="string">'\0'</span> &amp;&amp; *p == <span class="string">'.'</span>))</span><br><span class="line">                <span class="keyword">return</span> isMatchImpl(t, p + <span class="number">2</span>) || isMatchImpl(t + <span class="number">1</span>, p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> isMatchImpl(t, p + <span class="number">2</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(*t == *p || (*t != <span class="string">'\0'</span> &amp;&amp; *p == <span class="string">'.'</span>)) </span><br><span class="line">            <span class="keyword">return</span> isMatchImpl(t + <span class="number">1</span>, p + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="有效的数字表达式"><a href="#有效的数字表达式" class="headerlink" title="有效的数字表达式"></a>有效的数字表达式</h3><p><a href="https://leetcode.com/problems/valid-number/" target="_blank" rel="noopener">LC65 Valid Number</a> </p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p><a href="https://leetcode.com/problems/word-squares/" target="_blank" rel="noopener">LC425 Word Squares</a> <strong>premium</strong></p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag"># 字符串</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/e85d694a/" rel="prev" title="二叉树">
+      <i class="fa fa-chevron-left"></i> 二叉树
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/3a3ae49d/" rel="next" title="顺序统计量">
+      顺序统计量 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#单模式匹配"><span class="nav-number">1.1.</span> <span class="nav-text">单模式匹配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#KMP算法-Knuth-Morris-Pratt算法"><span class="nav-number">1.1.1.</span> <span class="nav-text">KMP算法(Knuth-Morris-Pratt算法)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BM算法-Boyer-Moore算法"><span class="nav-number">1.1.2.</span> <span class="nav-text">BM算法(Boyer-Moore算法)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多模式匹配"><span class="nav-number">1.2.</span> <span class="nav-text">多模式匹配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tries-字典树"><span class="nav-number">1.2.1.</span> <span class="nav-text">Tries(字典树)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原理"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">原理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AC算法-Aho-Corasick算法-字符串匹配自动机"><span class="nav-number">1.2.2.</span> <span class="nav-text">AC算法(Aho-Corasick算法,字符串匹配自动机)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最长回文子串-Manacher算法"><span class="nav-number">1.3.</span> <span class="nav-text">最长回文子串(Manacher算法)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正则表达式"><span class="nav-number">1.4.</span> <span class="nav-text">正则表达式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#题目"><span class="nav-number">2.</span> <span class="nav-text">题目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#单模式匹配-1"><span class="nav-number">2.1.</span> <span class="nav-text">单模式匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多模式匹配-1"><span class="nav-number">2.2.</span> <span class="nav-text">多模式匹配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Trie-字典树"><span class="nav-number">2.2.1.</span> <span class="nav-text">Trie(字典树)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Map-Sum"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">Map Sum</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Add-and-Search-Word"><span class="nav-number">2.2.1.2.</span> <span class="nav-text">Add and Search Word</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正则表达式匹配"><span class="nav-number">2.3.</span> <span class="nav-text">正则表达式匹配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#由-和-构成的正则表达式匹配"><span class="nav-number">2.3.1.</span> <span class="nav-text">由*和.构成的正则表达式匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有效的数字表达式"><span class="nav-number">2.3.2.</span> <span class="nav-text">有效的数字表达式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">2.4.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

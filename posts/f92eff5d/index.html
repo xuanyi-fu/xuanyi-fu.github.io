@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="二叉树的路径LC257 二叉树的所有路径LC112 路径总和LC113 路径总和IILC437 路径总和IIILC129 根到叶子组成的数字 组合LC77 组合LC40 组合总数II 简单回溯LC93 复原IP地址LC17 电话号码的字母组合LC22 括号生成 困难回溯LC10 正则表达式匹配LC44 通配符匹配LC79 单词搜索[LC894 所有可能的满二叉树]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="回溯">
+<meta property="og:url" content="http://xyfu.me/posts/f92eff5d/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="二叉树的路径LC257 二叉树的所有路径LC112 路径总和LC113 路径总和IILC437 路径总和IIILC129 根到叶子组成的数字 组合LC77 组合LC40 组合总数II 简单回溯LC93 复原IP地址LC17 电话号码的字母组合LC22 括号生成 困难回溯LC10 正则表达式匹配LC44 通配符匹配LC79 单词搜索[LC894 所有可能的满二叉树]">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-02-20T07:12:04.000Z">
+<meta property="article:modified_time" content="2020-06-20T12:25:22.807Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="回溯">
+<meta property="article:tag" content="组合">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/f92eff5d/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>回溯 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/f92eff5d/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          回溯
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-20 15:12:04" itemprop="dateCreated datePublished" datetime="2020-02-20T15:12:04+08:00">2020-02-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-20 20:25:22" itemprop="dateModified" datetime="2020-06-20T20:25:22+08:00">2020-06-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.9k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>二叉树的路径<br><a href="https://xyfu.me/posts/f92eff5d/#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%B7%AF%E5%BE%84">LC257 二叉树的所有路径</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%B7%AF%E5%BE%84">LC112 路径总和</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%B7%AF%E5%BE%84">LC113 路径总和II</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%B7%AF%E5%BE%84">LC437 路径总和III</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%B7%AF%E5%BE%84">LC129 根到叶子组成的数字</a></p>
+<p>组合<br><a href="https://xyfu.me/posts/f92eff5d/#%E7%BB%84%E5%90%88">LC77 组合</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E7%BB%84%E5%90%88">LC40 组合总数II</a></p>
+<p>简单回溯<br><a href="https://xyfu.me/posts/f92eff5d/#%E5%A4%8D%E5%8E%9FIP%E5%9C%B0%E5%9D%80">LC93 复原IP地址</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81%E7%9A%84%E5%AD%97%E6%AF%8D%E7%BB%84%E5%90%88">LC17 电话号码的字母组合</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E6%8B%AC%E5%8F%B7%E7%94%9F%E6%88%90">LC22 括号生成</a></p>
+<p>困难回溯<br><a href="https://xyfu.me/posts/f92eff5d/#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D">LC10 正则表达式匹配</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E9%80%9A%E9%85%8D%E7%AC%A6%E5%8C%B9%E9%85%8D">LC44 通配符匹配</a><br><a href="https://xyfu.me/posts/f92eff5d/#%E5%8D%95%E8%AF%8D%E6%90%9C%E7%B4%A2">LC79 单词搜索</a><br>[LC894 所有可能的满二叉树]</p>
+<a id="more"></a>
+<p>回溯是深度优先搜索决策树的过程。回溯的基本组件：</p>
+<ul>
+<li>选择列表：当前可以选择的选项列表，可能因为当前路径而有所改变。因为对于当前路径而言，有些选择可能不合法。</li>
+<li>当前路径：记录当前已经作出的选择的列表。</li>
+<li>结束条件：判断当前路径是否是结果的函数。</li>
+<li>结果集合：记录所有合法结果的集合。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">res &#x3D; []</span><br><span class="line">path &#x3D; []</span><br><span class="line">backtrack(path, decision_list)</span><br><span class="line"></span><br><span class="line">    if (isResult(path))</span><br><span class="line">        res.push_back(path)</span><br><span class="line">        return</span><br><span class="line"></span><br><span class="line">    for decision : decision_list</span><br><span class="line">        if(!isValid(path, decision))</span><br><span class="line">            continue</span><br><span class="line">        path.push_back(decision)</span><br><span class="line">        backtrack(path, decision_list)</span><br><span class="line">        path.pop_back</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<hr>
+<h1 id="二叉树的路径"><a href="#二叉树的路径" class="headerlink" title="二叉树的路径"></a>二叉树的路径</h1><p>二叉树除了根节点以外，每个节点都只有双亲节点。因此从根节点到任意节点都只有一条路径。从任意节点到根结节点也只有一条路径。这类题目的思路基本都是回溯。</p>
+<h2 id="二叉树的所有路径"><a href="#二叉树的所有路径" class="headerlink" title="二叉树的所有路径"></a>二叉树的所有路径</h2><p><a href="https://leetcode-cn.com/problems/binary-tree-paths/" target="_blank" rel="noopener">LC257 二叉树的所有路径</a></p>
+<p>思路：</p>
+<ul>
+<li>对二叉树进行回溯</li>
+<li>回溯结束条件为当前节点为叶子节点。</li>
+<li>麻烦的地方可能在于<code>&quot;-&gt;&quot;</code>的放置。所有节点都要将自己的节点值<code>root-&gt;val</code>加入到<code>path</code>中，但叶子节点不需要加<code>&quot;-&gt;&quot;</code>，而且叶子节点需要将<code>path</code>放入结果集合里。而非叶子节点需要加<code>&quot;-&gt;&quot;</code>。此外，不同长度的数字，向<code>path</code>里放入的长度也不同。这导致了回溯时<code>path</code>需要删掉几个字符造成了不一致。所以我们需要记录一下我们往path里加了几个字符。<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">string</span> path;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; paths;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; binaryTreePaths(TreeNode* root) &#123;</span><br><span class="line">        backtrack(root);</span><br><span class="line">        <span class="keyword">return</span> paths;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(TreeNode* root)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span>;</span><br><span class="line">        <span class="comment">// construct a string to update</span></span><br><span class="line">        <span class="keyword">auto</span> str = to_string(root-&gt;val);</span><br><span class="line">        path += str;</span><br><span class="line">        <span class="keyword">auto</span> update_num = str.size();</span><br><span class="line">        <span class="comment">// if it is a leaf node, we dont want a dangling tail '-&gt;'</span></span><br><span class="line">        <span class="keyword">if</span>(!root-&gt;left &amp;&amp; !root-&gt;right)</span><br><span class="line">        &#123;</span><br><span class="line">            paths.push_back(path);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            path += <span class="string">"-&gt;"</span>;</span><br><span class="line">            update_num += <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">            backtrack(root-&gt;left);</span><br><span class="line">            backtrack(root-&gt;right);            </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// resume its state</span></span><br><span class="line">        path.erase(path.end() - update_num, path.end());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+</li>
+</ul>
+<h2 id="路径和"><a href="#路径和" class="headerlink" title="路径和"></a>路径和</h2><p><a href="https://leetcode.com/problems/path-sum/" target="_blank" rel="noopener">LC112 路径总和</a></p>
+<p>题目要求判断二叉树中是否存在一条<em>从根节点到叶子节点，和为指定值</em>的一条路径。</p>
+<ul>
+<li>回溯过程中记录当前路径上的和。</li>
+<li>结束条件为当前节点是叶子节点，且当前路径和为指定的值。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> pathsum;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">hasPathSum</span><span class="params">(TreeNode* root, <span class="keyword">int</span> sum)</span> </span>&#123;</span><br><span class="line">        pathsum = sum;</span><br><span class="line">        <span class="keyword">return</span> hasPathSum_(root, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">hasPathSum_</span><span class="params">(TreeNode* root, <span class="keyword">int</span> sum)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!root)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        sum += root-&gt;val;</span><br><span class="line">       </span><br><span class="line">        <span class="comment">// if root is a leaf node</span></span><br><span class="line">        <span class="keyword">if</span>(!root-&gt;left &amp;&amp; !root-&gt;right)</span><br><span class="line">        &#123;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// check the path sum</span></span><br><span class="line">            <span class="keyword">if</span>(sum == pathsum)</span><br><span class="line">            &#123;</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> hasPathSum_(root-&gt;left, sum) || hasPathSum_(root-&gt;right, sum);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>可能的优化：将结果作为引用传递或作为类的成员变量。如果结果已经为<code>true</code>停止进一步的递归调用。</p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/path-sum-ii/" target="_blank" rel="noopener">LC113 路径总和II</a></p>
+<p>题目要求找到二叉树中所有<em>从根节点到叶子节点，和为指定值</em>的一条路径。思路仍然和前一题一样：</p>
+<ul>
+<li>回溯过程要记录当前路径 和 当前路径和（不然每次抵达叶子节点，都需求一次路径和）。</li>
+<li>结束条件为当前节点是叶子节点，且当前路径和为指定的值。<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        2020.6.20 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * struct TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode *left;</span></span><br><span class="line"><span class="comment"> *     TreeNode *right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) : val(x), left(NULL), right(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; m_res = &#123;&#125;;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; m_path = &#123;&#125;;</span><br><span class="line">    <span class="keyword">int</span> m_sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> m_target = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; pathSum(TreeNode* root, <span class="keyword">int</span> sum) &#123;</span><br><span class="line">        m_target = sum;</span><br><span class="line">        backtrace(root);</span><br><span class="line">        <span class="keyword">return</span> m_res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrace</span><span class="params">(TreeNode* root)</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        m_path.push_back(root-&gt;val);</span><br><span class="line">        m_sum += root-&gt;val;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(m_sum == m_target &amp;&amp; (!root-&gt;left &amp;&amp; !root-&gt;right) )</span><br><span class="line">        &#123;</span><br><span class="line">            m_res.push_back(m_path);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        backtrace(root-&gt;left);</span><br><span class="line">        backtrace(root-&gt;right);</span><br><span class="line"></span><br><span class="line">        m_path.pop_back();</span><br><span class="line">        m_sum -= root-&gt;val;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; paths;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; path;</span><br><span class="line">    <span class="keyword">int</span> pathsum;</span><br><span class="line">    <span class="keyword">int</span> cursum;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; pathSum(TreeNode* root, <span class="keyword">int</span> sum) &#123;</span><br><span class="line">        pathsum = sum;</span><br><span class="line">        cursum = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        backtrack(root);</span><br><span class="line">        <span class="keyword">return</span> paths;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(TreeNode* root)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        cursum += root-&gt;val;</span><br><span class="line">        path.push_back(root-&gt;val);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// it is a leaf node</span></span><br><span class="line">        <span class="keyword">if</span>(!root-&gt;left &amp;&amp; !root-&gt;right)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (cursum == pathsum)</span><br><span class="line">            &#123;</span><br><span class="line">                paths.push_back(path);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            backtrack(root-&gt;left);</span><br><span class="line">            backtrack(root-&gt;right);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        cursum -= root-&gt;val;</span><br><span class="line">        path.pop_back();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode.com/problems/sum-root-to-leaf-numbers/" target="_blank" rel="noopener">LC129 根到叶子组成的数字</a></p>
+<p>需要二叉树中所有的路径形成的数字的和。将双亲节点传来的数字乘10后加上本节点的数字即可。<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">sumNumbers</span><span class="params">(TreeNode* root)</span> </span>&#123;</span><br><span class="line">        res = <span class="number">0</span>;</span><br><span class="line">        backtrack(root, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(TreeNode* root, <span class="keyword">int</span> num)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        num = num * <span class="number">10</span> + root-&gt;val;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// leaf node</span></span><br><span class="line">        <span class="keyword">if</span>(!root-&gt;left &amp;&amp; !root-&gt;right)</span><br><span class="line">        &#123;</span><br><span class="line">            res += num;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            backtrack(root-&gt;left, num);</span><br><span class="line">            backtrack(root-&gt;right, num);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/path-sum-iii/" target="_blank" rel="noopener">LC437 路径总和III</a></p>
+<p>题目要求找到二叉树中所有<em>和为指定值</em>的一条路径。路径<em>不一定从根节点出发，也不一定在叶子节点结束</em>，但路径方向一定是向下的（即不能从某一点处折返）。</p>
+<p>思路一：</p>
+<ul>
+<li>对树的每一个节点都进行一次回溯</li>
+<li>回溯的结束条件为路径和为指定值</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> pathsum;</span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">pathSum</span><span class="params">(TreeNode* root, <span class="keyword">int</span> sum)</span> </span>&#123;</span><br><span class="line">        pathsum = sum;</span><br><span class="line">        res = <span class="number">0</span>;</span><br><span class="line">        pathSum_(root);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pathSum_</span><span class="params">(TreeNode* root)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span>;</span><br><span class="line">        backtrack(root, <span class="number">0</span>);</span><br><span class="line">        pathSum_(root-&gt;left);</span><br><span class="line">        pathSum_(root-&gt;right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(TreeNode* root, <span class="keyword">int</span> sum)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span>;</span><br><span class="line">        sum += root-&gt;val;</span><br><span class="line">        <span class="keyword">if</span>(sum == pathsum) ++res;</span><br><span class="line">        backtrack(root-&gt;left, sum);</span><br><span class="line">        backtrack(root-&gt;right, sum);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p>思路二：</p>
+<ul>
+<li>二叉树中从根节点到任意节点都只有一条路径。</li>
+<li>不要求起点，也不要求终点，考虑这是一个<strong>区间和</strong>问题。区间和问题的解决手段往往都是<em>前缀和</em>。</li>
+<li>设<code>pathsum</code>为想要的区间和。<code>cursum</code>为根节点到当前节点的和。</li>
+<li>回溯过程中，使用一个hashmap记录路径上的前缀和。hashmap的key为前缀和，hashmap的val为该前缀和的数量。</li>
+<li>更新结果：在当前节点判断hashmap中是否有key的值等于<code>cursum - pathsum</code>。（因为区间和等于前缀和的差，即<code>cursum - key == pathsum</code>）有，则说明找到了val条和为sum的路径。</li>
+<li>更新hashmap：<ul>
+<li>如果当前节点不是叶子节点，检查hashmap中是否有key等于当前节点处前缀和的，如果有就给key对应的val加1。如果没有就创建这样的一个key，对应val为1。</li>
+<li>如果当前节点是叶子节点，就没必要再更新hashmap了，因为不会有从当前节点往下的递归调用了。</li>
+</ul>
+</li>
+</ul>
+<p>注意：<br>在当前节点除了判断是否有<code>key == cursum - pathsum</code>，还需要判断一下是否<code>cursum == pathsum</code>，这也是一个解。如果不想判断<code>cursum == pathsum</code>，也可以在hashmap中加入一个<code>(0, 1)</code>的key-value对。表示到根结点的区间和。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> pathsum;</span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; prefixSum;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">pathSum</span><span class="params">(TreeNode* root, <span class="keyword">int</span> sum)</span> </span>&#123;</span><br><span class="line">        pathsum = sum;</span><br><span class="line">        res = <span class="number">0</span>;</span><br><span class="line">        backtrack(root, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(TreeNode* root, <span class="keyword">int</span> sum)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">        sum += root-&gt;val;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// this is also a possible solution, do not miss it</span></span><br><span class="line">        <span class="keyword">if</span>(sum == pathsum)</span><br><span class="line">        &#123;</span><br><span class="line">            ++res;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(prefixSum.count(sum - pathsum))</span><br><span class="line">        &#123;</span><br><span class="line">            res += prefixSum[sum - pathsum];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ++prefixSum[sum];</span><br><span class="line"></span><br><span class="line">        backtrack(root-&gt;left, sum);</span><br><span class="line">        backtrack(root-&gt;right, sum);</span><br><span class="line"></span><br><span class="line">        --prefixSum[sum];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h1><p><a href="https://leetcode-cn.com/problems/combinations/" target="_blank" rel="noopener">LC77 组合</a></p>
+<p>可以用回溯的方式。用k限制回溯树的深度。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; comb;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; combinations;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; combine(<span class="keyword">int</span> n, <span class="keyword">int</span> k) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;n = n;</span><br><span class="line">        backtrack(<span class="number">1</span>, k);</span><br><span class="line">        <span class="keyword">return</span> combinations;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> k)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(k == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            combinations.push_back(comb);</span><br><span class="line">            <span class="keyword">return</span>;            </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(; i &lt;= n; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            comb.push_back(i);</span><br><span class="line">            backtrack(i + <span class="number">1</span>, k - <span class="number">1</span>);</span><br><span class="line">            comb.pop_back();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/combination-sum/submissions/" target="_blank" rel="noopener">LC39 组合总数</a></p>
+<p>给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。candidates 中的数字可以无限制重复被选取。所有数字（包括 target）都是正整数。<strong>解集不能包含重复的组合。</strong></p>
+<p>根据要求我们需要给结果集合去重。我们可以得到所有结果后对结果按字典序排序然后去重。更好的做法是在进行回溯的同时就进行去重。我们可以通过保证决策树的单调性来达到去重的目的（//TODO: 为什么？）。不允许深层作出的决策大于浅层作出的决策。</p>
+<ul>
+<li>将candidates中的数组排序。</li>
+<li>在遍历candidates数组的时候，传给下一个candidate的选择列表缩小1。（见代码）</li>
+</ul>
+<p>优化：</p>
+<ul>
+<li>在判断是否为有效的路径时，因为candidates已经排序，如果当前的candidate无效，后面的所有candidates &gt; candidate，因此也是无效的。此时直接break循环即可。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; path;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; res;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; combinationSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; candidates, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        sort(candidates.begin(), candidates.end());</span><br><span class="line">        backtrack(candidates.begin(), candidates.end(), target);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(It first, It last, <span class="keyword">int</span> target)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span>(target == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            res.emplace_back(path.begin(), path.end());</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// check if this decision is valid</span></span><br><span class="line">            <span class="keyword">if</span>(target - *first &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// if first is not valid, due to the candidates are</span></span><br><span class="line">                <span class="comment">// sorted, all the elements after first cannot be </span></span><br><span class="line">                <span class="comment">// valid.</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; </span><br><span class="line"></span><br><span class="line">            <span class="comment">// add the decision into the path</span></span><br><span class="line">            path.push_back(*first);</span><br><span class="line">            <span class="comment">// dfs</span></span><br><span class="line">            backtrack(first, last, target - *first);</span><br><span class="line">            <span class="comment">// cancel the decision</span></span><br><span class="line">            path.pop_back();</span><br><span class="line">            <span class="comment">// move to next choice</span></span><br><span class="line">            ++first;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/combination-sum-ii/" target="_blank" rel="noopener">LC40 组合总数II</a></p>
+<p>和前一题基本一致。虽然数组总有重复的数字，但是不允许同一个数字被重复使用。所以除了通过排序去重外，还需要在每次的选择列表中去重。如果这一次的选择和上一次相同，那么就跳过。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; path&#123;&#125;;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; res&#123;&#125;;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Solution()</span><br><span class="line">    :path&#123;&#125;</span><br><span class="line">    ,res&#123;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; combinationSum2(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; candidates, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        sort(candidates.begin(), candidates.end());</span><br><span class="line">        backtrace(candidates.begin(), candidates.end(), target);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrace</span><span class="params">(It first, It last, <span class="keyword">int</span> target)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// stop condition</span></span><br><span class="line">        <span class="keyword">if</span>(target == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            res.push_back(path);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> pre = <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// if *first is the same with last one</span></span><br><span class="line">            <span class="keyword">if</span>(pre == *first)</span><br><span class="line">            &#123;</span><br><span class="line">                ++first;</span><br><span class="line">                <span class="keyword">continue</span>; </span><br><span class="line">            &#125;</span><br><span class="line">            pre = *first;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// check if the choice is valid</span></span><br><span class="line">            <span class="keyword">if</span>(target - *first &lt; <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// add it into the path</span></span><br><span class="line">            path.push_back(*first);</span><br><span class="line">            backtrace(first + <span class="number">1</span>, last, target - *first);</span><br><span class="line">            <span class="comment">// cancel the choice</span></span><br><span class="line">            path.pop_back();</span><br><span class="line">            <span class="comment">// move first</span></span><br><span class="line">            ++first;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h1 id="简单回溯"><a href="#简单回溯" class="headerlink" title="简单回溯"></a>简单回溯</h1><h2 id="复原IP地址"><a href="#复原IP地址" class="headerlink" title="复原IP地址"></a>复原IP地址</h2><p><a href="https://leetcode-cn.com/problems/restore-ip-addresses/" target="_blank" rel="noopener">LC93 复原IP地址</a></p>
+<p>简单回溯。需要注意的是”00”不是一个有效的IP段，因此如果遇到第一个数就为0时，不应该继续向下分割字符串，否则会出现前置的0。<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        使用size_t和substr的版本 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; res;</span><br><span class="line">    <span class="built_in">string</span> s;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; restoreIpAddresses(<span class="built_in">string</span> s) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;s = s;</span><br><span class="line">        backtrace(<span class="number">0</span>, s.size(), <span class="string">""</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrace</span><span class="params">(<span class="keyword">size_t</span> first, <span class="keyword">size_t</span> last, <span class="built_in">string</span> path, <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// stop condition</span></span><br><span class="line">        <span class="keyword">if</span>(first == last &amp;&amp; n == <span class="number">4</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            res.push_back(path.substr(<span class="number">0</span>, path.size() - <span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!(first &lt; last) || n &gt; <span class="number">4</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt;= <span class="number">3</span>; ++i)</span><br><span class="line">        &#123; </span><br><span class="line">            <span class="keyword">auto</span> num_str = s.substr(first, i);</span><br><span class="line">            <span class="keyword">auto</span> num = stoi(num_str);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(num &gt; <span class="number">255</span>) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">auto</span> new_path = path;</span><br><span class="line">            <span class="comment">// add num to path</span></span><br><span class="line">            new_path += num_str;</span><br><span class="line">            new_path += <span class="string">'.'</span>;</span><br><span class="line"></span><br><span class="line">            backtrace(first + i, last, new_path, n + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(i == <span class="number">1</span> &amp;&amp; num == <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        使用Iterator的版本
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ip;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; ips;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; restoreIpAddresses(<span class="built_in">string</span> s) &#123;</span><br><span class="line">        backtrack(s.begin(), s.end());</span><br><span class="line">        <span class="keyword">return</span> ips;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(ip.size() == <span class="number">4</span> &amp;&amp; first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// fill in all four parts for an IP </span></span><br><span class="line">        <span class="comment">// nothing left in the string</span></span><br><span class="line">        <span class="keyword">if</span>(ip.size() == <span class="number">4</span> &amp;&amp; first == last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span>&amp;&amp; ip_str = <span class="built_in">string</span>&#123;&#125;;</span><br><span class="line">            <span class="keyword">auto</span> it = ip.begin();</span><br><span class="line">            <span class="keyword">for</span>(;it &lt; --ip.end(); ++it)</span><br><span class="line">            &#123;</span><br><span class="line">                ip_str += to_string(*it);</span><br><span class="line">                ip_str += <span class="string">"."</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            ip_str += to_string(*it);</span><br><span class="line">            ips.emplace_back(move(ip_str));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = first + <span class="number">1</span>; it &lt;= last &amp;&amp; it &lt; first + <span class="number">4</span>; ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> part = <span class="built_in">string</span>(first, it);</span><br><span class="line">            <span class="keyword">auto</span> num  = stoi(part);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(num &lt;= <span class="number">255</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ip.push_back(num);</span><br><span class="line">                backtrack(it, last);</span><br><span class="line">                ip.pop_back();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(num == <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="电话号码的字母组合"><a href="#电话号码的字母组合" class="headerlink" title="电话号码的字母组合"></a>电话号码的字母组合</h2><p><a href="https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/" target="_blank" rel="noopener">LC17 电话号码的字母组合</a></p>
+<p>简单回溯。没有不合法的选择。注意结束条件满足，将path加入结果集合后要return。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">string</span> path;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; res;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; dict;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Solution()</span><br><span class="line">    :path&#123;&#125;</span><br><span class="line">    ,res&#123;&#125;</span><br><span class="line">    ,dict&#123;&#125;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 0 and 1 placeholders</span></span><br><span class="line">        dict.emplace_back();</span><br><span class="line">        dict.emplace_back();</span><br><span class="line">        <span class="comment">// 2 to 9</span></span><br><span class="line">        dict.emplace_back(<span class="string">"abc"</span>);</span><br><span class="line">        dict.emplace_back(<span class="string">"def"</span>);</span><br><span class="line">        dict.emplace_back(<span class="string">"ghi"</span>);</span><br><span class="line">        dict.emplace_back(<span class="string">"jkl"</span>);</span><br><span class="line">        dict.emplace_back(<span class="string">"mno"</span>);</span><br><span class="line">        dict.emplace_back(<span class="string">"pqrs"</span>);</span><br><span class="line">        dict.emplace_back(<span class="string">"tuv"</span>);</span><br><span class="line">        dict.emplace_back(<span class="string">"wxyz"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; letterCombinations(<span class="built_in">string</span> digits) &#123;</span><br><span class="line">        <span class="keyword">if</span>(digits.empty()) <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line">        backtrack(digits.begin(), digits.end());</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// stop condition</span></span><br><span class="line">        <span class="keyword">if</span>(!(first &lt; last))</span><br><span class="line">        &#123;</span><br><span class="line">            res.push_back(path);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : dict[*first - <span class="string">'0'</span>])</span><br><span class="line">        &#123;</span><br><span class="line">            path += c;</span><br><span class="line">            backtrack(first + <span class="number">1</span>, last);</span><br><span class="line">            path.pop_back();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="括号生成"><a href="#括号生成" class="headerlink" title="括号生成"></a>括号生成</h2><p><a href="https://leetcode-cn.com/problems/generate-parentheses/" target="_blank" rel="noopener">LC22 括号生成</a><br>简单回溯。每次决策只有两种。<br>注意：</p>
+<ul>
+<li>回溯算法修改状态后，无论怎样都要恢复状态。除非你用函数栈来复制参数。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keyword">static</span> <span class="keyword">char</span> L_PARENTHESIS = <span class="string">'('</span>;</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keyword">static</span> <span class="keyword">char</span> R_PARENTHESIS = <span class="string">')'</span>;</span><br><span class="line">    <span class="keyword">int</span> p;</span><br><span class="line">    pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; state;</span><br><span class="line">    <span class="built_in">string</span> path;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; res;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Solution()</span><br><span class="line">            :p&#123;<span class="number">0</span>&#125;</span><br><span class="line">            ,state&#123;<span class="number">0</span>,<span class="number">0</span>&#125;</span><br><span class="line">            ,path&#123;&#125;</span><br><span class="line">            ,res&#123;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; generateParenthesis(<span class="keyword">int</span> n) &#123;</span><br><span class="line">        p = n;</span><br><span class="line">        backtrack();</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// stop condition</span></span><br><span class="line">        <span class="keyword">if</span>(state.first == p &amp;&amp; state.second == p)</span><br><span class="line">        &#123;</span><br><span class="line">            res.push_back(path);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// make decisions</span></span><br><span class="line">        <span class="comment">// we could add left p if first &lt; 3</span></span><br><span class="line">        <span class="keyword">if</span>(state.first &lt; p)</span><br><span class="line">        &#123;</span><br><span class="line">            ++state.first;</span><br><span class="line">            path += L_PARENTHESIS;</span><br><span class="line"></span><br><span class="line">            backtrack();</span><br><span class="line">            --state.first;</span><br><span class="line">            path.pop_back();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// we could add right if only left &gt; right</span></span><br><span class="line">        <span class="keyword">if</span>(state.first &gt; state.second)</span><br><span class="line">        &#123;</span><br><span class="line">            ++state.second;</span><br><span class="line">            path += R_PARENTHESIS;</span><br><span class="line">            backtrack();</span><br><span class="line">            --state.second;</span><br><span class="line">            path.pop_back();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h1 id="困难回溯"><a href="#困难回溯" class="headerlink" title="困难回溯"></a>困难回溯</h1><h2 id="正则表达式匹配"><a href="#正则表达式匹配" class="headerlink" title="正则表达式匹配"></a>正则表达式匹配</h2><p><a href="https://leetcode-cn.com/problems/regular-expression-matching/" target="_blank" rel="noopener">LC10 正则表达式匹配</a></p>
+<p>比较复杂的回溯。恢复状态比较麻烦，所以我们直接借助函数调用栈来拷贝参数。</p>
+<ul>
+<li>如果p为空：<ul>
+<li>s为空，匹配成功</li>
+<li>s不为空，匹配失败</li>
+</ul>
+</li>
+</ul>
+<p><strong>[以下开始p非空，但s是否非空不确定]</strong></p>
+<ul>
+<li>如果p的第二个字符是*<ul>
+<li>我们可以忽略p的前两个字符，匹配s和p.substr(2)</li>
+<li><strong>如果s非空</strong>，我们可以检查p的第一个字符和s是否匹配，如果匹配，我们就进一步去匹配s.substr(1)和p</li>
+<li>如果以上两种情况都未匹配成功，则匹配失败。</li>
+</ul>
+</li>
+<li>如果p的第二个字符不是*<ul>
+<li><strong>如果s非空</strong>，我们检查p的第一个字符和s是否匹配，如果匹配，我们就进一步去匹配s.substr(1)和p.substr(1)</li>
+<li>否则匹配失败。<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatch</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(p.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> s.empty();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* p is not empty below*/</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(p.size() &gt; <span class="number">1</span> &amp;&amp; p[<span class="number">1</span>] == <span class="string">'*'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> </span><br><span class="line">            <span class="comment">// ignore .* and (LETTER)*</span></span><br><span class="line">            isMatch(s, p.substr(<span class="number">2</span>)) ||</span><br><span class="line">            <span class="comment">// match the first letter of s with p, then forward s.</span></span><br><span class="line">            (</span><br><span class="line">                <span class="comment">// we have to make sure that s is not empty here</span></span><br><span class="line">                (!s.empty() &amp;&amp; (s[<span class="number">0</span>] == p[<span class="number">0</span>] || p[<span class="number">0</span>] == <span class="string">'.'</span>)) &amp;&amp;</span><br><span class="line">                isMatch(s.substr(<span class="number">1</span>), p)</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">            <span class="comment">// p is not empty, then s must not be empty.</span></span><br><span class="line">            !s.empty()                    &amp;&amp; </span><br><span class="line">            <span class="comment">// match the first letters</span></span><br><span class="line">            (s[<span class="number">0</span>] == p[<span class="number">0</span>] || p[<span class="number">0</span>] == <span class="string">'.'</span>) &amp;&amp;</span><br><span class="line">            <span class="comment">// match others</span></span><br><span class="line">            isMatch(s.substr(<span class="number">1</span>), p.substr(<span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="通配符匹配"><a href="#通配符匹配" class="headerlink" title="通配符匹配"></a>通配符匹配</h2><p><a href="https://leetcode-cn.com/problems/wildcard-matching/" target="_blank" rel="noopener">LC44 通配符匹配</a></p>
+<p>需要进行仔细剪枝的回溯，否则会导致TLE。暂且不知道该如何剪枝。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        回溯TLE code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatch</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> p)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// remove duplicate '*'</span></span><br><span class="line">        p.erase(unique(p.begin(), p.end(), [](<span class="keyword">auto</span> lhs, <span class="keyword">auto</span> rhs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> lhs == <span class="string">'*'</span> &amp;&amp; rhs == <span class="string">'*'</span>;</span><br><span class="line">        &#125;), p.end());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> isMatch_(s, p);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatch_</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(p.empty()) <span class="keyword">return</span> s.empty();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(<span class="string">'*'</span> == p[<span class="number">0</span>])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> </span><br><span class="line">            <span class="comment">// consider '*' as an empty string</span></span><br><span class="line">            isMatch(s, p.substr(<span class="number">1</span>)) ||</span><br><span class="line">            <span class="comment">// consider s[0] match with '*'</span></span><br><span class="line">            (!s.empty() &amp;&amp; isMatch(s.substr(<span class="number">1</span>), p));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> </span><br><span class="line">            <span class="comment">// s must not be empty</span></span><br><span class="line">            !s.empty() &amp;&amp;</span><br><span class="line">            (s[<span class="number">0</span>] == p[<span class="number">0</span>] || <span class="string">'?'</span> == p[<span class="number">0</span>]) &amp;&amp;</span><br><span class="line">            isMatch(s.substr(<span class="number">1</span>), p.substr(<span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>可以通过贪婪的方式进行匹配（未证明，但是AC）：</p>
+<p>遇到相同字符就直接匹配。<br>遇到通配符就不断扩大匹配长度直到匹配成功或者就算搜寻到匹配字符的尾没成功，那就匹配失败。</p>
+<ul>
+<li>遇到相同字符 或 模式字符为<code>&#39;?&#39;</code>就直接匹配。</li>
+<li>遇到模式字符为<code>&#39;*&#39;</code>，就记录下此时模式字符<code>&#39;*&#39;</code>的位置pStar和对应的匹配字符的位置iStar，将模式字符的指针向前移动(即尝试将<code>&#39;*&#39;</code>和空串匹配)，回到前一步。</li>
+<li>如果曾经记录过模式字符中<code>&#39;*&#39;</code>的位置，但在第一步中匹配失败，说明<code>&#39;*&#39;</code>匹配的长度不够。我们应该增加<code>&#39;*&#39;</code>匹配字符串的长度，即将iStar向前移动，并将i回溯至iStar位置，j回溯至jStar + 1位置。</li>
+<li>如果未曾记录过模式字符中的<code>&#39;*&#39;</code>却匹配失败，那就彻底失败了。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatch</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> p)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> i = s.begin();</span><br><span class="line">        <span class="keyword">auto</span> j = p.begin();</span><br><span class="line">        <span class="keyword">auto</span> wc_i = s.end();</span><br><span class="line">        <span class="keyword">auto</span> wc_j = p.end();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(i != s.end())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// if i and j are the same </span></span><br><span class="line">            <span class="comment">// of j is '?', just match</span></span><br><span class="line">            <span class="keyword">if</span>(*i == *j || <span class="string">'?'</span> == *j)</span><br><span class="line">            &#123;</span><br><span class="line">                ++i;</span><br><span class="line">                ++j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// if j is a wildcard, save its the pos for i &amp; j</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(<span class="string">'*'</span> == *j)</span><br><span class="line">            &#123;</span><br><span class="line">                wc_i = i;</span><br><span class="line">                wc_j = j;</span><br><span class="line">                <span class="comment">// move j forward, get the wildcard </span></span><br><span class="line">                <span class="comment">// ready for matching empty string</span></span><br><span class="line">                ++j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// if the pos for wc_j is not invalid, but we failed</span></span><br><span class="line">            <span class="comment">// in matching them, we have to backtrack</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(wc_j != p.end())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// move wc_i 1 pos forward</span></span><br><span class="line">                <span class="comment">// makes the wildcard to match more letters</span></span><br><span class="line">                ++wc_i;</span><br><span class="line">                i = wc_i;</span><br><span class="line">                <span class="comment">// get j back to the char after the wildcard</span></span><br><span class="line">                j = wc_j + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// we have finished matching all char in s</span></span><br><span class="line">        <span class="comment">// we could accept the remaining chars in p are wildcards</span></span><br><span class="line">        <span class="keyword">while</span>(j != p.end() &amp;&amp; *j == <span class="string">'*'</span>) ++j;</span><br><span class="line">        <span class="keyword">return</span> j == p.end();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="单词搜索"><a href="#单词搜索" class="headerlink" title="单词搜索"></a>单词搜索</h2><p><a href="https://leetcode-cn.com/problems/word-search/" target="_blank" rel="noopener">LC79 单词搜索</a></p>
+<p>要求：同一个单元格内的字母不允许被重复使用。因此我们需要一个和原矩阵一样大的矩阵<code>explored</code>来记录哪些格子已经被探索了。<br>初始化一个和原矩阵一样大的矩阵，并标记所有元素为<code>NOT_EXPLORED</code>。在回溯函数中，注意标记<code>EXPLORED</code>和标记<code>NOT_EXPLORED</code>一定要成对出现，这样可以保证在[i, j]位置的一次探索结束后，<code>explored</code>仍然能恢复成全为<code>NOT_EXPLORED</code>的样子。</p>
+<p>回溯函数传递当前探索的坐标[x, y]，已经查找到单词的第n位。</p>
+<p>失败的情况：</p>
+<ul>
+<li>如果 <code>n &gt; word.size() - 1</code>，则已经无需再探索，返回false</li>
+<li>如果 <code>board[x][y] != word[n]</code>，说明这一位找错了，返回false</li>
+<li>如果 <code>explored[x][y] != NOT_EXPLORED</code>，说明走了回头路，返回false</li>
+</ul>
+<p>成功的情况：</p>
+<ul>
+<li>如果 <code>n == word.size() - 1 &amp;&amp; board[x][y] == word[n]</code>，证明正好找到了，返回true</li>
+</ul>
+<p>其他（继续探索的情况）：</p>
+<ul>
+<li>标记该点为已探索</li>
+<li>探索上下左右，只要有一个成功，那就成功了，剩下的就不要再去探索了。</li>
+<li>标记该点为未探索</li>
+<li>返回结果。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">enum</span> state</span><br><span class="line">    &#123;</span><br><span class="line">        NOT_EXPLORED, EXPLORED</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">string</span> word;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;state&gt;&gt; explored;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">exist</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; board, <span class="built_in">string</span> word)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;word = word;</span><br><span class="line">        <span class="keyword">bool</span> res = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        explored = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;state&gt;&gt;(board.size(), </span><br><span class="line">        <span class="built_in">vector</span>&lt;state&gt;(board.front().size(), NOT_EXPLORED));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; board.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(res) <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; board.front().size(); ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                res = res || backtrack(board, <span class="number">0</span>, i, j);</span><br><span class="line">                <span class="keyword">if</span>(res) <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; board, </span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">int</span> n, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// we are on the wrong path</span></span><br><span class="line">        <span class="keyword">if</span>(n &gt; word.size() - <span class="number">1</span> || board[x][y] != word[n] || explored[x][y] != NOT_EXPLORED)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// we found the word</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(n == word.size() - <span class="number">1</span> &amp;&amp; board[x][y] == word[n])</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// we are on the correct path, keep going</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            explored[x][y] = EXPLORED;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">bool</span> res = <span class="literal">false</span>;</span><br><span class="line">            <span class="comment">// move up</span></span><br><span class="line">            <span class="keyword">if</span>(x &gt; <span class="number">0</span> &amp;&amp; !res)</span><br><span class="line">            &#123;</span><br><span class="line">                res = res || backtrack(board, n + <span class="number">1</span>, x - <span class="number">1</span>, y);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// move down</span></span><br><span class="line">            <span class="keyword">if</span>(x &lt; board.size() - <span class="number">1</span> &amp;&amp; !res)</span><br><span class="line">            &#123;</span><br><span class="line">                res = res || backtrack(board, n + <span class="number">1</span>, x + <span class="number">1</span>, y);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// move left</span></span><br><span class="line">            <span class="keyword">if</span>(y &gt; <span class="number">0</span> &amp;&amp; !res)</span><br><span class="line">            &#123;</span><br><span class="line">                res = res || backtrack(board, n + <span class="number">1</span>, x, y - <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// move right</span></span><br><span class="line">            <span class="keyword">if</span>(y &lt; board.front().size() - <span class="number">1</span> &amp;&amp; !res)</span><br><span class="line">            &#123;</span><br><span class="line">                res = res || backtrack(board, n + <span class="number">1</span>, x, y + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            explored[x][y] = NOT_EXPLORED;</span><br><span class="line">            <span class="keyword">return</span> res;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="所有可能的满二叉树"><a href="#所有可能的满二叉树" class="headerlink" title="所有可能的满二叉树"></a>所有可能的满二叉树</h2><p><a href="https://leetcode-cn.com/problems/all-possible-full-binary-trees/" target="_blank" rel="noopener">LC894 所有可能的满二叉树</a></p>
+<ul>
+<li>满二叉树的节点个数一定为奇数</li>
+<li>欲获得节点数为N的满二叉树：<ul>
+<li>其左子树为节点数为$i = 1,3,5, \cdots ,N - 2$的所有可能满二叉树的集合</li>
+<li>当其左子树节点数为i时，其右子树的节点数必然为$N - 1 - i$，因为总节点数$N$ - 满叉树的根节点$1$ - 左子树的节点数$i$ $=0$</li>
+</ul>
+</li>
+<li>对所有可能性进行枚举即可。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * struct TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode *left;</span></span><br><span class="line"><span class="comment"> *     TreeNode *right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) : val(x), left(NULL), right(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;TreeNode*&gt; allPossibleFBT(<span class="keyword">int</span> N) &#123;</span><br><span class="line">        <span class="keyword">if</span>(N % <span class="number">2</span> == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> backtrace(N);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;TreeNode*&gt; backtrace(<span class="keyword">int</span> N)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(N == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="literal">nullptr</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// create a list for roots</span></span><br><span class="line">        <span class="keyword">auto</span> roots = <span class="built_in">vector</span>&lt;TreeNode*&gt;&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// if it has no child</span></span><br><span class="line">        <span class="keyword">if</span>(N == <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> root = <span class="keyword">new</span> TreeNode&#123;<span class="number">0</span>&#125;;</span><br><span class="line">            roots.push_back(root);</span><br><span class="line">            <span class="keyword">return</span> roots;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; N; i+=<span class="number">2</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// if it has two children</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> left : backtrace(i))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">auto</span> right : backtrace(N - <span class="number">1</span> - i))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">auto</span> root = <span class="keyword">new</span> TreeNode&#123;<span class="number">0</span>&#125;;</span><br><span class="line">                    root-&gt;left = left;</span><br><span class="line">                    root-&gt;right = right;</span><br><span class="line">                    roots.push_back(root);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> roots;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag"># 回溯</a>
+              <a href="/tags/%E7%BB%84%E5%90%88/" rel="tag"># 组合</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/c517589e/" rel="prev" title="并查集">
+      <i class="fa fa-chevron-left"></i> 并查集
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/ee040603/" rel="next" title="图(施工中)">
+      图(施工中) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#二叉树的路径"><span class="nav-number">1.</span> <span class="nav-text">二叉树的路径</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#二叉树的所有路径"><span class="nav-number">1.1.</span> <span class="nav-text">二叉树的所有路径</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#路径和"><span class="nav-number">1.2.</span> <span class="nav-text">路径和</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#组合"><span class="nav-number">2.</span> <span class="nav-text">组合</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简单回溯"><span class="nav-number">3.</span> <span class="nav-text">简单回溯</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#复原IP地址"><span class="nav-number">3.1.</span> <span class="nav-text">复原IP地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#电话号码的字母组合"><span class="nav-number">3.2.</span> <span class="nav-text">电话号码的字母组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#括号生成"><span class="nav-number">3.3.</span> <span class="nav-text">括号生成</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#困难回溯"><span class="nav-number">4.</span> <span class="nav-text">困难回溯</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正则表达式匹配"><span class="nav-number">4.1.</span> <span class="nav-text">正则表达式匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通配符匹配"><span class="nav-number">4.2.</span> <span class="nav-text">通配符匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单词搜索"><span class="nav-number">4.3.</span> <span class="nav-text">单词搜索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#所有可能的满二叉树"><span class="nav-number">4.4.</span> <span class="nav-text">所有可能的满二叉树</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

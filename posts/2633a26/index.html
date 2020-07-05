@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="popcount类问题：LC191 Number of 1 bits (Hamming Weight)LC338 Counting bitsLC231 2的整数次幂 除了0和负数，(n &amp; (n - 1)&#x3D;&#x3D; 0)的是2的整数次幂。⚠️LC477 汉明距离总和 统计每一位0或1的个数为t，总共有n个数，则该位贡献的汉明距离为t * (n - t) 异或：LC421 数组中两个数的最大异或值">
+<meta property="og:type" content="article">
+<meta property="og:title" content="位运算">
+<meta property="og:url" content="http://xyfu.me/posts/2633a26/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="popcount类问题：LC191 Number of 1 bits (Hamming Weight)LC338 Counting bitsLC231 2的整数次幂 除了0和负数，(n &amp; (n - 1)&#x3D;&#x3D; 0)的是2的整数次幂。⚠️LC477 汉明距离总和 统计每一位0或1的个数为t，总共有n个数，则该位贡献的汉明距离为t * (n - t) 异或：LC421 数组中两个数的最大异或值">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-20T10:58:11.000Z">
+<meta property="article:modified_time" content="2020-07-05T05:41:32.755Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="位运算">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/2633a26/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>位运算 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/2633a26/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          位运算
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-08-20 18:58:11" itemprop="dateCreated datePublished" datetime="2019-08-20T18:58:11+08:00">2019-08-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-05 13:41:32" itemprop="dateModified" datetime="2020-07-05T13:41:32+08:00">2020-07-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.5k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>popcount类问题：<br><a href="https://xyfu.me/posts/2633a26/#popcount%E7%B1%BB%E9%97%AE%E9%A2%98">LC191 Number of 1 bits (Hamming Weight)</a><br><a href="https://xyfu.me/posts/2633a26/#popcount%E7%B1%BB%E9%97%AE%E9%A2%98">LC338 Counting bits</a><br><a href="https://xyfu.me/posts/2633a26/#popcount%E7%B1%BB%E9%97%AE%E9%A2%98">LC231 2的整数次幂</a> 除了0和负数，(n &amp; (n - 1)== 0)的是2的整数次幂。<br>⚠️<a href="https://xyfu.me/posts/2633a26/#%E7%BB%9F%E8%AE%A1%E6%AF%8F%E4%B8%80%E4%BD%8D%E4%B8%8A%E7%9A%841%E7%9A%84%E6%80%BB%E6%95%B0">LC477 汉明距离总和</a> 统计每一位0或1的个数为t，总共有n个数，则该位贡献的汉明距离为<code>t * (n - t)</code></p>
+<p>异或：<br><a href="https://xyfu.me/posts/2633a26/#%E6%9C%80%E5%A4%A7%E5%BC%82%E6%88%96%E5%80%BC">LC421 数组中两个数的最大异或值</a><br><a href="https://xyfu.me/posts/2633a26/#%E5%BC%82%E6%88%96%E5%89%8D%E7%BC%80%E5%92%8C">LC1310 子数组异或查询</a><br><a href="https://xyfu.me/posts/2633a26/#%E5%BC%82%E6%88%96%E5%89%8D%E7%BC%80%E5%92%8C">LC1442 形成两个异或相等数组的三元组数目</a></p>
+<p>异或找数：<br><a href="https://xyfu.me/posts/2633a26/#%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%AD%97%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0">LC136 Single Number</a>全部与一下即可<br><a href="https://xyfu.me/posts/2633a26/#%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%AD%97%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0">LC137 Single Number II</a>全部与，找一位是1的做partition，再分别与<br><a href="https://xyfu.me/posts/2633a26/#%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%AD%97%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0">LC260 Single Number III</a> 统计每一位，mod3，再恢复<br><a href="https://xyfu.me/posts/2633a26/#%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%AD%97%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0">LC268 缺失的数字</a> 原序列和[1…n]序列做位与</p>
+<p>其他：<br><a href="https://xyfu.me/posts/2c0e3eb8/#%E4%BD%8D%E8%BF%90%E7%AE%97%E5%AE%9E%E7%8E%B0%E5%8A%A0%E6%B3%95">LC371 两整数之和</a><br><a href="https://xyfu.me/posts/2c0e3eb8/#%E5%BF%AB%E9%80%9F%E5%B9%82">LC50 快速幂</a>位与左移是进位，异或是不带进位的加法<br><a href="https://xyfu.me/posts/2633a26/#%E7%BF%BB%E8%BD%AC%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%95%B0">LC190 Reverse Bits</a>[32位都要与到]<br>⚠️<a href="https://xyfu.me/posts/2633a26/#%E6%95%B0%E5%AD%97%E8%8C%83%E5%9B%B4%E6%8C%89%E4%BD%8D%E4%B8%8E">LC201 数字范围按位与</a> 右移到相等，再左移回来。<br><a href="https://xyfu.me/posts/2633a26/#IP%E5%88%B0CIDR">IP到CIDR</a></p>
+<a id="more"></a>
+<h1 id="位运算基础"><a href="#位运算基础" class="headerlink" title="位运算基础"></a>位运算基础</h1><ol>
+<li>对有符号整数右移<code>&gt;&gt;</code>：负数开头补1，正数开头补0</li>
+<li><p>异或运算<code>xor</code> 或 <code>^</code></p>
+<ul>
+<li>异或是不进位的加法。两个数位与左移一位是进位。</li>
+<li><code>a == b &lt;=&gt; a xor b == 0</code></li>
+<li><code>a xor b = c &lt;=&gt; b xor c = a &lt;=&gt; c xor a == b</code></li>
+</ul>
+</li>
+<li><p><code>n &amp; (n -1)</code> ：把这个数最后一位1变0</p>
+</li>
+<li>运算符优先级问题，比如<code>n &amp; 1 == 0</code>，因为<code>==</code>的优先级比<code>&amp;</code>高， 导致了先计算了<code>1 == 0</code>，然后<code>bool</code>类型的隐式转换成了<code>int</code>，再做位与。参考<a href="https://zh.cppreference.com/w/cpp/language/operator_precedence" target="_blank" rel="noopener">C++ 运算符优先级, cppreference</a></li>
+<li>可以通过使用<code>std::cout&lt;&lt;std::bitset&lt;8 * sizeof(T)&gt;(num_you_want_output_as_binary)</code>的形式来实现二进制的输出</li>
+<li>要求好多数字的位运算结果时，可以尝试统计每一位的0或1的个数。</li>
+</ol>
+<h1 id="bitset"><a href="#bitset" class="headerlink" title="bitset"></a>bitset</h1><p><a href="https://zh.cppreference.com/w/cpp/utility/bitset" target="_blank" rel="noopener">cppreference: bitset</a></p>
+<p><code>std::bitset</code>可以通过一个整数构造，也可以通过to_ulong()转换为一个整数。<br><code>std::bitset</code>提供<code>operator&lt;&lt;</code>和<code>to_string()</code>，可以很方便地将一个数字以二进制形式输出。<br><code>std::bitset</code>可以通过<code>set()</code>，<code>reset()</code>，<code>flip()</code>来调整某一位的值。<br><code>std::bitset</code>提供所有逻辑运算符的重载。</p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/letter-case-permutation/" target="_blank" rel="noopener">LC784 字母大小写全排列</a></p>
+<ul>
+<li>找到所有的字母，用<code>std::array&lt;char*, 12&gt;</code>将他们的指针与一个数字联系起来。顺便统计字母的数量n。</li>
+<li>用一个n位二进制数来表示每一个字母是大小还是小写。</li>
+<li>全排列即从0到2n所有的数。根据每一位是0还是1，来改变对应字母的大小写。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; letterCasePermutation(<span class="built_in">string</span> S) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> indices = <span class="built_in">array</span>&lt;<span class="keyword">char</span>*, <span class="number">12</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="comment">// find all the letters in S, associate them with numbers</span></span><br><span class="line">        <span class="keyword">auto</span> letter_num = <span class="number">0u</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp; c : S)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">isalpha</span>(c))</span><br><span class="line">            &#123;</span><br><span class="line">                indices[letter_num++] = &amp;c;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// compute the maximum for an interger that has 'letter_num' bits</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">auto</span> max = <span class="number">1</span> &lt;&lt; letter_num;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="number">0u</span>; i &lt; max; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> bs = <span class="built_in">bitset</span>&lt;<span class="number">12</span>&gt;&#123;i&#125;;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> j = <span class="number">0u</span>; j &lt; letter_num; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// uppercase</span></span><br><span class="line">                <span class="keyword">if</span>(bs[j])</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">auto</span> c = <span class="built_in">toupper</span>(*indices[j]);</span><br><span class="line">                    *indices[j] = c;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// lowercase</span></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">auto</span> c = <span class="built_in">tolower</span>(*indices[j]);</span><br><span class="line">                    *indices[j] = c;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            res.push_back(S);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/maximum-length-of-a-concatenated-string-with-unique-characters/" target="_blank" rel="noopener">LC1239 串联字符串的最大长度</a></p>
+<p>回溯。使用<code>bitset&lt;26&gt;</code>来记录每个英文字母出现与否。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">bitset</span>&lt;26&gt;&gt; mp;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; mask;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;* p_arr;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maxLength</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; arr)</span> </span>&#123;</span><br><span class="line">        mp = <span class="built_in">vector</span>&lt;<span class="built_in">bitset</span>&lt;<span class="number">26</span>&gt;&gt;(arr.size(), <span class="built_in">bitset</span>&lt;<span class="number">26</span>&gt;&#123;&#125;);</span><br><span class="line">        mask = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(arr.size());</span><br><span class="line">        p_arr = &amp;arr;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="number">0u</span>; i &lt; arr.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> c : arr[i])</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// duplicate letters in arr[i]</span></span><br><span class="line">                <span class="keyword">if</span>(mp[i][c - <span class="string">'a'</span>])</span><br><span class="line">                &#123;</span><br><span class="line">                    mask[i] = <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    mp[i].<span class="built_in">set</span>(c - <span class="string">'a'</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> backtrace(<span class="number">0</span>, <span class="number">0</span>, &#123;&#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    auto backtrace(size_t cur, size_t len, bitset&lt;26&gt; bs) -&gt; size_t</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// cannot append more</span></span><br><span class="line">        <span class="keyword">if</span>(cur == mp.size())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> len;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// cur is masked or could lead to duplication, cannot append arr[cur]</span></span><br><span class="line">        <span class="keyword">if</span>(mask[cur]</span><br><span class="line">        || (mp[cur] &amp; bs).any() )</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> backtrace(cur + <span class="number">1</span>, len, bs);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> max</span><br><span class="line">        (</span><br><span class="line">            <span class="comment">// append cur</span></span><br><span class="line">            backtrace(cur + <span class="number">1</span>, len + p_arr-&gt;at(cur).size(), bs | mp[cur]),</span><br><span class="line">            <span class="comment">// not append cur</span></span><br><span class="line">            backtrace(cur + <span class="number">1</span>, len, bs)</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="popcount类问题"><a href="#popcount类问题" class="headerlink" title="popcount类问题"></a>popcount类问题</h1><p>popcount，即统计一个二进制数中置为1的bit个数。</p>
+<h2 id="确认只有一个1"><a href="#确认只有一个1" class="headerlink" title="确认只有一个1"></a>确认只有一个1</h2><p><a href="https://leetcode-cn.com/problems/power-of-two/" target="_blank" rel="noopener">LC231 2的整数次幂</a><br>二的整数次幂的二进制形式必然只有一位是1，因此一个简单的想法是用 <code>(n &amp; (n - 1)) == 0</code> 来判断，但是要注意几个边界情况：</p>
+<ul>
+<li><code>n &lt; 0</code>，2的整数次幂不会是负数</li>
+<li><code>n == 0</code>，0不是2的整数次幂。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isPowerOfTwo</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> n &lt;= <span class="number">0</span> ? <span class="literal">false</span> : (n &amp; (n - <span class="number">1</span>)) == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="统计共有几个1"><a href="#统计共有几个1" class="headerlink" title="统计共有几个1"></a>统计共有几个1</h2><p><a href="https://leetcode.com/problems/number-of-1-bits/" target="_blank" rel="noopener">Leetcode 191</a>, <a href="https://leetcode.com/problems/counting-bits/" target="_blank" rel="noopener">Leetcode 338</a>, 剑指Offer 15</p>
+<p>思路：用这个数和它与1的差做与运算，会消去最后的1。这么做直到该数为0，统计这样做的次数。</p>
+<ul>
+<li>时间复杂度是 <em>O(k)</em>, k是这个二进制数中1的个数。</li>
+<li>空间复杂度为 <em>O(1)</em></li>
+<li><code>N &amp; (N - 1)</code> 可以把这个数最右边的1变为0 </li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        runtime count code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hammingWeight</span><span class="params">(<span class="keyword">uint32_t</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(;n;++res) n = n &amp; (n - <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        compile-time count
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">uint32_t</span> N&gt;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">uint32_t</span> hammingWeight = (hammingWeight&lt;N &amp; (N - <span class="number">1</span>)&gt;) + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">template</span> &lt;&gt; <span class="keyword">constexpr</span> <span class="keyword">uint32_t</span> hammingWeight&lt;<span class="number">0</span>&gt; = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<p>其他思路：</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        SSE指令集 (gcc)
+    </div>
+    <div class='spoiler-content'>
+        <p>用gcc内置的<code>__builtin_popcount(uint32_t)</code>：</p>
+<ul>
+<li>如果想让gcc编译器调用SSE4.2指令集的<code>POPCNT</code> ，要在前面加上<br><code>#pragma GCC target(&quot;sse4.2&quot;)</code></li>
+<li>时间复杂度：不知道，猜测也是 <em>O(number of bits)</em></li>
+<li>空间复杂度：<em>O(1)</em></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> GCC target (<span class="meta-string">"sse4.2"</span>)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; countBits(<span class="keyword">int</span> num) &#123;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">       res.reserve(num + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= num; ++i) res[i] = __builtin_popcount(<span class="keyword">static_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(i));</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考：<br><a href="http://gcc.gnu.org/onlinedocs/gcc-4.8.2/gcc/Function-Specific-Option-Pragmas.html" target="_blank" rel="noopener">Function Specific Option Pragmas</a><br><a href="https://codeforces.com/blog/entry/59268" target="_blank" rel="noopener">Is builtinpopcount O(1) or O(log_2 k) ?</a><br><a href="https://graphics.stanford.edu/~seander/bithacks.html" target="_blank" rel="noopener">Bit Twiddling Hacks - Sean Eron Anderson</a></p>
+</blockquote>
+
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        使用bitset头文件
+    </div>
+    <div class='spoiler-content'>
+        <p><code>std::bitset</code>的<code>count</code>可以返回设置为<code>true</code>的位的数量。</p>
+
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        C++20的bit头文件
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">constexpr</span> <span class="title">int</span> <span class="title">popcount</span>(<span class="title">T</span> <span class="title">x</span>) <span class="title">noexcept</span>;</span></span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="统计每一位上的1的总数"><a href="#统计每一位上的1的总数" class="headerlink" title="统计每一位上的1的总数"></a>统计每一位上的1的总数</h2><p><a href="https://leetcode-cn.com/problems/total-hamming-distance/" target="_blank" rel="noopener">LC477 汉明距离总和</a></p>
+<p>可能会首先想到直接<code>O(N^2)</code>的复杂度计算所有元素之间的距离，这会导致直接超时。<br>巧妙的想法：统计每一位0或1的个数<code>t</code>，那么这一位贡献的汉明距离为<code>t * (n - t)</code>，n为<code>nums</code>数组中数字的个数。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">totalHammingDistance</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> mask = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> size = nums.size();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>, mask = <span class="number">0</span>; i &lt; <span class="number">32</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            mask = mask == <span class="number">0</span> ? <span class="number">1</span> : mask &lt;&lt; <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">int</span> num = <span class="built_in">std</span>::accumulate(nums.begin(), nums.end(),<span class="number">0</span>, </span><br><span class="line">            [mask](<span class="keyword">int</span> lhs, <span class="keyword">int</span> rhs)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> lhs + ((rhs &amp; mask) != <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>);</span><br><span class="line">            &#125;);</span><br><span class="line">            res += num * (size - num);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="异或"><a href="#异或" class="headerlink" title="异或"></a>异或</h1><h2 id="最大异或值"><a href="#最大异或值" class="headerlink" title="最大异或值"></a>最大异或值</h2><p><a href="https://leetcode-cn.com/problems/maximum-xor-of-two-numbers-in-an-array/" target="_blank" rel="noopener">LC421 数组中两个数的最大异或值</a></p>
+<ul>
+<li>只要求得到最大异或的值，不需要找到最大异或的两个数字。</li>
+<li>高位上的1越多，值越大。</li>
+<li>构造一个mask，这个mask用来提取nums中每个数字的前缀。</li>
+<li>构造一个最大异或值的前缀res</li>
+<li>将数组中的所有数字和mask做与，将前缀取出来，放到一个hashset当中。</li>
+<li>假设res当前位为1，用res和数组中的每个数字的前缀做异或。检查得到的结果在hashset当中是否存在。<ul>
+<li>如果存在，根据<code>a xor b == c &lt;=&gt; b xor c == a</code>，hashset中必然存在两个前缀使得该位为1。</li>
+<li>如果检查过所有的数字都不存在，则该位为0。</li>
+</ul>
+</li>
+<li>将mask变长1位，res往后挪一位。重复上述过程，直到res变为32位。</li>
+<li>res即为所求结果。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        bitset code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findMaximumXOR</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// prefix-mask</span></span><br><span class="line">        <span class="keyword">auto</span> pmask = <span class="built_in">bitset</span>&lt;<span class="number">32</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">bitset</span>&lt;<span class="number">32</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="number">31</span>; i &gt;= <span class="number">0</span>; --i)</span><br><span class="line">        &#123;</span><br><span class="line">            pmask.<span class="built_in">set</span>(i);</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">auto</span> pmap = <span class="built_in">unordered_set</span>&lt;<span class="keyword">uint32_t</span>&gt;&#123;&#125;;</span><br><span class="line">            <span class="comment">// put all prefixes of nums into a hashset</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">uint32_t</span> n : nums)</span><br><span class="line">            &#123;</span><br><span class="line">                pmap.insert(pmask.to_ulong() &amp; n);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//assume that the i bit is 1</span></span><br><span class="line">            <span class="keyword">auto</span> pres = res;</span><br><span class="line">            pres.<span class="built_in">set</span>(i);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//check if pres xor nums is in the hashset</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">uint32_t</span> n : nums)</span><br><span class="line">            &#123;                </span><br><span class="line">                <span class="keyword">if</span>(pmap.find(</span><br><span class="line">                    (pmask.to_ulong() &amp; n) ^  <span class="comment">// prefix</span></span><br><span class="line">                    pres.to_ulong())          <span class="comment">// assumption</span></span><br><span class="line">                != pmap.end())</span><br><span class="line">                &#123;</span><br><span class="line">                    res = pres;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res.to_ulong();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findMaximumXOR</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// prefix-mask</span></span><br><span class="line">        <span class="keyword">auto</span> pmask = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="number">31</span>; i &gt;= <span class="number">0</span>; --i)</span><br><span class="line">        &#123;</span><br><span class="line">            pmask |= (<span class="number">1</span> &lt;&lt; i);</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">auto</span> pmap = <span class="built_in">unordered_set</span>&lt;<span class="keyword">uint32_t</span>&gt;&#123;&#125;;</span><br><span class="line">            <span class="comment">// put all prefixes of nums into a hashset</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">uint32_t</span> n : nums)</span><br><span class="line">            &#123;</span><br><span class="line">                pmap.insert(pmask &amp; n);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//assume that the i bit is 1</span></span><br><span class="line">            <span class="keyword">auto</span> pres = res;</span><br><span class="line">            pres |= (<span class="number">1</span> &lt;&lt; i);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//check if pres xor nums is in the hashset</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">uint32_t</span> n : nums)</span><br><span class="line">            &#123;                </span><br><span class="line">                <span class="keyword">if</span>(pmap.find((pmask &amp; n) ^ pres) != pmap.end())</span><br><span class="line">                &#123;</span><br><span class="line">                    res = pres;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="异或前缀和"><a href="#异或前缀和" class="headerlink" title="异或前缀和"></a>异或前缀和</h2><p><a href="https://leetcode-cn.com/problems/xor-queries-of-a-subarray/" target="_blank" rel="noopener">LC1310 子数组异或查询</a></p>
+<p>构造异或的前缀和数组。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; xorQueries(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; arr, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; queries) &#123;</span><br><span class="line">        <span class="keyword">auto</span> psum = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        partial_sum(arr.begin(), arr.end(), back_inserter(psum), </span><br><span class="line">            [](<span class="keyword">int</span> lhs, <span class="keyword">int</span> rhs)&#123;<span class="keyword">return</span> lhs ^ rhs;&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        transform(queries.begin(), queries.end(), back_inserter(res), </span><br><span class="line">        [&amp;psum](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; query)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> back  = query.back();</span><br><span class="line">            <span class="keyword">auto</span> front = query.front();</span><br><span class="line">            <span class="keyword">if</span>(front == <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> psum[back];</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> psum[back] ^ psum[front - <span class="number">1</span>];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p><a href="https://leetcode-cn.com/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/" target="_blank" rel="noopener">LC1442 形成两个异或相等数组的三元组数目</a></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a = arr[i] ^ arr[i + <span class="number">1</span>] ^ ... ^ arr[j - <span class="number">1</span>]</span><br><span class="line">b = arr[j] ^ arr[j + <span class="number">1</span>] ^ ... ^ arr[k]</span><br><span class="line"></span><br><span class="line">p_a = arr[<span class="number">0</span>] ^ arr[<span class="number">1</span>] ^ ... ^ arr[i]</span><br><span class="line">p_b = arr[<span class="number">0</span>] ^ arr[<span class="number">1</span>] ^ ... ^ arr[j]</span><br></pre></td></tr></table></figure>
+<p>如果a == b，有a ^ b == 0，我们得到</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arr[i] ^ arr[i + <span class="number">1</span>] ^ ... ^ arr[k] == <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>因此我们需要在arr上寻找异或为0的子数组。考虑构造arr的异或前缀和：<ul>
+<li>如果m &lt; n且m和n两个位置的异或前缀和p_m和p_n相等，则有p_m ^ p_n == 0，p_m ^ p_n刚好是m和n之间的，异或为0的子数组。</li>
+<li>如果p_m == 0，则从0到m之间的也存在一个异或为0的子数组。</li>
+</ul>
+</li>
+<li>找到所有这样的子数组(m, n)，在(m, n]之间的任何一个数字和m,n都可以构成一个三元组。因此，这个题目变为求所有这样的子数组的长度和。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">auto range_num(It first, It last) -&gt; size_t</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> res = <span class="number">0u</span>l;</span><br><span class="line">    <span class="keyword">for</span>(;first != last; ++first)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> e = first + <span class="number">1</span>; e &lt; last; ++e)</span><br><span class="line">        &#123;</span><br><span class="line">            res += *e - *first - <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">countTriplets</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; arr)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// make an xor partial sum array</span></span><br><span class="line">        <span class="keyword">auto</span> xor_sum = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="comment">// to make the computation of length for all subarrays like (0, m], insert a 0 to the beginning.</span></span><br><span class="line">        xor_sum.push_back(<span class="number">0</span>);</span><br><span class="line">        partial_sum(arr.begin(), arr.end(), back_inserter(xor_sum), [](<span class="keyword">auto</span> lhs, <span class="keyword">auto</span> rhs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> lhs ^ rhs;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// associate each xor partial sum result with its position</span></span><br><span class="line">        <span class="keyword">auto</span> counter = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="number">0u</span>; i &lt; arr.size() + <span class="number">1</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            counter[xor_sum[i]].push_back(i);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// compute the sum of lengths of all subarrays.</span></span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0u</span>l;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp; pair : counter)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(pair.second.size() &gt; <span class="number">1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                sort(pair.second.begin(), pair.second.end());</span><br><span class="line">                res += range_num(pair.second.begin(), pair.second.end());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="异或找数"><a href="#异或找数" class="headerlink" title="异或找数"></a>异或找数</h1><h2 id="缺失的数字"><a href="#缺失的数字" class="headerlink" title="缺失的数字"></a>缺失的数字</h2><p><a href="https://leetcode.com/problems/missing-number/" target="_blank" rel="noopener">LC268 Missing Number</a>.</p>
+<blockquote>
+<p>Given an array containing n distinct numbers taken from 0, 1, 2, …, n, find the one that is missing from the array.</p>
+</blockquote>
+<p>要求：线性时间复杂度，常数空间复杂度<br>利用XOR的思想，设数组中的数字为$a_i$，$i = 0, 1, \cdot, (n - 1)$，missing number 为$m$,那么我们有</p>
+<script type="math/tex; mode=display">
+(a_0 \text{ xor } 0 ) \text{ xor } (a_1 \text{ xor } 1) \text{ xor } \cdots \text{ xor } (a_{n-1} \text{ xor } (n-1)) \text{ xor } n</script><p>其中在$[0, n]$之间的整数都会因为异或而变为$0$, 剩下$0 \text{xor} m = m$，就找到了missing number.</p>
+<p>另一个缺失的数字问题[LC1060 有序数组上缺失的数字]。给定的数组是一个有序数组，利用有序性，可以使用二分查找， 见<a href="https://xyfu.me/posts/e8eb0481/#%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%8A%E7%BC%BA%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97">二分查找</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">missingNumber</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(; i &lt; nums.size(); ++i)</span><br><span class="line">            res = res ^ i ^ nums[i];</span><br><span class="line">        <span class="keyword">return</span> res ^ i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="2xN-1"><a href="#2xN-1" class="headerlink" title="2xN + 1"></a>2xN + 1</h2><ul>
+<li>简单的版本<a href="https://leetcode.com/problems/single-number/" target="_blank" rel="noopener">LC136 Single Number</a>，数组中其他数字都出现了两次，可以直接把数组中所有数字都XOR，剩下的就是单独出现的数字了</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">singleNumber</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> result = nums[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; nums.size(); ++i)&#123;</span><br><span class="line">            result ^= nums[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="3xN-1"><a href="#3xN-1" class="headerlink" title="3xN + 1"></a>3xN + 1</h2><p>再复杂一点的就是LC137 Single Number II，每个数字都出现了3次。这个时候就不能用XOR了，我们需要设计个vector来统计所有数字中每一位1出现的个数。因为所有其他数字都出现了三次，那么在这一位上，所有其他数字1出现的个数也是3的倍数。这样我们就可以对每一位都mod 3，如果mod的结果是1，那么那个Single Number那一位就是1，否则就是0。之后使用这个数组还原single number即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">size_t</span> INT32_BITS = <span class="keyword">sizeof</span>(<span class="keyword">int</span>) * <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">get_bits</span><span class="params">(<span class="keyword">int</span> num, <span class="built_in">array</span>&lt;<span class="keyword">size_t</span>, INT32_BITS&gt;&amp; bits)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="number">0u</span>; i &lt; INT32_BITS; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">auto</span> mask = <span class="number">1u</span> &lt;&lt; i;</span><br><span class="line">        <span class="keyword">if</span>(num &amp; mask)</span><br><span class="line">        &#123;</span><br><span class="line">            ++bits[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">singleNumber</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> bits = <span class="built_in">array</span>&lt;<span class="keyword">size_t</span>, INT32_BITS&gt;&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> num : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            get_bits(num, bits);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        for_each(bits.begin(), bits.end(), [](<span class="keyword">auto</span>&amp; n)</span><br><span class="line">        &#123;</span><br><span class="line">            n %= <span class="number">3</span>;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="number">0u</span>; i &lt; bits.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(bits[i])</span><br><span class="line">            &#123;</span><br><span class="line">                res |= (<span class="number">1u</span> &lt;&lt; i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="2xN-1-1"><a href="#2xN-1-1" class="headerlink" title="2xN + 1 + 1"></a>2xN + 1 + 1</h2><p>最复杂的就是<a href="https://leetcode.com/problems/single-number-iii/" target="_blank" rel="noopener">LC260 Single Number III</a>，这个题目里面有两个出现一次的，其他出现两次。我们按照最简单的[LC136 Single Number]的思路，把数组里面的数字先都XOR一下，这样我们就得到了两个出现一次的数字的XOR的结果。现在的问题是：怎么利用【XOR的结果】 和 【数组】 来还原这两个Single Number呢？<br>剑指Offer 56里提供的方案是，用xor结果里第一个为1的位作为标志(bitMask)，将数组分为两部分。 出现了两次的数字，因为其在(bitMask)这一位上必然是相同，也就会被分到同一组中。而不同的两个数字，在(bitMask)上必然是不同的，也就被分开了。之后在两组上再做xor，就得到那不同的那两个数字了。<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code版本一
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; singleNumber(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">        <span class="keyword">auto</span> allXor = numsXor(nums.begin(), nums.end());</span><br><span class="line">        <span class="keyword">uint32_t</span> bitMask = <span class="number">1</span>;</span><br><span class="line">           </span><br><span class="line">        <span class="keyword">while</span>((allXor &amp; <span class="number">1</span>) == <span class="number">0</span>)&#123;</span><br><span class="line">            allXor  = allXor  &gt;&gt; <span class="number">1</span>;</span><br><span class="line">            bitMask = bitMask &lt;&lt; <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> tmpIt = partition(nums.begin(), nums.end(), [bitMask](<span class="keyword">int</span> num)&#123;</span><br><span class="line">            <span class="keyword">return</span> num &amp; bitMask;</span><br><span class="line">        &#125;);</span><br><span class="line">               </span><br><span class="line">        <span class="keyword">return</span> &#123;numsXor(nums.begin(), tmpIt), numsXor(tmpIt, nums.end())&#125;;   </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">numsXor</span><span class="params">(It first, It last)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(;first != last;++first) result ^= *first;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code版本二
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; singleNumber(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> xor_operator = [](<span class="keyword">int</span> sum, <span class="keyword">int</span> rhs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> sum ^ rhs;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> xorAll = accumulate(nums.begin(), nums.end(), <span class="number">0</span>, xor_operator);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> mask = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(;;)</span><br><span class="line">        &#123;</span><br><span class="line">            mask = mask == <span class="number">0</span> ? <span class="number">1</span> : mask &lt;&lt; <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (xorAll &amp; mask) <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> it = partition(nums.begin(), nums.end(), [mask](<span class="keyword">int</span> x)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> (x &amp; mask);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> num1 = accumulate(nums.begin(), it, <span class="number">0</span>, xor_operator);</span><br><span class="line">        <span class="keyword">int</span> num2 = accumulate(it, nums.end(), <span class="number">0</span>, xor_operator);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> &#123;num1, num2&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><h2 id="用异或交换两个数"><a href="#用异或交换两个数" class="headerlink" title="用异或交换两个数"></a>用异或交换两个数</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a = a^b;</span><br><span class="line">b = a^b;</span><br><span class="line">a = a^b;</span><br></pre></td></tr></table></figure>
+<p>不实用的方法，不但比直接交换慢，而且如果交换的是同一个数引用，会导致这个数清零。具体可见<a href="https://www.zhihu.com/question/62003033" target="_blank" rel="noopener">利用异或方式交换两个变量值的原理是什么？</a></p>
+<h2 id="位运算实现加法"><a href="#位运算实现加法" class="headerlink" title="位运算实现加法"></a>位运算实现加法</h2><p>见<a href="https://xyfu.me/posts/2c0e3eb8/#%E4%BD%8D%E8%BF%90%E7%AE%97%E5%AE%9E%E7%8E%B0%E5%8A%A0%E6%B3%95">数学类问题#基本运算##位运算实现加法</a></p>
+<h2 id="快速幂"><a href="#快速幂" class="headerlink" title="快速幂"></a>快速幂</h2><p>见<a href="https://xyfu.me/posts/2c0e3eb8/#%E5%BF%AB%E9%80%9F%E5%B9%82">数学类问题#基本运算##快速幂</a></p>
+<h2 id="翻转二进制数"><a href="#翻转二进制数" class="headerlink" title="翻转二进制数"></a>翻转二进制数</h2><p><a href="https://leetcode.com/problems/reverse-bits/" target="_blank" rel="noopener">LC190 Reverse Bits</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">uint32_t</span> reverseBits(<span class="keyword">uint32_t</span> n) &#123;</span><br><span class="line">        <span class="comment">//定义两个mask，一个最高位为1，另一个最低位为1</span></span><br><span class="line">        <span class="keyword">uint32_t</span> mask   = <span class="number">1</span> &lt;&lt; <span class="number">31</span>;</span><br><span class="line">        <span class="keyword">uint32_t</span> mask2 = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">uint32_t</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//为什么是32? 因为我们要在32位的每一位上执行一次</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">32</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//检查当前n的这一位，是不是1</span></span><br><span class="line">            <span class="keyword">if</span> (n &amp; mask)</span><br><span class="line">            &#123;</span><br><span class="line">                res |= mask2;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//mask往右移动</span></span><br><span class="line">            <span class="comment">//mask2往左移动</span></span><br><span class="line">            <span class="comment">//这样就实现了反转</span></span><br><span class="line">            mask &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">            mask2 &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<h2 id="数字范围按位与"><a href="#数字范围按位与" class="headerlink" title="数字范围按位与"></a>数字范围按位与</h2><p><a href="https://leetcode-cn.com/problems/bitwise-and-of-numbers-range/" target="_blank" rel="noopener">LC201 数字范围按位与</a></p>
+<p>两个数字<code>m,n</code>, <code>m &lt;= n</code>的二进制有两种情况：</p>
+<ul>
+<li>n的二进制比m多一位：比如n = 1000和m = 0100，那么由0100变化到1000的过程中，m的所有位都会有变化，导致与的结果必然为0</li>
+<li>n和m二进制位数一样多<br>不断同时右移n和m直到n和m相等，变化只会发生在这两个相等的后面，因此将后面补零即可<br>m = 1000, n = 1100 —&gt; 相等的是最高位的1，过程中所有数:1000-&gt;1001-&gt;1010-&gt;1011-&gt;1100</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">rangeBitwiseAnd</span><span class="params">(<span class="keyword">int</span> m, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> shift = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// this contains two situations</span></span><br><span class="line">        <span class="comment">// m has the same num of digits as n --&gt; m and n will be 0 </span></span><br><span class="line">        <span class="comment">// m has different same num of digits with n --&gt; move to the lowest common digits</span></span><br><span class="line">        <span class="keyword">while</span>(m != n)</span><br><span class="line">        &#123;</span><br><span class="line">            m &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">            n &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">            ++shift; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m &lt;&lt; shift;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="IP到CIDR"><a href="#IP到CIDR" class="headerlink" title="IP到CIDR"></a>IP到CIDR</h2><p><a href="https://leetcode-cn.com/problems/ip-to-cidr/" target="_blank" rel="noopener">LC751 IP 到 CIDR</a></p>
+<ul>
+<li>CIDR块的大小一定是2的整数次幂</li>
+<li>每次从当前的ip位置取出一个CIDR块，CIDR块的大小受两个因素限制：<ul>
+<li>当前ip的最低bit</li>
+<li>当前剩余的n的数量</li>
+</ul>
+</li>
+<li>如何找到当前合适的CIDR块？<ul>
+<li>找到当前ip的最低bit，记其为第cidr位，则cidr_size = 1 &lt;&lt; cidr是最大的cidr的CIDR块大小。</li>
+<li>比较cidr_size和n，如果cidr_size &gt; n，我们必须得减小CIDR块的大小，直到(1 &lt;&lt; cidr) &lt; n。</li>
+</ul>
+</li>
+<li>找到合适的cidr后，生成字符串<code>auto res = ipv4_ntoa(ip) + &quot;/&quot; + to_string(32 - cidr);</code></li>
+<li>从n中减掉CIDR块的大小<code>1 &lt;&lt; cidr</code>，在ip上加上CIDR块的大小<code>1 &lt;&lt;cidr</code>。</li>
+<li>重复以上两步，直到<code>n == 0</code>。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">auto ipv4_aton(const char* addr) -&gt; uint32_t</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> res = in_addr&#123;&#125;;</span><br><span class="line">    ::inet_aton(addr, &amp;res);</span><br><span class="line">    <span class="keyword">return</span> ntohl(res.s_addr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">auto ipv4_ntoa(uint32_t ip) -&gt; string</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> addr = in_addr&#123;.s_addr = htonl(ip)&#125;;</span><br><span class="line">    <span class="keyword">auto</span> pstr = ::inet_ntoa(addr);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">string</span>&#123;pstr&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">auto ip_get_cidr(uint32_t&amp; ip, uint32_t&amp; n) -&gt; string</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> mask = <span class="number">1u</span>;</span><br><span class="line">    <span class="keyword">auto</span> cidr = <span class="number">0u</span>;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(mask &gt;= n || ip &amp; mask)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ++cidr;</span><br><span class="line">        mask &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(mask &gt; n)</span><br><span class="line">    &#123;</span><br><span class="line">        --cidr;</span><br><span class="line">        mask &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> res = ipv4_ntoa(ip) + <span class="string">"/"</span> + to_string(<span class="number">32</span> - cidr);</span><br><span class="line"></span><br><span class="line">    ip += (<span class="number">1</span> &lt;&lt; cidr);</span><br><span class="line">    n  -= (<span class="number">1</span> &lt;&lt; cidr);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; ipToCIDR(<span class="built_in">string</span> ip, <span class="keyword">uint32_t</span> n) &#123;</span><br><span class="line">        <span class="keyword">if</span>(n == <span class="number">0</span>) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> cur_ip = ipv4_aton(ip.c_str());</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(n)</span><br><span class="line">        &#123;</span><br><span class="line">            res.push_back(ip_get_cidr(cur_ip, n));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/" rel="tag"># 位运算</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/posts/e8eb0481/" rel="next" title="二分查找">
+      二分查找 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#位运算基础"><span class="nav-number">1.</span> <span class="nav-text">位运算基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bitset"><span class="nav-number">2.</span> <span class="nav-text">bitset</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#popcount类问题"><span class="nav-number">3.</span> <span class="nav-text">popcount类问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#确认只有一个1"><span class="nav-number">3.1.</span> <span class="nav-text">确认只有一个1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#统计共有几个1"><span class="nav-number">3.2.</span> <span class="nav-text">统计共有几个1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#统计每一位上的1的总数"><span class="nav-number">3.3.</span> <span class="nav-text">统计每一位上的1的总数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异或"><span class="nav-number">4.</span> <span class="nav-text">异或</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#最大异或值"><span class="nav-number">4.1.</span> <span class="nav-text">最大异或值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异或前缀和"><span class="nav-number">4.2.</span> <span class="nav-text">异或前缀和</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异或找数"><span class="nav-number">5.</span> <span class="nav-text">异或找数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#缺失的数字"><span class="nav-number">5.1.</span> <span class="nav-text">缺失的数字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2xN-1"><span class="nav-number">5.2.</span> <span class="nav-text">2xN + 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3xN-1"><span class="nav-number">5.3.</span> <span class="nav-text">3xN + 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2xN-1-1"><span class="nav-number">5.4.</span> <span class="nav-text">2xN + 1 + 1</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他"><span class="nav-number">6.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用异或交换两个数"><span class="nav-number">6.1.</span> <span class="nav-text">用异或交换两个数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#位运算实现加法"><span class="nav-number">6.2.</span> <span class="nav-text">位运算实现加法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速幂"><span class="nav-number">6.3.</span> <span class="nav-text">快速幂</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#翻转二进制数"><span class="nav-number">6.4.</span> <span class="nav-text">翻转二进制数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数字范围按位与"><span class="nav-number">6.5.</span> <span class="nav-text">数字范围按位与</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP到CIDR"><span class="nav-number">6.6.</span> <span class="nav-text">IP到CIDR</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

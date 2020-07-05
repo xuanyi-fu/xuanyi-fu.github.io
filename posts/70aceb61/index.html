@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="LC1118 一月有多少天LC1154 一年中的第几天LC1360 日期之间间隔几天LC1185 一周中的第几天">
+<meta property="og:type" content="article">
+<meta property="og:title" content="日期问题">
+<meta property="og:url" content="http://xyfu.me/posts/70aceb61/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="LC1118 一月有多少天LC1154 一年中的第几天LC1360 日期之间间隔几天LC1185 一周中的第几天">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-02-29T13:19:00.000Z">
+<meta property="article:modified_time" content="2020-03-01T02:20:15.727Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="日期">
+<meta property="article:tag" content="date">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/70aceb61/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>日期问题 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/70aceb61/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          日期问题
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-29 21:19:00" itemprop="dateCreated datePublished" datetime="2020-02-29T21:19:00+08:00">2020-02-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 10:20:15" itemprop="dateModified" datetime="2020-03-01T10:20:15+08:00">2020-03-01</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>964</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://leetcode-cn.com/problems/number-of-days-in-a-month/" target="_blank" rel="noopener">LC1118 一月有多少天</a><br><a href="https://leetcode-cn.com/problems/day-of-the-year/" target="_blank" rel="noopener">LC1154 一年中的第几天</a><br><a href="https://leetcode-cn.com/problems/number-of-days-between-two-dates/" target="_blank" rel="noopener">LC1360 日期之间间隔几天</a><br><a href="https://leetcode-cn.com/problems/day-of-the-week/" target="_blank" rel="noopener">LC1185 一周中的第几天</a></p>
+<a id="more"></a>
+<h1 id="闰年"><a href="#闰年" class="headerlink" title="闰年"></a>闰年</h1><ul>
+<li>四年一闰，百年不闰，四百年再闰： <code>(year % 4 == 0 &amp;&amp; year % 100 != 0) || year % 400 == 0</code></li>
+<li>从公元1年开始的闰年个数：<code>year / 4 - year / 100 + year / 400</code></li>
+<li>闰年的二月有29天，平年的二月有28天。</li>
+</ul>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/number-of-days-in-a-month/" target="_blank" rel="noopener">LC1118 一月有多少天</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; mdays;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">numberOfDays</span><span class="params">(<span class="keyword">int</span> Y, <span class="keyword">int</span> M)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> days_in_month(Y, M);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">days_in_month</span><span class="params">(<span class="keyword">int</span> y, <span class="keyword">int</span> m)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mdays[m] + (((y % <span class="number">4</span> == <span class="number">0</span> &amp;&amp; y % <span class="number">100</span> != <span class="number">0</span>) || (y % <span class="number">400</span> == <span class="number">0</span>)) &amp;&amp; m == <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; Solution::mdays = &#123;<span class="number">0</span>, <span class="number">31</span>, <span class="number">28</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="计算y-m-d自1-1-1的天数"><a href="#计算y-m-d自1-1-1的天数" class="headerlink" title="计算y-m-d自1-1-1的天数"></a>计算y-m-d自1-1-1的天数</h1><p>不考虑历史因素（儒略历到格里高利历的更改）。认为<code>1-1-1</code>是第0天。</p>
+<p>设该日期为:<code>y-m-d</code>：</p>
+<ul>
+<li><code>1-1-1</code>到<code>y-1-1</code>的左闭右开区间内的天数：<ul>
+<li>不考虑平年闰年，则自<code>1-1-1</code>起，到今年初<code>y-1-1</code>的左闭右开区间内共有<code>365 * (y - 1)</code>$天。</li>
+<li>从<code>1-1-1</code>到去年(<code>y - 1</code>年)共有<code>leap = (y - 1) / 4 - (y - 1) / 100 + (y - 1) / 400</code>个闰年。则应补上<code>leap</code>天。</li>
+</ul>
+</li>
+<li><code>y-1-1</code>到<code>y-m-1</code>的左闭右开区间内的天数：<ul>
+<li>将平年每月的天数记录到数组中，为方便计算，前方留0：<code>mdays = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}</code></li>
+<li>则经过的天数为<code>accumulate(mdays.begin(), mdays.begin() + m)</code>天。</li>
+<li>如果今年是闰年，并且<code>m &gt; 2</code>，则应该补上1天。</li>
+</ul>
+</li>
+<li><code>y-m-1</code>到<code>y-m-d</code>的左闭右开区间的天数为<code>d - 1</code>天。</li>
+</ul>
+<p>总计：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mkdays(<span class="keyword">int</span> y, <span class="keyword">int</span> m, <span class="keyword">int</span> d)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> (<span class="number">365</span> * (y - <span class="number">1</span>)) </span><br><span class="line">	+  (y - <span class="number">1</span>) / <span class="number">4</span> - (y - <span class="number">1</span>) / <span class="number">100</span> + (y - <span class="number">1</span>) / <span class="number">400</span> </span><br><span class="line">	+ accumulate(mdays.begin(), mdays.begin() + m, <span class="number">0</span>) </span><br><span class="line">	+ (((y % <span class="number">4</span> == <span class="number">0</span> &amp;&amp; y % <span class="number">100</span> != <span class="number">0</span>) || (y % <span class="number">400</span> == <span class="number">0</span>)) &amp;&amp; m &gt; <span class="number">2</span>)</span><br><span class="line">	+ d - <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>天</p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/day-of-the-year/" target="_blank" rel="noopener">LC1154 一年中的第几天</a></p>
+<p>即计算<code>y-1-1</code>到<code>y-m-d</code>经过的天数：</p>
+<ul>
+<li><code>y-1-1</code>到<code>y-m-1</code>的左闭右开区间内的天数：<ul>
+<li>将平年每月的天数记录到数组中，为方便计算，前方留0：<code>mdays = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}</code></li>
+<li>则经过的天数为<code>accumulate(mdays.begin(), mdays.begin() + m)</code>天。</li>
+<li>如果今年是闰年，并且<code>m &gt; 2</code>，则应该补上1天。</li>
+</ul>
+</li>
+<li><code>y-m-1</code>到<code>y-m-d</code>的左闭右开区间的天数为<code>d</code>天。</li>
+<li>加上1天，因为<code>y-1-1</code>是第1天，不是第0天。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; mdays;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">dayOfYear</span><span class="params">(<span class="built_in">string</span> date)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mkdays_in_year(</span><br><span class="line">                    stoi(date.substr(<span class="number">0</span>,<span class="number">4</span>)),</span><br><span class="line">                    stoi(date.substr(<span class="number">5</span>,<span class="number">2</span>)),</span><br><span class="line">                    stoi(date.substr(<span class="number">8</span>,<span class="number">2</span>))</span><br><span class="line">                );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">mkdays_in_year</span><span class="params">(<span class="keyword">int</span> y, <span class="keyword">int</span> m, <span class="keyword">int</span> d)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> accumulate(mdays.begin(), mdays.begin() + m, <span class="number">0</span>)</span><br><span class="line">        + (((y % <span class="number">4</span> == <span class="number">0</span> &amp;&amp; y % <span class="number">100</span> != <span class="number">0</span>) || (y % <span class="number">400</span> == <span class="number">0</span>)) &amp;&amp; m &gt; <span class="number">2</span>)</span><br><span class="line">        + d;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; Solution::mdays = &#123;<span class="number">0</span>, <span class="number">31</span>, <span class="number">28</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/number-of-days-between-two-dates/" target="_blank" rel="noopener">LC1360 日期之间间隔几天</a></p>
+<p>计算两个日期的间隔，就是计算两个日期到<code>1-1-1</code>的天数差。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; mdays;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">daysBetweenDates</span><span class="params">(<span class="built_in">string</span> date1, <span class="built_in">string</span> date2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">abs</span>(mkdays(date1) - mkdays(date2));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mkdays</span><span class="params">(<span class="built_in">string</span> date)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mkdays(stoi(date.substr(<span class="number">8</span>, <span class="number">2</span>)),stoi(date.substr(<span class="number">5</span>, <span class="number">2</span>)),stoi(date.substr(<span class="number">0</span>, <span class="number">4</span>)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">mkdays</span><span class="params">(<span class="keyword">int</span> d, <span class="keyword">int</span> m, <span class="keyword">int</span> y)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> ans = (y - <span class="number">1</span>) * <span class="number">365</span> </span><br><span class="line">        + (y - <span class="number">1</span>)/<span class="number">4</span> - (y - <span class="number">1</span>)/<span class="number">100</span> + (y - <span class="number">1</span>)/<span class="number">400</span></span><br><span class="line">        + accumulate(mdays.begin(), mdays.begin() + m, <span class="number">0</span>)</span><br><span class="line">        + (((y % <span class="number">4</span> == <span class="number">0</span> &amp;&amp; y % <span class="number">100</span> != <span class="number">0</span>) || (y % <span class="number">400</span> == <span class="number">0</span>)) &amp;&amp; m &gt; <span class="number">2</span>)</span><br><span class="line">        + d;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; Solution::mdays = &#123;<span class="number">0</span>, <span class="number">31</span>, <span class="number">28</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<h2 id="y-m-d是星期几"><a href="#y-m-d是星期几" class="headerlink" title="y-m-d是星期几"></a>y-m-d是星期几</h2><p>不考虑历史因素，只按照现行历法回推，<code>1-1-1</code>天是星期一。</p>
+<p>因此日期<code>y-m-d</code>是星期几可以按下面的程序计算：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> day_of_the_week = mkdays(y, m, d) % <span class="number">7</span> + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/day-of-the-week/" target="_blank" rel="noopener">LC1185 一周中的第几天</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; mdays;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="built_in">string</span>, 7&gt; week;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">dayOfTheWeek</span><span class="params">(<span class="keyword">int</span> day, <span class="keyword">int</span> month, <span class="keyword">int</span> year)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> week[mkdays(year, month, day) % <span class="number">7</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">inline</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mkdays</span><span class="params">(<span class="keyword">int</span> y, <span class="keyword">int</span> m, <span class="keyword">int</span> d)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (y - <span class="number">1</span>) * <span class="number">365</span> </span><br><span class="line">        + (y - <span class="number">1</span>)/<span class="number">4</span> - (y - <span class="number">1</span>)/<span class="number">100</span> + (y - <span class="number">1</span>)/<span class="number">400</span></span><br><span class="line">        + accumulate(mdays.begin(), mdays.begin() + m, <span class="number">0</span>)</span><br><span class="line">        + (((y % <span class="number">4</span> == <span class="number">0</span> &amp;&amp; y % <span class="number">100</span> != <span class="number">0</span>) || (y % <span class="number">400</span> == <span class="number">0</span>)) &amp;&amp; m &gt; <span class="number">2</span>)</span><br><span class="line">        + d - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 13&gt; Solution::mdays = &#123;<span class="number">0</span>, <span class="number">31</span>, <span class="number">28</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>&#125;;</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">array</span>&lt;<span class="built_in">string</span>, 7&gt; Solution::week = &#123;<span class="string">"Monday"</span>, <span class="string">"Tuesday"</span>, <span class="string">"Wednesday"</span>, <span class="string">"Thursday"</span>, <span class="string">"Friday"</span>, <span class="string">"Saturday"</span>, <span class="string">"Sunday"</span>&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Leetcode/" rel="tag"># Leetcode</a>
+              <a href="/tags/%E6%97%A5%E6%9C%9F/" rel="tag"># 日期</a>
+              <a href="/tags/date/" rel="tag"># date</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/d3225986/" rel="prev" title="Leetcode题目索引">
+      <i class="fa fa-chevron-left"></i> Leetcode题目索引
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/d9138479/" rel="next" title="is_transparent">
+      is_transparent <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#闰年"><span class="nav-number">1.</span> <span class="nav-text">闰年</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#计算y-m-d自1-1-1的天数"><span class="nav-number">2.</span> <span class="nav-text">计算y-m-d自1-1-1的天数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#y-m-d是星期几"><span class="nav-number">2.1.</span> <span class="nav-text">y-m-d是星期几</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

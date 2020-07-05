@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="begin到first的区间[begin, first)是否对于一个特性是单调的？last到end的区间[last,end)是否针对一个特性是单调的？ 是否已知区间的范围？如果不知道，是否可以用单边二分查找来先确定范围？  二分查找三基础：LC35 Search Insert PositionLC704 Binary SeachLC34 Find First and Last Position">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二分查找">
+<meta property="og:url" content="http://xyfu.me/posts/e8eb0481/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="begin到first的区间[begin, first)是否对于一个特性是单调的？last到end的区间[last,end)是否针对一个特性是单调的？ 是否已知区间的范围？如果不知道，是否可以用单边二分查找来先确定范围？  二分查找三基础：LC35 Search Insert PositionLC704 Binary SeachLC34 Find First and Last Position">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-20T14:47:57.000Z">
+<meta property="article:modified_time" content="2020-07-05T05:57:10.913Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="二分查找">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/e8eb0481/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>二分查找 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/e8eb0481/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          二分查找
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-08-20 22:47:57" itemprop="dateCreated datePublished" datetime="2019-08-20T22:47:57+08:00">2019-08-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-05 13:57:10" itemprop="dateModified" datetime="2020-07-05T13:57:10+08:00">2020-07-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>9.1k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>begin到first的区间[begin, first)是否对于一个特性是单调的？last到end的区间[last,end)是否针对一个特性是单调的？</li>
+<li>是否已知区间的范围？如果不知道，是否可以用单边二分查找来先确定范围？</li>
+</ul>
+<p>二分查找三基础：<br><a href="https://xyfu.me/posts/e8eb0481/#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">LC35 Search Insert Position</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">LC704 Binary Seach</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">LC34 Find First and Last Position of Element in Sorted Array</a><br>[equal_range —&gt; 将 lower_bound中的<code>!(*mid &lt; target)</code>分解为 小于：<code>target &lt; *mid</code> 和 等价：<code>!(*mid &lt; target) &amp;&amp; !(*mid &gt; target)</code>，将等价的区间分为[first, mid)和[mid, last)，再在前面做lower_bound后面做upper_bound。<br>简单二分查找：<br><a href="https://xyfu.me/posts/e8eb0481/#%E5%8D%95%E4%BE%A7%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE">LC278 第一个错误的版本</a> 单边二分。注意下标溢出。记录上一次badVersion的位置，缩小二分区间。<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%8A%E7%BC%BA%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97">剑指53 - II 0到n-1中缺失的数字</a><br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%8A%E7%BC%BA%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97">LC1060 有序数组上缺失的数字</a> [设计一个函数计算到目前为止缺失的元素个数，记得要找lower_bound前一个元素（最后一个不大于）]<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%80%BC%E5%92%8C%E4%B8%8B%E6%A0%87%E7%9B%B8%E7%AD%89%E7%9A%84%E5%85%83%E7%B4%A0">剑指53 - III 数组中数值和下标相等的元素</a>[小心size_t和int的大小比较]</p>
+<p>峰值数组：<br><a href="https://xyfu.me/posts/e8eb0481/#%E5%B3%B0%E5%80%BC%E6%95%B0%E7%BB%84">LC1095 山脉数组中查找目标值</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%B3%B0%E5%80%BC%E6%95%B0%E7%BB%84">LC162 寻找峰值</a></p>
+<p>旋转数组：<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84">LC153 Find Minimum in Rotated Sorted Array</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84">LC154 Find Minimum in Rotated Sorted Array II</a> [有重复数字，遇到重复直接线性查找]<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84">LC33  Search in Rotated Sorted Array</a> [想要在旋转数组上找某个数字]<br>矩阵查询：<br><a href="https://xyfu.me/posts/e8eb0481/#%E7%9F%A9%E9%98%B5%E6%9F%A5%E6%89%BE">LC74 Search a 2D Matrix</a> [展开为一维/两次二分/线性]<br><a href="https://xyfu.me/posts/e8eb0481/#%E7%9F%A9%E9%98%B5%E6%9F%A5%E6%89%BE">LC240 Search a 2D Matrix II</a> [线性/对角线二分]<br>困难二分查找：<br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0">LC4 排序数组的中位数</a><br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E5%88%86%E5%89%B2%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%A4%A7%E5%80%BC">LC410 分割数组的最大值</a><br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E5%AF%BB%E6%89%BE%E5%B3%B0%E5%80%BC">LC162 寻找峰值</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%AE%8C%E5%85%A8%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9%E4%B8%AA%E6%95%B0">LC222 完全二叉树的节点个数</a><br>数学二分：<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%B1%82%E6%95%B4%E6%95%B0%E7%9A%84%E5%B9%B3%E6%96%B9%E6%A0%B9">LC96 Sqrt(x)</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E6%95%B0%E5%AD%A6%E4%B8%8A%E7%9A%84%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE">LC878 第N个神奇数字</a></p>
+<a id="more"></a>
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>二分查找的基本思路就是维护两个循环不变式，直到搜索空间变为空。</p>
+<h2 id="求区间中点"><a href="#求区间中点" class="headerlink" title="求区间中点"></a>求区间中点</h2><ul>
+<li>不能直接使用 <code>mid = (first + last) / 2</code>，因为<code>first + last</code>的结果可能溢出。<br>在区间长度为偶数的时候，存在两个可能的区间中点</li>
+<li><code>Mid1 = first + (last - first) / 2;</code></li>
+<li><code>Mid2 = first + (last - first - 1) / 2;</code></li>
+</ul>
+<p>一般我们用<code>Mid1</code>，因为不需要额外-1.</p>
+<h2 id="比较符号"><a href="#比较符号" class="headerlink" title="比较符号"></a>比较符号</h2><p>按照C++ STL的惯例，只使用<code>operator&lt;()</code>来做比较。</p>
+<h2 id="STL中相等-equality-和等价-equivalence-的区别"><a href="#STL中相等-equality-和等价-equivalence-的区别" class="headerlink" title="STL中相等(equality)和等价(equivalence)的区别"></a>STL中相等(equality)和等价(equivalence)的区别</h2><ul>
+<li>相等：<code>a == b</code></li>
+<li>等价：<code>!(a &lt; b) &amp;&amp; !(b &lt; a)</code></li>
+</ul>
+<p>更多关于STL中【相等】和【等价】的区别，可以参考 <em>Effective STL, Scott Meyers, Item19: Understand the difference between equality and equivalence</em><br><!-- more --></p>
+<h2 id="实现lower-bound-和-upper-bound"><a href="#实现lower-bound-和-upper-bound" class="headerlink" title="实现lower_bound 和 upper_bound"></a>实现<code>lower_bound</code> 和 <code>upper_bound</code></h2><p><a href="https://leetcode.com/problems/search-insert-position/" target="_blank" rel="noopener">LC35 Search Insert Position</a></p>
+<h3 id="first-last-左闭右开区间表示法"><a href="#first-last-左闭右开区间表示法" class="headerlink" title="[first, last) 左闭右开区间表示法"></a>[first, last) 左闭右开区间表示法</h3><p><code>lower_bound</code>维护下面的循环不变式：</p>
+<ol>
+<li>[begin, first) 中的所有元素 小于   target.</li>
+<li>[last , end  ) 中的所有元素 不小于 target.</li>
+<li>[first, last ) 区间长度大于0.</li>
+</ol>
+<p>适用于迭代器为<code>RandomAccessIterator</code>的<code>Container</code>的<code>lower_bound</code></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> RandomAccessIterator, <span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">RandomAccessIterator <span class="title">lower_bound</span><span class="params">(RandomAccessIterator first, RandomAccessIterator last, <span class="keyword">const</span> T&amp; target)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(first &lt; last)&#123;</span><br><span class="line">        <span class="keyword">auto</span> middle = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span>(*middle &lt; target) first = middle + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span>                 last  = middle; </span><br><span class="line">        <span class="comment">//这里绝对不可以是else if(target &lt; *middle)，否则当target == *middle的时候，不符合任意条件，导致死循环。</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> first;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p><code>upper_bound</code>维护下面的循环不变式：</p>
+<ol>
+<li>target 不小于 [begin, first) 中的所有元素.</li>
+<li>target 小于   [last , end  ) 中的所有元素.</li>
+<li>[first, last ) 区间长度大于0.</li>
+</ol>
+<p>适用于迭代器为<code>RandomAccessIterator</code>的<code>Container</code>的<code>lower_bound</code></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> RandomAccessIterator, <span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">RandomAccessIterator <span class="title">upper_bound</span><span class="params">(RandomAccessIterator first, RandomAccessIterator last, <span class="keyword">const</span> T&amp; target)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(first &lt; last)&#123;</span><br><span class="line">        <span class="keyword">auto</span> middle = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span>(target &lt; *middle) last   = middle;</span><br><span class="line">        <span class="keyword">else</span>                 first  = middle + <span class="number">1</span>; </span><br><span class="line">        <span class="comment">//这里绝对不可以是else if(target &lt; *middle)，否则当target == *middle的时候，不符合任意条件，导致死循环。</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> first;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="实现binary-seach"><a href="#实现binary-seach" class="headerlink" title="实现binary_seach"></a>实现<code>binary_seach</code></h2><h3 id="通过lower-bound实现binary-seach"><a href="#通过lower-bound实现binary-seach" class="headerlink" title="通过lower_bound实现binary_seach"></a>通过<code>lower_bound</code>实现<code>binary_seach</code></h3><p><a href="https://leetcode.com/problems/binary-search/" target="_blank" rel="noopener">LC704 Binary Seach</a></p>
+<p>C++ STL是用过调用<code>lower_bound</code>来实现的。因为<code>lower_bound</code>的返回值<code>it</code>是第一个【不小于（大于等于）】<code>target</code>的iterator，即<code>!(*it &lt; target)</code>所以如果想要测试<code>it</code>是否和<code>target</code>等价，需要加上条件：</p>
+<ul>
+<li><code>it != nums.end()</code></li>
+<li><code>!(target &lt; *it)</code></li>
+</ul>
+<p>即 <code>it</code>非尾迭代器且<code>!(target &lt; *it) &amp;&amp; !(*it &lt; target)</code>(STL的等价(equivalent)). </p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">search</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> it = my_lower_bound(nums.begin(), nums.end(), target);</span><br><span class="line">        <span class="keyword">if</span>(it != nums.end() &amp;&amp; !(target &lt; *it) )</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(distance(nums.begin(), it));</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> RandomAccessIterator, <span class="keyword">typename</span> T&gt;</span><br><span class="line">    <span class="function">RandomAccessIterator <span class="title">my_lower_bound</span><span class="params">(RandomAccessIterator first, RandomAccessIterator last, <span class="keyword">const</span> T&amp; target)</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)&#123;</span><br><span class="line">            <span class="keyword">auto</span> middle = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(*middle &lt; target) first = middle + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                 last  = middle;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="实现equal-range"><a href="#实现equal-range" class="headerlink" title="实现equal_range"></a>实现<code>equal_range</code></h2><p><code>equal_range</code>维护下面的循环不变式：</p>
+<ol>
+<li>target 小于 [last, end) 中的所有元素.</li>
+<li>[begin, first) 中的所有元素 小于 target.</li>
+<li>[first, last ) 区间长度大于0.</li>
+</ol>
+<p>适用于迭代器为<code>RandomAccessIterator</code>的<code>Container</code>的<code>equal_range</code></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">tempalte&lt;<span class="keyword">typename</span> RandomAccessIterator, <span class="keyword">typename</span> T&gt;</span><br><span class="line">pair&lt;RandomAccessIterator, RandomAccessIterator&gt; equal_range(RandomAccessIterator first, RandomAccessIterator last, <span class="keyword">const</span> T&amp; target)&#123;</span><br><span class="line">    <span class="keyword">while</span>(first &lt; last)&#123;</span><br><span class="line">        <span class="keyword">auto</span> middle = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span>     (*middle &lt; target)  first = middle + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(target &lt; *middle)  last  = middle; </span><br><span class="line">        <span class="keyword">else</span> <span class="comment">// (!(*middle &lt; target) &amp;&amp; !(target &lt; *middle)) ==&gt; equivalent</span></span><br><span class="line">        &#123;</span><br><span class="line">            it1 = lower_bound(first , middle, target);</span><br><span class="line">            it2 = upper_bound(middle,   last, target);</span><br><span class="line">            <span class="keyword">return</span> &#123;it1, it2&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;it1, it2&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p><a href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank" rel="noopener">LC34 Find First and Last Position of Element in Sorted Array</a>的解：</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; searchRange(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">auto</span> [it1, it2] = my_equal_range(nums.begin(), nums.end(), target);</span><br><span class="line">        <span class="comment">// 注意这里仍然需要像binary_search一样判断一下等价条件</span></span><br><span class="line">        <span class="keyword">if</span>(it1 != nums.end() &amp;&amp; !(target &lt; *it1)) </span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(distance(nums.begin(), it1))</span><br><span class="line">                    ,<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(distance(nums.begin(), it2)) - <span class="number">1</span>&#125;;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">return</span> &#123;<span class="number">-1</span>, <span class="number">-1</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> RandomAccessIterator, <span class="keyword">typename</span> T&gt;</span><br><span class="line">    pair&lt;RandomAccessIterator, RandomAccessIterator&gt; my_equal_range(RandomAccessIterator first, RandomAccessIterator last, <span class="keyword">const</span> T&amp; target)&#123;</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)&#123;</span><br><span class="line">            <span class="keyword">auto</span> middle = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>     (*middle &lt; target)  first = middle + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(target &lt; *middle)  last  = middle; </span><br><span class="line">            <span class="keyword">else</span> <span class="comment">// (!(*middle &lt; target) &amp;&amp; !(target &lt; *middle)) ==&gt; equivalent</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> it1 = lower_bound(first , middle, target);</span><br><span class="line">                <span class="keyword">auto</span> it2 = upper_bound(middle,   last, target);</span><br><span class="line">                <span class="keyword">return</span> &#123;it1, it2&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> &#123;first, last&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="简单二分查找"><a href="#简单二分查找" class="headerlink" title="简单二分查找"></a>简单二分查找</h1><h2 id="单侧二分查找"><a href="#单侧二分查找" class="headerlink" title="单侧二分查找"></a>单侧二分查找</h2><p>有一个前面全是0，后面全是1的数组。我们想要找到这个数组的转折点。如果我们知道数组元素个数n，我们可以在这个区间上做二分查找。如果我们不知道元素个数n，我们可以逐步扩大区间(A[1],A[2],A[4],A[8],$\cdots$)，直到找到非零值位置，然后在这个区间上做二分查找。<br><a href="https://leetcode-cn.com/problems/first-bad-version/submissions/" target="_blank" rel="noopener">LC278 第一个错误的版本</a><br>需要注意的问题：</p>
+<pre><code>- 单边二分查找可能会增长超过INT_MAX。如果发现要溢出了，就直接给i = INT_MAX即可。
+- 我们在做单边二分查找的时候，可以记录一下上一次仍不是BadVersion的index，这样可以缩小之后的二分查找范围。
+</code></pre><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Forward declaration of isBadVersion API.</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">isBadVersion</span><span class="params">(<span class="keyword">int</span> version)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">firstBadVersion</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// to use binary_search</span></span><br><span class="line">        <span class="comment">// we have to find a bad version</span></span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> first = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>(!isBadVersion(i))</span><br><span class="line">        &#123;</span><br><span class="line">            first = i;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; INT_MAX / <span class="number">2</span>)</span><br><span class="line">                i *= <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                i = INT_MAX;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//now we can use binary search</span></span><br><span class="line">        <span class="keyword">int</span> last  = i;</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">int</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(!isBadVersion(mid)) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                   last  = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="有序数组上的次数统计"><a href="#有序数组上的次数统计" class="headerlink" title="有序数组上的次数统计"></a>有序数组上的次数统计</h2><h3 id="有序数组上缺失的数字"><a href="#有序数组上缺失的数字" class="headerlink" title="有序数组上缺失的数字"></a>有序数组上缺失的数字</h3><p><a href="https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/" target="_blank" rel="noopener">剑指53 0到n-1中缺失的数字</a></p>
+<p>维护以下的循环不变式</p>
+<ul>
+<li>[begin, first) 中，具有下标i的所有元素都满足<code>nums[i] == i</code></li>
+<li>[last,  end  ) 中，具有下表j的所有元素都满足<code>nums[j] != j</code></li>
+<li>first &lt; last</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getMissingNumber</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> last  = nums.size();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)&#123;</span><br><span class="line">            <span class="keyword">size_t</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(nums[mid] == mid) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                 last  = mid;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/missing-element-in-sorted-array/" target="_blank" rel="noopener">LC1060 有序数组上缺失的数字</a></p>
+<p>更为复杂版本的数组上缺失的数字，这里没有要求所有数字的范围是0 到 (n - 1)， 而是随意的一个范围。</p>
+<blockquote>
+<p>给出一个有序数组 A，数组中的每个数字都是 独一无二的，找出从数组最左边开始的第 K 个缺失数字。</p>
+</blockquote>
+<p>思路：</p>
+<ul>
+<li>我们需要知道到数字中每一元素为止，缺失了多少个元素<ul>
+<li>比如 <code>nums = [4, 7, 9, 10]</code> 这个数组，到7缺失了2个(5,6)，到9缺失了3个(5,6,8)，到10也是缺失了3个(5, 6, 8)。纸笔演算一下就可以发现，设这个元素的迭代器为it, 这个缺失数应该是：<br>  <code>*it - *nums.begin() - distance(nums.begin(), it)</code></li>
+<li>也可以用[4,7,9,10]减去[4,5,6,7]就是到每个元素为止缺失元素的个数。</li>
+</ul>
+</li>
+<li>知道了到每个元素为止缺了多少元素，那我们只要找到k的lower_bound，即第一个缺失元素不小于k的元素，他前面那个元素(设before为他的迭代器)就最后一个缺失元素小于k的。</li>
+<li>我们只需要计算 <code>(k - 到before为止缺失元素的个数) + *before</code>，就是第k个缺失的元素了</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">missingElement</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// use lower bound to find the first element</span></span><br><span class="line">        <span class="comment">// that has missingElementsUntil that is not less than k</span></span><br><span class="line">        <span class="keyword">auto</span> first = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> last  = nums.end();</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (missingElementsUntil(nums.begin(), mid) &lt; k) </span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                last  = mid; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// decrease first by 1 --&gt; the last element that has                 // missingElementUnitl less than k</span></span><br><span class="line">        </span><br><span class="line">        --first;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// the missing element is</span></span><br><span class="line">        <span class="comment">// k - missingElementsUntil(first) + *first</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> k - missingElementsUntil(nums.begin(), first) + *first;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">missingElementsUntil</span><span class="params">(It begin, It it)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> *it - *begin - distance(begin, it);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h3 id="数组中数值和下标相等的元素"><a href="#数组中数值和下标相等的元素" class="headerlink" title="数组中数值和下标相等的元素"></a>数组中数值和下标相等的元素</h3><p><a href="https://www.acwing.com/problem/content/65/" target="_blank" rel="noopener">剑指53 - III 数组中数值和下标相等的元素</a></p>
+<p>设一个元素的下标为i, 注意到：</p>
+<ul>
+<li>如果<code>nums[i] &lt; i</code>，因为数组是单调递增的，且没有重复元素，对于i之前下标为j的任意元素，都有<code>nums[j] &lt; j</code></li>
+<li>对于<code>i &lt; nums[i]</code>，类似的结论也成立。</li>
+</ul>
+<p>维护下面的循环不变式</p>
+<ul>
+<li>[begin, first)，对于任意的下标i的元素都满足<code>nums[i] &lt; i</code></li>
+<li>[last,  end  )，对于任意的下标i的元素都满足<code>i &lt; nums[i]</code></li>
+<li>first &lt; last</li>
+</ul>
+<p><strong>注意：一个<code>size_t</code>类型的变量和<code>int</code>类型变量比较大小的时候，一定要强制类型转换后再比较</strong></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getNumberSameAsIndex</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">size_t</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> last  = nums.size();</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)&#123;</span><br><span class="line">            <span class="keyword">size_t</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(nums[mid] &lt; <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(mid)) <span class="comment">//这里的强制类型转换不可少</span></span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(mid) &lt; nums[mid]) <span class="comment">//这里的强制类型转换不可少</span></span><br><span class="line">                last = mid;</span><br><span class="line">            <span class="keyword">else</span>                     </span><br><span class="line">                <span class="keyword">return</span> mid;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="旋转数组"><a href="#旋转数组" class="headerlink" title="旋转数组"></a>旋转数组</h1><p><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/" target="_blank" rel="noopener">LC153 Find Minimum in Rotated Sorted Array</a>：不含重复元素<br><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/" target="_blank" rel="noopener">LC154 Find Minimum in Rotated Sorted Array II</a>：含有重复元素<br>[LC33  Search in Rotated Sorted Array]： 查找指定元素<br>剑指Offer 11</p>
+<p>思路：</p>
+<ul>
+<li>一个有序数组被旋转后，第一个元素必然大于最后一个元素：(1,2,3,4,5) —&gt; (4,5,1,2,3)</li>
+<li>旋转后的数组可以被分成递增的两部分(4,5)和(1,2,3)</li>
+<li>旋转后的数组最小值出现在第二部分的头</li>
+<li>大于等于旋转后数组的头的数字，必然比旋转后数组的尾大，因此不属于第二部分 —&gt; 第一部分的数字都大于等于旋转后数组的头</li>
+<li>小于等于旋转后数组的尾的数字，必然比旋转后数组的头小，因此不属于第一部分 —&gt; 第二部分的数字都小于等于旋转后数组的尾</li>
+<li>每一部分都是单调的 —&gt; 可以采用二分查找</li>
+</ul>
+<p>当没有重复数字时，维护下面的循环不变式</p>
+<pre><code>- [begin, first) 为前递增数组的元素
+- [last,  end  ) 为后递增数组的元素
+- 1 &lt; last - first
+</code></pre><p>我们要找的最小值就是迭代结束后的<code>*last</code>。这里需要注意一个边界条件：如果数组只有一个数，会导致<code>last</code>变成尾后迭代器。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findMin</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums.empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span>(nums.size() == <span class="number">1</span>) <span class="keyword">return</span> nums.front();</span><br><span class="line">        <span class="keyword">if</span>(nums.front() &lt; nums.back()) <span class="keyword">return</span> nums.front();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> first = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> last  = nums.end();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">            <span class="comment">// if mid is greater than or equal nums.front()</span></span><br><span class="line">            <span class="comment">// then mid belongs to the first part </span></span><br><span class="line">            <span class="keyword">if</span>(!(*mid &lt; nums.front())) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                       last  = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// what we want is the beginning of the second </span></span><br><span class="line">        <span class="comment">// part, that is last</span></span><br><span class="line">        <span class="keyword">return</span> *last;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p>当数组中包含重复数字时，如果我们如果发现<code>*mid</code>和头尾的元素相等，我们就无法再通过二分查找找到最小值了。因为这些相等的元素可以被任意分配第一部分和第二部分。直接采用线性搜索即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findMin</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums.size() == <span class="number">1</span> || nums.front() &lt; nums.back()) </span><br><span class="line">            <span class="keyword">return</span> nums.front();</span><br><span class="line">        <span class="keyword">auto</span> first = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> last  = nums.end();</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + distance(first, last) / <span class="number">2</span>;</span><br><span class="line">            <span class="comment">// this time we have duplicate elements in the array</span></span><br><span class="line">            <span class="comment">// if mid is equal to the front or back</span></span><br><span class="line">            <span class="comment">// we cannot get any information from that</span></span><br><span class="line">            <span class="keyword">if</span>(*mid &gt; nums.front()) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span>(*mid &lt; nums.back())  last  = mid;</span><br><span class="line">            <span class="keyword">else</span> <span class="comment">//equal situation, we have to use linear search.</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> *min_element(nums.begin(), nums.end());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> *last;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/search-in-rotated-sorted-array/" target="_blank" rel="noopener">LC33 Search in Rotated Sorted Array</a></p>
+<p>先找到第二区间的头，然后根据target和nums.front()的关系决定它在哪一个区间上。之后在那个区间上再做一次二分查找。<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">search</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums.empty()) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">auto</span> minIt = lower_bound(nums.begin(), nums.end(), nums.front(), greater_equal&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">        <span class="comment">// if target belongs to the first range</span></span><br><span class="line">        <span class="keyword">if</span>(target &gt;= nums.front())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> tarIt = lower_bound(nums.begin(), minIt, target);</span><br><span class="line">            <span class="keyword">return</span> tarIt != minIt &amp;&amp; *tarIt == target ? </span><br><span class="line">                   tarIt - nums.begin() : </span><br><span class="line">                   <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> tarIt = lower_bound(minIt, nums.end(), target);</span><br><span class="line">            <span class="keyword">return</span> tarIt != nums.end() &amp;&amp; *tarIt == target ?</span><br><span class="line">                   tarIt - nums.begin():</span><br><span class="line">                   <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<h1 id="峰值数组"><a href="#峰值数组" class="headerlink" title="峰值数组"></a>峰值数组</h1><p>峰值数组和旋转数组的差别在于：峰值数组的山峰一侧是递增的，另一侧是递减的。而旋转数组的最小值左右两边的数组都是递增的。</p>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/find-peak-element/" target="_blank" rel="noopener">LC162 寻找峰值</a></p>
+<p>思路一：<br>该数组中可能有多个峰值。但仍然可以用二分查找来寻找峰值[为什么？]。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findPeakElement</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> first = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> last  = --nums.end();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (*mid &lt; *(mid + <span class="number">1</span>)) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                   last  = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> distance(nums.begin(), last);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>思路二：<br>设这个数组为$a$，数组中的元素为$a_n$，$a_{n} \neq a_{n+1}$，我们认为$a_{-1} = a_{end + 1} = -\infty$ 不加证明的给出以下结论：</p>
+<ul>
+<li>如果$a_n &lt; a_{n+1}$，那么峰值在[n + 1, end)中</li>
+<li>如果$a_n &gt; a_{n+1}$，那么峰值在[begin, n+1)$中</li>
+</ul>
+<p>这正好对应了二分查找的两个区间的特点。</p>
+<p>维护以下的循环不变式：</p>
+<ul>
+<li><code>[begin, first)</code>区间中的值不是峰值</li>
+<li><code>[last, end]</code>区间中的值不是峰值</li>
+<li><code>first &lt; last</code></li>
+</ul>
+<p>注意：</p>
+<pre><code>- 不能将last初始化为尾后迭代器，因为`mid`可能会被移动到最后一个元素的位置。在比较`mid`和`mid+1`的时候会导致解引用尾后迭代器。
+- 如果想把last初始化成尾后迭代器，也可以在解引用`mid + 1`之前加一个判断，看看是不是`end`
+</code></pre><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findPeakElement</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> first = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> last  = --nums.end();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (*mid &lt; *(mid + <span class="number">1</span>)) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                   last  = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> distance(nums.begin(), last);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findPeakElement</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> first = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> last  = nums.end();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (mid + <span class="number">1</span> != nums.end() &amp;&amp; *mid &lt; *(mid + <span class="number">1</span>)) </span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                   </span><br><span class="line">                last  = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> last - nums.begin();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/find-in-mountain-array/" target="_blank" rel="noopener">LC1095 山脉数组中查找目标值</a></p>
+<p>首先找到峰值，之后用峰值将数组分割为递增和递减的两部分。在这两部分上分别用二分查找即可。<br>山脉数组中只有一个峰值，我们可以通过二分查找来找到峰值。</p>
+<ul>
+<li><code>[begin, first)</code>之间的元素都属于递增区间</li>
+<li><code>[last, end)</code>之间的元素都属于递减区间</li>
+<li>判断条件：如果<code>mid == 0</code>(第一个元素) 或 <code>m.get(mid - 1) &lt; m.get(mid)</code>(比左边的元素大)，则<code>mid</code>必然处于递增区间。否则<code>mid</code>处于递减区间。据此更新<code>first</code>和<code>last</code>的位置。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * // This is the MountainArray's API interface.</span></span><br><span class="line"><span class="comment"> * // You should not implement it, or speculate about its implementation</span></span><br><span class="line"><span class="comment"> * class MountainArray &#123;</span></span><br><span class="line"><span class="comment"> *   public:</span></span><br><span class="line"><span class="comment"> *     int get(int index);</span></span><br><span class="line"><span class="comment"> *     int length();</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">auto peak(MountainArray&amp; m) -&gt; size_t</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> begin = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">auto</span> end = m.length();</span><br><span class="line">    <span class="keyword">auto</span> first = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">auto</span> last = m.length();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">        <span class="comment">// the peak cannot be 'end'</span></span><br><span class="line">        <span class="comment">// if mid belongs to the left half </span></span><br><span class="line">        <span class="keyword">if</span>(mid == begin || m.get(mid - <span class="number">1</span>) &lt; m.get(mid) )</span><br><span class="line">        &#123;</span><br><span class="line">            first = mid + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            last = mid;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> first - <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Compare&gt;</span><br><span class="line">auto bsearch(size_t first, size_t last, int target, MountainArray&amp; m, Compare cmp) -&gt; size_t</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span>(cmp(m.get(mid), target))</span><br><span class="line">        &#123;</span><br><span class="line">            first = mid + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            last = mid;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> first;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findInMountainArray</span><span class="params">(<span class="keyword">int</span> target, MountainArray &amp;m)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> peak_index = peak(m);</span><br><span class="line">        <span class="comment">// try to search on the first half</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">auto</span> idx = bsearch(<span class="number">0</span>, peak_index, target, m, less&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">            idx != peak_index &amp;&amp; m.get(idx) == target)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> idx;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// search on the second half</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">auto</span> idx = bsearch(peak_index, m.length(), target, m, greater&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">            idx != m.length() &amp;&amp; m.get(idx) == target)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> idx;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="矩阵查找"><a href="#矩阵查找" class="headerlink" title="矩阵查找"></a>矩阵查找</h1><p><a href="https://leetcode.com/problems/search-a-2d-matrix/" target="_blank" rel="noopener">LC74 Search a 2D Matrix</a></p>
+<p>在一个$m \times n$的二维数组中，每一行从左到右递增，每一列从上到下递增。在这样的二维数组中做查找。</p>
+<ul>
+<li>解法1:复杂度为$O(m + n)$</li>
+</ul>
+<p>从数组的右上角<code>row = 0; col = matrix.front().size() - 1</code>开始看：</p>
+<ul>
+<li>如果这个元素比<code>target</code>小，那么这个元素所在这一行的所有元素都比<code>target</code>小。因此我们可以把这个元素所在这行全部划掉。</li>
+<li>如果这个元素比<code>target</code>大，那个这个元素所在这一列的所有元素都比<code>target</code>大。因此我们可以把这个元素所在这一列全部划掉。</li>
+<li>如果这个元素和<code>target</code>相等，返回<code>true</code></li>
+<li><p>如果搜索空间为空，返回<code>false</code></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">searchMatrix</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(matrix.empty() || matrix.front().empty()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> n = matrix.front().size() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(m &lt;= matrix.size() - <span class="number">1</span> &amp;&amp; n &gt;= <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(matrix[m][n] &gt; target) --n;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(matrix[m][n] &lt; target) ++m;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">return</span> <span class="literal">true</span>; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+</li>
+<li><p>解法2：展开成一维数组二分查找 </p>
+</li>
+</ul>
+<p>复杂度$O(\mathrm{log}(mn))$<br>思路一：</p>
+<ul>
+<li>每行中的整数从左到右按升序排列。</li>
+<li>每行的第一个整数大于前一行的最后一个整数。<br>这个二维数组，每一行拿出来拼在一起也是一个有序数组。所以我们可以把这个二维数组的坐标(i, j)唯一映射到一个坐标k上，然后在这个区间上做二分查找。</li>
+</ul>
+<p>设m为该数组的行数，n为该数组的列数</p>
+<ul>
+<li>k 对应的横坐标为 k / n</li>
+<li>k 对应的纵坐标为 k % n</li>
+<li><p>k 的范围为 [0, m * n)</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">searchMatrix</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(matrix.empty() || matrix.front().empty()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">auto</span> m = matrix.size();</span><br><span class="line">        <span class="keyword">auto</span> n = matrix.front().size();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">size_t</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> last  = m * n;</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="comment">// mid &lt; target</span></span><br><span class="line">            <span class="keyword">if</span>(matrix[mid / n][mid % n] &lt; target) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span> last = mid;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> first != m * n &amp;&amp;</span><br><span class="line">               matrix[first / n][first % n] == target;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+</li>
+<li><p>解法3：两次二分查找</p>
+</li>
+</ul>
+<p>复杂度$O(\mathrm{log}(m) + \mathrm{log}(n))$</p>
+<p>在最后一列上做一次lower_bound，确定这个数应该在哪一行。检查一下该行是否有效。再在这行上做lower_bound确定他在哪一列。 检查这一列是否有效，并检查结果是否的确相等。</p>
+<p>注意：<br>每次用lower_bound做二分查找后，都要检查：</p>
+<ul>
+<li>结果是不是end？</li>
+<li>结果跟target等不等？</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">searchMatrix</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(matrix.empty() || matrix.front().empty()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">auto</span> m = matrix.size();</span><br><span class="line">        <span class="keyword">auto</span> n = matrix.front().size();</span><br><span class="line">        <span class="comment">// we first search the last col</span></span><br><span class="line">        <span class="keyword">auto</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> last  = m;</span><br><span class="line">        <span class="comment">// elements in the last col : k --&gt; (k, n - 1)</span></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(matrix[mid][n - <span class="number">1</span>] &lt; target) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span> last = mid;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">auto</span> row = first;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// check if the row we found is valid</span></span><br><span class="line">        <span class="keyword">if</span> (!(row &lt; m)) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// we then search this row</span></span><br><span class="line">        <span class="comment">// k --&gt; (row, k)</span></span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">        last  = n;</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(matrix[row][mid] &lt; target) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span> last = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> col = first;</span><br><span class="line">        <span class="comment">// we found the solution, check it is not end</span></span><br><span class="line">        <span class="keyword">return</span> col &lt; n &amp;&amp; matrix[row][col] == target;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode.com/problems/search-a-2d-matrix-ii/" target="_blank" rel="noopener">LC240 Search a 2D Matrix II</a></p>
+<ul>
+<li>每行的元素从左到右升序排列。</li>
+<li>每列的元素从上到下升序排列。</li>
+</ul>
+<p>这个题和上一个题不一样了，所以解法2，3就用不了了。但是解法1还是照常使用。</p>
+<p>思路1：同上一题解1。复杂度$O(M + N)$</p>
+<p>思路2：对角线二分查找。复杂度$O(\mathrm{log}(M!N!))$ = $O(MN\mathrm{log}(MN))$。大部分情况不如上面的线性搜索好。</p>
+<ul>
+<li>矩阵对角线上的元素是递增的：因为一个元素$a_{i,j}$小于他右边的元素$a_{i,j + 1}$，也小于他下边的元素$a_{i - 1,j}$。其对角线上的元素$a_{i + 1, j + 1}$大于$a_{i,j + 1}$也大于$a_{i - 1,j}$。所以对角线上的元素是递增。并且对角线上的元素$a_{i,j}$是它和矩阵右下角的元素$a_{m - 1, n - 1}$构成的子矩阵的最小值。</li>
+<li>我们可以现在该矩阵的对角线元素上做upper_bound，将不合适的子矩阵排除。然后在剩余的对角线元素确定的行和列上分别做lower_bound寻找该元素。</li>
+</ul>
+<p>复杂度高，代码复杂导致运行时间隐藏的常数项也大。实现略。</p>
+<h1 id="数学上的二分查找"><a href="#数学上的二分查找" class="headerlink" title="数学上的二分查找"></a>数学上的二分查找</h1><h2 id="第N个神奇数字"><a href="#第N个神奇数字" class="headerlink" title="第N个神奇数字"></a>第N个神奇数字</h2><p>小于等于<code>x</code>，能被A整除的数字有<code>⌊x/A⌋</code>个<br>小于等于<code>x</code>，能被B整除的数字有<code>⌊x/B⌋</code>个<br>小于等于<code>x</code>，能同时被A和B整除的数字有<code>⌊x/lcm(A,B)⌋</code>个<br>其中<code>lcm(A,B)=ABgcd(A,B)</code>为<code>A</code>和<code>B</code>的最小共倍数。<br>小于等于x，能被A或B整除的数字有<code>⌊x/A⌋+⌊x/B⌋−⌊x/lcm(A,B)⌋</code>个，记该数字为<code>f(x)</code><br>维护循环不变式：</p>
+<ul>
+<li><code>[begin, first)</code>区间中的数字，<code>f(x)&lt;N</code></li>
+<li><code>[last, end)</code>区间中的数字,<code>f(x)&gt;=N</code></li>
+<li><code>first &lt; last</code></li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> N&gt;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="title">decltype</span><span class="params">(<span class="keyword">auto</span>)</span> <span class="title">num</span><span class="params">(N x, N A, N B)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x / A + x / B - x / lcm(A, B);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">nthMagicalNumber</span><span class="params">(<span class="keyword">uint64_t</span> N, <span class="keyword">uint64_t</span> A, <span class="keyword">uint64_t</span> B)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> first = <span class="keyword">int64_t</span>&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> last  = UINT64_MAX;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(num(mid, A, B) &lt; N)</span><br><span class="line">            &#123;</span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                last = mid;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> first % <span class="keyword">uint64_t</span>(<span class="number">1e9</span> + <span class="number">7</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="不用乘除取余做除法"><a href="#不用乘除取余做除法" class="headerlink" title="不用乘除取余做除法"></a>不用乘除取余做除法</h2><p><a href="https://leetcode.com/problems/divide-two-integers/" target="_blank" rel="noopener">LC29 Divide Two Integers</a></p>
+<p>因为不允许使用<code>int64_t</code>，导致边界条件判断非常复杂。再加上LeetCode编译器不允许负数位移，可以说是LeetCode恶心之最。<strong>TODO</strong></p>
+<h2 id="求整数的平方根"><a href="#求整数的平方根" class="headerlink" title="求整数的平方根"></a>求整数的平方根</h2><p><a href="https://leetcode.com/problems/sqrtx/" target="_blank" rel="noopener">LC69 Sqrt(x)</a><br>这个题目承诺提供的数字x一定是一个非负整数。</p>
+<p>会用接近INT_MAX的数来测试，可能会导致二分</p>
+<ul>
+<li>思路1：二分查找</li>
+</ul>
+<p>维护以下的循环不变式</p>
+<ul>
+<li>first左侧区间数字的平方比x小</li>
+<li>last右侧区间的平方x大</li>
+<li>first - last &gt; 1 </li>
+</ul>
+<p>解法：</p>
+<ul>
+<li>初始化搜索区间为<code>first = 0</code>和<code>last = n</code></li>
+<li>找到区间中点<code>mid</code></li>
+<li>检测中点的平方<code>mid * mid</code><ul>
+<li>如果 <code>mid * mid &lt; x</code>移动<code>first</code>到<code>mid</code> (为什么不像以前一样是 <code>mid + 1</code>呢？因为<code>mid * mid &lt; x</code>只能保证$[mid - 1, mid]$的数组的平方比x小)</li>
+<li>如果 <code>mid * mid &gt; x</code>移动<code>last</code> 到<code>mid</code></li>
+<li>如果 <code>mid * mid == x</code> 返回 <code>mid</code><br>注意：</li>
+</ul>
+</li>
+<li>非lower_bound形式的一般二分搜索，循环结束条件为last - first &gt; 1</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">mySqrt</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(x == <span class="number">1</span> || x == <span class="number">0</span>) <span class="keyword">return</span> x; <span class="comment">//1和0是不能进入下面的循环的，直接返回就行了</span></span><br><span class="line">        <span class="keyword">int</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> last  = x;</span><br><span class="line">        <span class="keyword">int64_t</span> mid = x;</span><br><span class="line">        <span class="keyword">while</span>(last - first != <span class="number">1</span>)&#123;</span><br><span class="line">            mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(mid * mid &lt; x)      first = mid;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(mid * mid &gt; x) last = mid;</span><br><span class="line">            <span class="keyword">else</span>                   <span class="keyword">return</span> mid;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<ul>
+<li>思路2：lower_bound</li>
+</ul>
+<p>套用lower_bound的一般套路，找到首个平方不小于x的数first，然后判断first的平方是否等于x，否则返回first - 1。</p>
+<p>注意：</p>
+<ul>
+<li>如果first用<code>int</code>，无法通过<code>INT_MAX</code>的测试，因为无法计算<code>first * first</code>的值，需要全部使用<code>int64_t</code>才行。 </li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">mySqrt</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int64_t</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int64_t</span> last  = x;</span><br><span class="line">        <span class="keyword">int64_t</span> mid = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(mid * mid &lt; x)  first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span> last = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> first * first == x ? first : first - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<ul>
+<li>思路3：upper_bound</li>
+</ul>
+<p>找到首个平方大于x的数first，然后回first - 1即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">mySqrt</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(x == <span class="number">0</span> || x == <span class="number">1</span>) <span class="keyword">return</span> x;</span><br><span class="line">        <span class="keyword">int</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> last  = x;</span><br><span class="line">        <span class="keyword">int64_t</span> mid = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(last - first &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(x &lt; mid * mid)  last = mid;</span><br><span class="line">            <span class="keyword">else</span> first = mid  +<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> first - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h1 id="困难二分查找"><a href="#困难二分查找" class="headerlink" title="困难二分查找"></a>困难二分查找</h1><h2 id="分割数组的最大值"><a href="#分割数组的最大值" class="headerlink" title="分割数组的最大值"></a>分割数组的最大值</h2><p><a href="https://leetcode-cn.com/problems/split-array-largest-sum/" target="_blank" rel="noopener">LC410 分割数组的最大值</a></p>
+<p>思路：</p>
+<ul>
+<li>数组<code>nums</code>的子数组各自和的最大值，在$[max(nums), sum(nums)]$之间。</li>
+<li>分成的数组越多，和的最大值就越小。分成的数组越少，和的最大值就越大。（未证明）</li>
+<li>所以我们可以在前面的范围上做二分查找（未证明）<ul>
+<li>设以mid为子数组和的最大值，能将原本的数组分成k份 <ul>
+<li>如果 k &lt; m， 那么分的组数少了，说明mid选大了</li>
+<li>否则就是mid选小了<br>注意：</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>和要用<code>int64_t</code>，因为有的测试用例会恶心你。<br>这个题的关键部分都缺少证明，估计也很难证明这个算法的正确性。所以把他记下来就好了。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">splitArray</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> m)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// we first compute the max element in nums</span></span><br><span class="line">        <span class="comment">// and the sum of all elements in nums</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// the sum of all ints may make int overflow</span></span><br><span class="line">        <span class="comment">// thus we use int64_t</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">int64_t</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int64_t</span> max = INT64_MIN;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> x : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            max  = max &lt; x ? x : max;</span><br><span class="line">            sum += x;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> first = max;</span><br><span class="line">        <span class="keyword">auto</span> last  = sum;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="comment">// using this mid we could count how many </span></span><br><span class="line">            <span class="comment">// groups we could divide nums into</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">int</span> cnt = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">int64_t</span> tmp = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> x : nums)</span><br><span class="line">            &#123;</span><br><span class="line">                tmp += x;</span><br><span class="line">                <span class="comment">// if the sum exceeds the mid</span></span><br><span class="line">                <span class="comment">// they could form a group</span></span><br><span class="line">                <span class="keyword">if</span> (tmp &gt; mid)</span><br><span class="line">                &#123;</span><br><span class="line">                    tmp = x;</span><br><span class="line">                    ++cnt;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// if the group numbers &gt; m, mid is too small</span></span><br><span class="line">            <span class="keyword">if</span> (cnt &gt; m) first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>         last  = mid; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<h2 id="排序数组的中位数"><a href="#排序数组的中位数" class="headerlink" title="排序数组的中位数"></a>排序数组的中位数</h2><p><a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank" rel="noopener">LC4 Median of Two Sorted Arrays</a></p>
+<p>中位数的定义：</p>
+<blockquote>
+<p>将一个集合划分为两个长度相等的子集，其中一个子集中的元素总是大于另一个子集中的元素。</p>
+</blockquote>
+<p>假设现在有两个有序集合A, B。其划分后的状态如下，左边集合的元素个数为<code>i - 1 - 0 + 1 + j - 1 - 0 + 1 = i + j</code>个，右边集合的元素个数为<code>m - 1 - i + 1 + n - 1 - j + 1 = m - i + n - j</code>个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">      left_part          |        right_part</span><br><span class="line">A[0], A[1], ..., A[i-1]  |  A[i], A[i+1], ..., A[m-1]</span><br><span class="line">B[0], B[1], ..., B[j-1]  |  B[j], B[j+1], ..., B[n-1]</span><br></pre></td></tr></table></figure>
+<p>我们定义：</p>
+<ul>
+<li>如果<code>m + n</code>为奇数，集合不能被正好平分。定义中位数为<code>max(A[i - 1], B[j - 1])</code>，即左边集合中的最大值。</li>
+<li>如果<code>m + n</code>为偶数，则中位数为<code>(max(A[i - 1], B[j - 1]) + min(A[i], A[j])) / 2</code>，即左边集合的最大值和右边集合最小值的平均值。这样刚好将集合平分。</li>
+</ul>
+<p>我们想要寻找的是下标i的值。注意到根据元素个数相等，可以列出等式：</p>
+<ul>
+<li>总个数为偶数：<code>i + j     = m - i + n - j</code></li>
+<li>总个数为奇数：<code>i + j - 1 = m - i + n - j</code></li>
+</ul>
+<p>采用整数除法，并假设<code>n &gt;= m</code>，则总有下面的式子成立，我们可以通过i的位置来唯一确定j的位置：</p>
+<p><code>j + j = m + n - i - i + 1 &lt;=&gt; j = (m + n + 1 / 2) - i</code></p>
+<p>运用二分查找的思想，[begin, first)的区间上点的都比较小，也就是说满足<code>A[i - 1] &lt; B[j]</code>。我们令<code>mid = i - 1</code>，<code>mid2</code>为其在B数组上的对应点，<code>mid2 = (m + n + 1)/2 - mid1</code>，则其对应的<code>j - 1</code>应该是<code>mid2 - 1</code>。因此区间[begin, first)上的点都满足<code>A[mid1] &lt; B[mid2 - 1]</code>。我们找到二分查找的最关键的区间划分不等式。所以整个二分查找过程应该为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">first &#x3D; 0</span><br><span class="line">last  &#x3D; m</span><br><span class="line">while: first &lt; last </span><br><span class="line">&#123;</span><br><span class="line">    mid1 &#x3D; first + (last - first) &#x2F; 2;</span><br><span class="line">    mid2 &#x3D; (m + n + 1 &#x2F; 2) - mid1;</span><br><span class="line">    if(mid1 !&#x3D; m &amp;&amp; </span><br><span class="line">       A[mid1] &lt; B[mid2 - 1]) </span><br><span class="line">          first &#x3D; mid + 1;</span><br><span class="line">    else  last &#x3D; mid;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以假设两个数组左边都是<code>INT_MIN</code>，右边都是<code>INT_MAX</code>。在计算出i的值后，我们还需找到中位数。我们需要计算：</p>
+<ul>
+<li>左边区间的最大值<code>max(A[i - 1], B[j - 1])</code></li>
+<li>右边区间的最小值<code>min(A[i], B[j])</code><br>但是存在<code>i == m</code>, <code>i == 0</code>, <code>j == 0</code>, <code>j == n</code>的特殊情况。根据上面提出的假设解决这些特殊情况即可。</li>
+</ul>
+<p>剩下还需要处理的特殊情况就是较小的数组为空数组，此时会导致下标溢出。直接求长数组的中位数即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums1.size() &gt; nums2.size()) <span class="keyword">return</span> findMedianSortedArrays(nums2, nums1);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// the shorter one is empty</span></span><br><span class="line">        <span class="keyword">if</span>(nums1.size() == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(nums2.size() &amp; <span class="number">1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> nums2[nums2.size() / <span class="number">2</span>];</span><br><span class="line">            &#125;<span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> (nums2[nums2.size() / <span class="number">2</span>] + nums2[(nums2.size() - <span class="number">1</span>) / <span class="number">2</span>])/ <span class="number">2.</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> half = (nums1.size() + nums2.size() + <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">int</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> last  = nums1.size();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">auto</span> j = half - mid;</span><br><span class="line">            <span class="comment">// we have to make sure mid is not nums.size() to avoid overflow.</span></span><br><span class="line">            <span class="comment">// prove: TODO</span></span><br><span class="line">            <span class="keyword">if</span>(mid &lt; nums1.size() &amp;&amp; nums1[mid] &lt; nums2[j - <span class="number">1</span>])</span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>  last = mid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> maxLeft  = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> minRight = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> i = first;</span><br><span class="line">        <span class="keyword">auto</span> j = half - i;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// compute maxLeft</span></span><br><span class="line">        <span class="keyword">if</span>(j == <span class="number">0</span>) maxLeft = nums1[i - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(i == <span class="number">0</span>) maxLeft = nums2[j - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">else</span> maxLeft = max(nums1[i - <span class="number">1</span>], nums2[j - <span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// compute minRight</span></span><br><span class="line">        <span class="keyword">if</span>(j == nums2.size()) minRight = nums1[i];</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(i == nums1.size()) minRight = nums2[j];</span><br><span class="line">        <span class="keyword">else</span> minRight = min(nums1[i], nums2[j]);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>( (nums1.size() + nums2.size()) &amp; <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> maxLeft;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">.5</span> * (maxLeft + minRight);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        2019年8月的思路
+    </div>
+    <div class='spoiler-content'>
+        <p>基本思路：</p>
+<ul>
+<li>首先我们要找出两个数组当中较短那个，在短数组上做二分查找。设短数组为<code>nums1</code>，长数组为<code>nums2</code></li>
+<li>采用左闭右开的区间划分方式，初始化搜索空间为<code>first = 0</code>和<code>last = nums2.size()</code>。</li>
+<li>找到短数组中点<code>mid1</code></li>
+<li>找到长数组对应的中点<code>mid2 = (len1 + len2 + 1)/2 - mid1</code></li>
+<li>我们维护循环不变式<strong><code>mid1</code>之前的所有数都小于中位数，<code>mid2</code>之前的所有的数都小于中位数</strong><ul>
+<li>如果 mid = 0，则<code>nums[mid - 1] = INT_MIN</code></li>
+<li>如果 mid = nums.size()，则<code>nums[mid] = INT_MAX</code></li>
+<li>如果 <code>nums1[mid1 - 1] &lt;= nums2[mid2] &amp;&amp; nums2[mid2 - 1] &lt;= nums1[mid1]</code> 我们就找到了想要的位置。</li>
+<li>如果 <code>nums1[mid1 - 1] &gt; nums2[mid2]</code> 说明我们找大了，应该<code>first = mid1 + 1</code></li>
+<li>如果 <code>nums2[mid2 - 1] &gt; nums1[mid1]</code> 说明我们找小了，应该<code>last = mid</code><br>-从维护循环不变式的角度分析：<br><strong>TODO</strong></li>
+</ul>
+</li>
+<li>为什么<code>mid2 = (len1 + len2 + 1)/2 - mid1</code>？<br><strong>TODO</strong></li>
+<li><code>INT_MIN</code>和<code>INT_MAX</code>怎么回事？（怎么处理一个和最后一个元素的【左】和【右】？)<br>证明这种做法的正确性：<br><strong>TODO</strong></li>
+<li>返回值为什么是<code>max()</code>/<code>min()</code>的形式？<br><strong>TODO</strong><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums1.size() &lt; nums2.size())</span><br><span class="line">            <span class="keyword">return</span> findMedianSortedArraysImp(nums1, nums2);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> findMedianSortedArraysImp(nums2, nums1);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArraysImp</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span></span>&#123;</span><br><span class="line">        <span class="keyword">size_t</span> len1 = nums1.size();</span><br><span class="line">        <span class="keyword">size_t</span> len2 = nums2.size();</span><br><span class="line">        <span class="keyword">size_t</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">size_t</span> last  = nums1.size();  </span><br><span class="line">        <span class="keyword">while</span>(!(last &lt; first))&#123;</span><br><span class="line">            <span class="keyword">auto</span> mid1 = first + (last - first) / <span class="number">2</span> ;</span><br><span class="line">            <span class="keyword">auto</span> mid2 = len1  + (len2 - len1 + <span class="number">1</span>) / <span class="number">2</span> - mid1;             </span><br><span class="line">            <span class="keyword">auto</span> mid1L = mid1 == <span class="number">0</span>    ? INT_MIN : nums1[mid1 - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">auto</span> mid1R = mid1 == len1 ? INT_MAX : nums1[mid1];</span><br><span class="line">            <span class="keyword">auto</span> mid2L = mid2 == <span class="number">0</span>    ? INT_MIN : nums2[mid2 - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">auto</span> mid2R = mid2 == len2 ? INT_MAX : nums2[mid2];</span><br><span class="line">            <span class="keyword">if</span>(mid1L &lt;= mid2R &amp;&amp; mid2L &lt;= mid1R)&#123;</span><br><span class="line">                <span class="keyword">if</span>( (len1 &amp; <span class="number">1</span>) == (len2 &amp; <span class="number">1</span>) ) </span><br><span class="line">                    <span class="keyword">return</span> (max(mid1L, mid2L) + min(mid1R, mid2R)) / <span class="number">2.0</span>;</span><br><span class="line">                <span class="keyword">else</span> </span><br><span class="line">                    <span class="keyword">return</span> max(mid1L, mid2L);</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ( mid1R &lt; mid2L ) first = mid1 + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span>                      last  = mid1;</span><br><span class="line">        &#125;        </span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+    </div>
+</div>
+<hr>
+<p>参考：<br><a href="https://leetcode-cn.com/problems/median-of-two-sorted-arrays/solution/xun-zhao-liang-ge-you-xu-shu-zu-de-zhong-wei-shu-b/" target="_blank" rel="noopener">LC官方题解</a></p>
+<p><a href="https://leetcode-cn.com/problems/median-of-two-sorted-arrays/solution/dong-yong-er-fen-cha-zhao-mo-ban-lai-qiao-miao-jie/" target="_blank" rel="noopener">动用二分查找模版来巧妙解决此题</a></p>
+<p><a href="https://www.jianshu.com/p/21f570caca89" target="_blank" rel="noopener">LeetCode 004 详细分析</a></p>
+<p><a href="https://www.youtube.com/watch?v=LPFhl65R7ww" target="_blank" rel="noopener">Binary Search : Median of two sorted arrays of different sizes.</a></p>
+<hr>
+<h2 id="完全二叉树的节点个数"><a href="#完全二叉树的节点个数" class="headerlink" title="完全二叉树的节点个数"></a>完全二叉树的节点个数</h2><p><a href="https://leetcode-cn.com/problems/count-complete-tree-nodes/" target="_blank" rel="noopener">LC222 完全二叉树的节点个数</a></p>
+<p>完全二叉树除了最后一层，其他层都是填满的。设完全二叉树的层号为$0, 1, 2, \cdots n$，则第$n$层的节点数为$2^n$个，之前所有层的节点总数为$2^n - 1$个。所以关键是要找到最后一层有多少个节点。设最后一层的节点序号为$0, 1, \cdots, 2^n - 1$。如果想要检查一个序号为<code>idx</code>的节点是否存在，我们可以通过二分查找的方式找到从根节点到他的路径。即找到区间中点<code>mid</code>，<code>mid &lt; idx</code>就<code>first = mid + 1</code>然后往右走，否则<code>last = mid</code>然后往左走。最后区间为空的时候，看看是不是节点是否存在。我们在最后一层的所有序号上再进行一次二分查找，确定最后一个存在的序号即可。</p>
+<p>注意：</p>
+<ul>
+<li>不知道为什么，在检查最后一层节点是否存在的函数中，last要设置为最后一层的节点数-1，如果按照左闭右开设置为最后一层的节点数，结果不正确。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">countNodes</span><span class="params">(TreeNode* root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> lastLevel = depthOfCompleteBinaryTree(root) - <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// compute num of nodes in last level</span></span><br><span class="line">        <span class="keyword">int</span> lastNodeNums = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>(lastLevel)</span><br><span class="line">        &#123;</span><br><span class="line">            lastNodeNums *= <span class="number">2</span>;</span><br><span class="line">            --lastLevel;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> last  = lastNodeNums;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(nodeExistsInLastLevel(root, lastNodeNums, mid))</span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                last  = mid;            </span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> lastNodeNums - <span class="number">1</span> + first;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">depthOfCompleteBinaryTree</span><span class="params">(TreeNode* root)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> depth = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(root)</span><br><span class="line">        &#123;</span><br><span class="line">            root = root-&gt;left;</span><br><span class="line">            ++depth;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> depth;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">nodeExistsInLastLevel</span><span class="params">(TreeNode* root, <span class="keyword">int</span> last, <span class="keyword">int</span> idx)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// cannot use [) convention in Cpp, does not know the reason for this</span></span><br><span class="line">        <span class="comment">// we must decrease the len by one, otherwise it does not work</span></span><br><span class="line">        --last;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(mid &lt; idx) </span><br><span class="line">            &#123;</span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">                root = root-&gt;right;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                last = mid;</span><br><span class="line">                root = root-&gt;left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> !(root == <span class="literal">nullptr</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div><link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag"># 二分查找</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/2633a26/" rel="prev" title="位运算">
+      <i class="fa fa-chevron-left"></i> 位运算
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/2362a8ea/" rel="next" title="链表">
+      链表 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#求区间中点"><span class="nav-number">1.1.</span> <span class="nav-text">求区间中点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#比较符号"><span class="nav-number">1.2.</span> <span class="nav-text">比较符号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#STL中相等-equality-和等价-equivalence-的区别"><span class="nav-number">1.3.</span> <span class="nav-text">STL中相等(equality)和等价(equivalence)的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现lower-bound-和-upper-bound"><span class="nav-number">1.4.</span> <span class="nav-text">实现lower_bound 和 upper_bound</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#first-last-左闭右开区间表示法"><span class="nav-number">1.4.1.</span> <span class="nav-text">[first, last) 左闭右开区间表示法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现binary-seach"><span class="nav-number">1.5.</span> <span class="nav-text">实现binary_seach</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过lower-bound实现binary-seach"><span class="nav-number">1.5.1.</span> <span class="nav-text">通过lower_bound实现binary_seach</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现equal-range"><span class="nav-number">1.6.</span> <span class="nav-text">实现equal_range</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简单二分查找"><span class="nav-number">2.</span> <span class="nav-text">简单二分查找</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#单侧二分查找"><span class="nav-number">2.1.</span> <span class="nav-text">单侧二分查找</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#有序数组上的次数统计"><span class="nav-number">2.2.</span> <span class="nav-text">有序数组上的次数统计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#有序数组上缺失的数字"><span class="nav-number">2.2.1.</span> <span class="nav-text">有序数组上缺失的数字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数组中数值和下标相等的元素"><span class="nav-number">2.2.2.</span> <span class="nav-text">数组中数值和下标相等的元素</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#旋转数组"><span class="nav-number">3.</span> <span class="nav-text">旋转数组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#峰值数组"><span class="nav-number">4.</span> <span class="nav-text">峰值数组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#矩阵查找"><span class="nav-number">5.</span> <span class="nav-text">矩阵查找</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数学上的二分查找"><span class="nav-number">6.</span> <span class="nav-text">数学上的二分查找</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第N个神奇数字"><span class="nav-number">6.1.</span> <span class="nav-text">第N个神奇数字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不用乘除取余做除法"><span class="nav-number">6.2.</span> <span class="nav-text">不用乘除取余做除法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#求整数的平方根"><span class="nav-number">6.3.</span> <span class="nav-text">求整数的平方根</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#困难二分查找"><span class="nav-number">7.</span> <span class="nav-text">困难二分查找</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#分割数组的最大值"><span class="nav-number">7.1.</span> <span class="nav-text">分割数组的最大值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排序数组的中位数"><span class="nav-number">7.2.</span> <span class="nav-text">排序数组的中位数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完全二叉树的节点个数"><span class="nav-number">7.3.</span> <span class="nav-text">完全二叉树的节点个数</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="栈与队列的设计LC641 Design Circular DequeLC155 Min StackLC716 Max StackLC896 Maximum Frequency StackLC232 Implement Queue using Stacks [第二个栈空了，就把第一个导入第二个。不空就从第二个取]LC225 Implement Stack using Queues 单调队列：LC23">
+<meta property="og:type" content="article">
+<meta property="og:title" content="栈与队列">
+<meta property="og:url" content="http://xyfu.me/posts/6534ce06/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="栈与队列的设计LC641 Design Circular DequeLC155 Min StackLC716 Max StackLC896 Maximum Frequency StackLC232 Implement Queue using Stacks [第二个栈空了，就把第一个导入第二个。不空就从第二个取]LC225 Implement Stack using Queues 单调队列：LC23">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-01-02T17:33:51.000Z">
+<meta property="article:modified_time" content="2020-02-29T22:47:13.504Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="栈">
+<meta property="article:tag" content="队列">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/6534ce06/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>栈与队列 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/6534ce06/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          栈与队列
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-03 01:33:51" itemprop="dateCreated datePublished" datetime="2020-01-03T01:33:51+08:00">2020-01-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 06:47:13" itemprop="dateModified" datetime="2020-03-01T06:47:13+08:00">2020-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.5k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>栈与队列的设计<br><a href="https://xyfu.me/posts/6534ce06/#%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%8F%8C%E7%AB%AF%E9%98%9F%E5%88%97">LC641 Design Circular Deque</a><br><a href="https://xyfu.me/posts/6534ce06/#%E6%9C%80%E5%B0%8F%E6%A0%88">LC155 Min Stack</a><br><a href="https://xyfu.me/posts/6534ce06/#%E6%9C%80%E5%A4%A7%E6%A0%88">LC716 Max Stack</a><br><a href="https://xyfu.me/posts/6534ce06/#%E6%9C%80%E5%A4%A7%E9%A2%91%E7%8E%87%E6%A0%88">LC896 Maximum Frequency Stack</a><br><a href="https://xyfu.me/posts/6534ce06/#%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97">LC232 Implement Queue using Stacks</a> [第二个栈空了，就把第一个导入第二个。不空就从第二个取]<br><a href="https://xyfu.me/posts/6534ce06/#%E7%94%A8%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88">LC225 Implement Stack using Queues</a></p>
+<p>单调队列：<br><a href="https://xyfu.me/posts/6534ce06/#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%9C%80%E5%A4%A7%E5%80%BC">LC239 Sliding Windows Maximum</a><br>❓<a href="https://xyfu.me/posts/6534ce06/#%E5%92%8C%E8%87%B3%E5%B0%91%E4%B8%BAK%E7%9A%84%E6%9C%80%E7%9F%AD%E5%AD%90%E6%95%B0%E7%BB%84">LC861 Shortest Subarray with Sum at Least K</a>[仍然不理解为什么]</p>
+<p>简单单调栈（Next Greater Element及其变种）：<br><a href="https://xyfu.me/posts/6534ce06/#%E5%8D%95%E8%B0%83%E6%A0%88">LC496 Next Greater Element I</a><br><a href="https://xyfu.me/posts/6534ce06/#%E5%8D%95%E8%B0%83%E6%A0%88">LC503 Next Greater Element II</a> [循环数组]<br><a href="https://xyfu.me/posts/6534ce06/#%E5%8D%95%E8%B0%83%E6%A0%88">LC739 Daily Temperatures</a><br><a href="https://xyfu.me/posts/6534ce06/#%E5%8D%95%E8%B0%83%E6%A0%88">LC901 Online Stock Span</a></p>
+<p>复杂单调栈（面积计算类）：<br><a href="https://xyfu.me/posts/6534ce06/#%E5%A4%8D%E6%9D%82%E5%8D%95%E8%B0%83%E6%A0%88">LC42 Trapping Rain Water</a> [lmr三个一组算trap]<br><a href="https://xyfu.me/posts/6534ce06/#%E5%A4%8D%E6%9D%82%E5%8D%95%E8%B0%83%E6%A0%88">LC84 Largest Rectangle in Histogram</a> [以每个柱子的高，能围成的最大面积]<br><a href="https://xyfu.me/posts/6534ce06/#%E5%A4%8D%E6%9D%82%E5%8D%95%E8%B0%83%E6%A0%88">LC85 Maximal Rectangle</a> [二维柱状图面积]</p>
+<p>栈与括号<br><a href="https://xyfu.me/posts/6534ce06/#%E6%A0%88%E4%B8%8E%E6%8B%AC%E5%8F%B7">LC394 Decode String</a></p>
+<a id="more"></a>
+<h1 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h1><h2 id="STL中的双端队列"><a href="#STL中的双端队列" class="headerlink" title="STL中的双端队列"></a>STL中的双端队列</h2><blockquote><p><a href="https://zh.cppreference.com/w/cpp/container/deque" target="_blank" rel="noopener">std::deque, cppreference</a></p>
+<ul>
+<li><p>在 deque 任一端插入或删除不会非法化指向其余元素的指针或引用。</p>
+</li>
+<li><p>与 std::vector 相反， deque 的元素不是相接存储的：典型实现用单独分配的固定大小数组的序列，外加额外的登记，这表示下标访问必须进行二次指针解引用，与之相比 vector 的下标访问只进行一次。</p>
+</li>
+<li><p>deque 的存储按需自动扩展及收缩。扩张 deque 比扩展 std::vector 便宜，因为它不涉及到复制既存元素到新内存位置。另一方面， deque 典型地拥有较大的最小内存开销；只保有一个元素的 deque 必须分配其整个内部数组（例如 64 位 libstdc++ 上为对象大小 8 倍； 64 位 libc++ 上为对象大小 16 倍或 4096 字节的较大者）。</p>
+</li>
+</ul>
+</blockquote>
+<ul>
+<li>deque在gcc中的实现，类似memory virtualization中的paging。数据被存储在固定大小的”buffer”中（类似一个page），”buffer”的首地址被一个”map”数组记录（类似一个page table）。</li>
+<li>deque的”buffer”大小不可指定。gcc为其对象大小8倍，也就是说，一个buffer可以储存8个元素。<a href="https://stackoverflow.com/questions/57031917/why-doesnt-stddeque-allow-specifying-the-bucket-size" target="_blank" rel="noopener">stackoverflow: Why doesn’t std::deque allow specifying the bucket size?
+</a></li>
+<li>deque因为其类似paging的内存管理机制，所以没有<code>reserve()</code>。</li>
+<li>deque的迭代器虽然是RandomAccessIterator, 但因为引入了一层间接，导致下标访问需要先已通过map找到buffer，再通过偏移量找到数据。因此效率较差。</li>
+</ul>
+<h2 id="简单实现一个双端队列"><a href="#简单实现一个双端队列" class="headerlink" title="简单实现一个双端队列"></a>简单实现一个双端队列</h2><p>通过循环数组简单实现一个双端队列。该双端队列为固定大小，不需要实现扩张。</p>
+<p><a href="https://leetcode.com/problems/design-circular-deque/" target="_blank" rel="noopener">LC641, Design Circular Deque</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyCircularDeque</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">size_t</span> cap;</span><br><span class="line">    <span class="keyword">size_t</span> size;</span><br><span class="line">    <span class="keyword">int</span>* <span class="built_in">array</span>;</span><br><span class="line">    <span class="keyword">int</span>* first;</span><br><span class="line">    <span class="keyword">int</span>* last;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span>* <span class="title">circlePointer</span><span class="params">(<span class="keyword">int</span>* p)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (p &lt; <span class="built_in">array</span>) <span class="keyword">return</span> <span class="built_in">array</span> + cap - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (p &gt; <span class="built_in">array</span> + cap - <span class="number">1</span>) <span class="keyword">return</span> <span class="built_in">array</span>;</span><br><span class="line">        <span class="keyword">return</span> p;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span>* <span class="title">nextFirst</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> circlePointer(first - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span>* <span class="title">prevFirst</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> circlePointer(first + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span>* <span class="title">nextLast</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> circlePointer(last + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span>* <span class="title">prevLast</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> circlePointer(last - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. Set the size of the deque to be k. */</span></span><br><span class="line">    MyCircularDeque(<span class="keyword">int</span> k):</span><br><span class="line">    cap(k),</span><br><span class="line">    size(<span class="number">0</span>),</span><br><span class="line">    <span class="built_in">array</span>(<span class="keyword">new</span> <span class="keyword">int</span>[k]),</span><br><span class="line">    first(<span class="built_in">array</span>),</span><br><span class="line">    last(<span class="built_in">array</span> + <span class="number">1</span>)</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    ~MyCircularDeque()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//We are not responsible for deleteing all the objects in the array. Before calling the dtor of this class, clients should do it instead.</span></span><br><span class="line">        <span class="keyword">delete</span>[] <span class="built_in">array</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Adds an item at the front of Deque. Return true if the operation is successful. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">insertLast</span><span class="params">(<span class="keyword">int</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isFull()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        *first = value;</span><br><span class="line">        ++size;</span><br><span class="line">        first = nextFirst();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Adds an item at the rear of Deque. Return true if the operation is successful. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">insertFront</span><span class="params">(<span class="keyword">int</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isFull()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        *last = value;</span><br><span class="line">        ++size;</span><br><span class="line">        last = nextLast();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Deletes an item from the front of Deque. Return true if the operation is successful. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">deleteLast</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isEmpty()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        first = prevFirst();</span><br><span class="line">        --size;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Deletes an item from the rear of Deque. Return true if the operation is successful. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">deleteFront</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isEmpty()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        last = prevLast();</span><br><span class="line">        --size;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Get the front item from the deque. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getRear</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(isEmpty()) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">return</span> *prevFirst();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Get the last item from the deque. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getFront</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(isEmpty()) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">return</span> *prevLast();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Checks whether the circular deque is empty or not. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isEmpty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> size == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Checks whether the circular deque is full or not. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isFull</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> size == cap;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>更好的实现: <a href="https://www.boost.org/doc/libs/1_61_0/doc/html/circular_buffer.html" target="_blank" rel="noopener">boost: circular_buffer</a></p>
+<h2 id="用栈实现队列"><a href="#用栈实现队列" class="headerlink" title="用栈实现队列"></a>用栈实现队列</h2><p><a href="https://leetcode-cn.com/problems/implement-queue-using-stacks/" target="_blank" rel="noopener">LC232, Implement Queue using Stacks</a></p>
+<ul>
+<li>使用两个栈</li>
+<li>一个栈(stack1)用来存储新push进来的数据</li>
+<li>另一个栈(stack2)用来reverse第一个栈里的数据</li>
+<li>每次pop的时候，检查stack2是否为空，如果为空，就把stack1里面的全部数据都pop再push进stack2。如果不为空就直接从stack2栈顶取一个数据返回即可。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyQueue</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; s1;</span><br><span class="line">    <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; s2;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    MyQueue():</span><br><span class="line">    s1&#123;&#125;,</span><br><span class="line">    s2&#123;&#125; </span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Push element x to the back of queue. */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        s1.push(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Removes the element from in front of queue and returns that element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> res = peek();</span><br><span class="line">        s2.pop();</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Get the front element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">peek</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s2.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span>(!s1.empty())</span><br><span class="line">            &#123;</span><br><span class="line">                s2.push(s1.top());</span><br><span class="line">                s1.pop();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> s2.top();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Returns whether the queue is empty. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> s1.empty() &amp;&amp; s2.empty();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="单调队列"><a href="#单调队列" class="headerlink" title="单调队列"></a>单调队列</h1><h2 id="滑动窗口最大值"><a href="#滑动窗口最大值" class="headerlink" title="滑动窗口最大值"></a>滑动窗口最大值</h2><p><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank" rel="noopener">LC239 Sliding Windows Maximum</a></p>
+<p>思路：</p>
+<ul>
+<li>维护元素进入队列时间的单调性，即队列中元素从头到尾进入队列时间递增。因此该队列只能从队尾加入元素。</li>
+<li>维护元素大小的单调性，即队列中元素从头到尾是递减的。因此必要时可以从队尾删除元素。</li>
+<li>维护队列的长度，即从队伍头部删除过期的元素。</li>
+</ul>
+<p>实现：</p>
+<ul>
+<li>队首队尾都要做删除，因为可以用Doubly Linked List 或者 Deque 实现</li>
+<li>每次向队伍里放置一个新元素，先把他和队尾不断比较，删掉所有比他小的队尾，然后将它放到队尾。</li>
+<li>检查一下队首是不是过期了。</li>
+</ul>
+<p>在下面的三种实现当中，明显发现使用iterator的语法简洁而且意义明确。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        deque版本
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; maxSlidingWindow(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k) &#123;</span><br><span class="line">        <span class="built_in">deque</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator&gt; dq&#123;&#125;;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; res&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it &lt; nums.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// pop back until the deque is emty or </span></span><br><span class="line">            <span class="comment">// the back is greater than *it </span></span><br><span class="line">            <span class="keyword">while</span>(!dq.empty() &amp;&amp; *dq.back() &lt; *it) </span><br><span class="line">                dq.pop_back();</span><br><span class="line">            dq.push_back(it);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// let's check if the front element of dq is outdated</span></span><br><span class="line">            <span class="comment">// [first, last) --&gt; if last - first == k, there are</span></span><br><span class="line">            <span class="comment">// k + 1 elements in the range, thus the first element</span></span><br><span class="line">            <span class="comment">// is outdated </span></span><br><span class="line">            <span class="keyword">if</span>(it - dq.front() &gt;= k) dq.pop_front();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// make sure we only log the max elements that</span></span><br><span class="line">            <span class="comment">// are in a full window, i.e. the window has got all</span></span><br><span class="line">            <span class="comment">// itself into the vector</span></span><br><span class="line">            <span class="keyword">if</span>(it - nums.begin() &gt; k - <span class="number">1</span> - <span class="number">1</span>)</span><br><span class="line">                res.push_back(*dq.front());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        doublyLinkedList版本1
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; maxSlidingWindow(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">list</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator&gt; <span class="built_in">list</span>&#123;&#125;;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; res&#123;&#125;;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span>(!<span class="built_in">list</span>.empty() &amp;&amp; *<span class="built_in">list</span>.back() &lt; *it) </span><br><span class="line">                <span class="built_in">list</span>.pop_back();</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">list</span>.push_back(it);</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">std</span>::distance(<span class="built_in">list</span>.front(), it) &gt;= k) <span class="built_in">list</span>.pop_front();</span><br><span class="line">            <span class="keyword">if</span>(distance(nums.begin(), it) &gt; k - <span class="number">2</span>)res.push_back(*<span class="built_in">list</span>.front());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h3 id="和至少为K的最短子数组"><a href="#和至少为K的最短子数组" class="headerlink" title="和至少为K的最短子数组"></a>和至少为K的最短子数组</h3><p><a href="https://leetcode-cn.com/problems/shortest-subarray-with-sum-at-least-k/" target="_blank" rel="noopener">LC861, Shortest Subarray with Sum at Least K</a></p>
+<ul>
+<li>设数组a的前缀和为p[i] = a[i] + a[i - 1] + … + a[0]</li>
+<li>则数组a的子数组a[x…y], y &gt; x, 的和可以表示为: s[x…y] = p[y] - p[x]</li>
+<li>题目要求和至少为k, 即p[y] - p[x] &gt;= k.</li>
+<li>设对于一个确定y, 使得和至少为k的子数组长度最短的x为x_t.</li>
+<li><p>则对于所有的y，如果存在x_t，求这些(y-x_t)当中的最小值.</p>
+</li>
+<li><p>如果x1 &lt; x2 且 p[x1] &gt;= p[x2]:</p>
+<ul>
+<li>p[y] - p[x1] &gt;= k ==&gt; p[y] - p[x2] &gt;= k</li>
+<li>y - x1 &gt; y - x2<br>因此x1可以被舍弃掉</li>
+</ul>
+</li>
+<li>如果 x = x_t 使得 p[y] - p[x] &gt;= k: 即使p[y + m] - p[x] &gt;= k, 也有 y + m - x &gt; y - x. 因此该x可以被舍弃掉。</li>
+</ul>
+<p>计算数组的前缀和数组，并维护一个单调递增队列，遍历前缀和数组：</p>
+<ul>
+<li>每次新遇到的元素的下标必然大于已经在数组中元素的下标，因此如果新遇到的元素y &lt;= 队尾元素x，就一定有式子p[x] &gt;= p[y] 且 x &lt; y 成立。则此时的队尾元素是无用的，丢弃即可。</li>
+<li>❓每次新遇到的元素y如果减去队首元素x(队中最小元素)&gt;=k，则有式子 p[y] - p[x] &gt;= k 且 y &gt; x存在。则x可以被舍弃掉。舍弃前计算这个满足条件的区间长度。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">shortestSubarray</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; A, <span class="keyword">int</span> K)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator&gt; <span class="built_in">deque</span>&#123;&#125;;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; prefixSum&#123;&#125;;</span><br><span class="line">        <span class="keyword">int</span> minDistance = UINT32_MAX;</span><br><span class="line">        computePrefixSum(A,prefixSum);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = prefixSum.begin(); it != prefixSum.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span>(!<span class="built_in">deque</span>.empty() &amp;&amp; *<span class="built_in">deque</span>.back() &gt;= *it)</span><br><span class="line">                <span class="built_in">deque</span>.pop_back();</span><br><span class="line">            <span class="keyword">while</span>(!<span class="built_in">deque</span>.empty() &amp;&amp; *it - *<span class="built_in">deque</span>.front() &gt;= K)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">size_t</span> curDis = <span class="built_in">std</span>::distance(<span class="built_in">deque</span>.front(), it);</span><br><span class="line">                minDistance = curDis &lt; minDistance ? curDis : minDistance;</span><br><span class="line">                <span class="built_in">deque</span>.pop_front();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">deque</span>.push_back(it);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> minDistance == UINT32_MAX ? <span class="number">-1</span> : <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(minDistance);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">computePrefixSum</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; A, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; res)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">        res.push_back(<span class="number">0</span>);</span><br><span class="line">        <span class="built_in">std</span>::transform( A.begin(),</span><br><span class="line">                        A.end(),</span><br><span class="line">                        <span class="built_in">std</span>::back_inserter(res),</span><br><span class="line">                        [&amp;sum](<span class="keyword">int</span> x)&#123;sum += x;<span class="keyword">return</span> sum;&#125;</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<h1 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h1><h2 id="STL中的栈"><a href="#STL中的栈" class="headerlink" title="STL中的栈"></a>STL中的栈</h2><ul>
+<li>默认的底层容器为<code>std::deque</code></li>
+<li>无法实现异常安全的，能够返回值的pop()方法。<a href="https://stackoverflow.com/questions/25035691/why-doesnt-stdqueuepop-return-value" target="_blank" rel="noopener">Why doesn’t std::queue::pop return value?</a></li>
+</ul>
+<h2 id="用队列实现栈"><a href="#用队列实现栈" class="headerlink" title="用队列实现栈"></a>用队列实现栈</h2><p><a href="https://leetcode-cn.com/problems/implement-stack-using-queues/" target="_blank" rel="noopener">LC225, Implement Stack using Queues</a></p>
+<p>使用两个队列，将他们记为q1和q2：</p>
+<ul>
+<li>要插入元素时，将元素放入队列q1</li>
+<li>要<code>pop</code>元素时，将q1中的元素出队并放入q2，直到只剩下一个元素。记下该元素的值v并pop掉该元素。返回v。此时q1为空，q2中仍有元素。记q1为q2，q2为q1。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyStack</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt;* q1;</span><br><span class="line">    <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt;* q2;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    MyStack()</span><br><span class="line">    :q1(<span class="keyword">new</span> <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;)</span><br><span class="line">    ,q2(<span class="keyword">new</span> <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt;&#123;&#125;)</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    ~MyStack()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">delete</span> q1;</span><br><span class="line">        <span class="keyword">delete</span> q2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Push element x onto stack. */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        q1-&gt;push(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Removes the element on top of the stack and returns that element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(q1-&gt;size() &gt; <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            q2-&gt;push(q1-&gt;front());</span><br><span class="line">            q1-&gt;pop();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> val = q1-&gt;front();</span><br><span class="line">        q1-&gt;pop();</span><br><span class="line">        swap(q1, q2);</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Get the top element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">top</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> q1-&gt;back();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Returns whether the stack is empty. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> q1-&gt;empty();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="最小栈"><a href="#最小栈" class="headerlink" title="最小栈"></a>最小栈</h2><p><a href="https://leetcode-cn.com/problems/min-stack/" target="_blank" rel="noopener">LC155, Min Stack</a><br>Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.<br>思路：</p>
+<ul>
+<li>使用另一个栈(s2)来记录最小值：<ul>
+<li>每次push(x)时，比较x和<code>s2.top()</code>，如果<code>x &lt; s2.top()</code>，那么把x放在s2栈顶。否则把<code>s2.top()</code>放在s2栈顶。</li>
+</ul>
+</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MinStack</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; s1;</span><br><span class="line">    <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; s2;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    MinStack():</span><br><span class="line">    s1&#123;&#125;,</span><br><span class="line">    s2&#123;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        s1.push(x);</span><br><span class="line">        <span class="keyword">if</span> (s2.empty() || x &lt; s2.top()) s2.push(x);</span><br><span class="line">        <span class="keyword">else</span> s2.push(s2.top());</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        s1.pop();</span><br><span class="line">        s2.pop();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">top</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> s1.top();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getMin</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> s2.top();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="最大栈"><a href="#最大栈" class="headerlink" title="最大栈"></a>最大栈</h2><p><a href="https://leetcode-cn.com/problems/max-stack/" target="_blank" rel="noopener">LC716 Max Stack</a></p>
+<p>和最小栈的区别在于要求实现一个popMax()的功能。简单的思路是模仿minStack，使用两个栈，并在popMax()的时候让真实的栈一直pop()到和min栈的top()相等，再push放回去。另一种想法是用一个multiset来作为查询最大值的数据结构。</p>
+<p>//TODO: refactor the code<br>//TODO: why cannot use find_if?</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        version: multiset
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MaxStack</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">using</span> It = <span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt;::iterator;</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">static</span> <span class="keyword">auto</span> cmp =</span><br><span class="line">            [](<span class="keyword">auto</span> lhs, <span class="keyword">auto</span> rhs)&#123;<span class="keyword">return</span> *lhs &lt; *rhs;&#125;;</span><br><span class="line">    <span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt; l;</span><br><span class="line">    <span class="built_in">multiset</span>&lt;It, <span class="keyword">decltype</span>(cmp)&gt; maxSet;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    MaxStack():</span><br><span class="line">            l&#123;&#125;,</span><br><span class="line">            maxSet&#123;cmp&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        l.push_front(x);</span><br><span class="line">        maxSet.insert(l.begin());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> range = maxSet.equal_range(l.begin());</span><br><span class="line">        <span class="keyword">auto</span> it = range.first;</span><br><span class="line">        <span class="keyword">for</span>(;*it != l.begin();++it);</span><br><span class="line">        maxSet.erase(it);</span><br><span class="line">        <span class="keyword">int</span> top = l.front();</span><br><span class="line">        l.pop_front();</span><br><span class="line">        <span class="keyword">return</span> top;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">top</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> l.front();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">peekMax</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> **(--maxSet.end());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">popMax</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> maxIt = (--maxSet.end());</span><br><span class="line">        <span class="keyword">auto</span> max = **maxIt;</span><br><span class="line">        l.erase(*maxIt);</span><br><span class="line">        maxSet.erase(maxIt);</span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="最大频率栈"><a href="#最大频率栈" class="headerlink" title="最大频率栈"></a>最大频率栈</h2><p><a href="https://leetcode-cn.com/problems/maximum-frequency-stack/submissions/" target="_blank" rel="noopener">LC896, Maximum Frequency Stack</a><br>//TODO: 详细思路</p>
+<ul>
+<li>使用一个hashmap来记录每个key的频率【keyFreqMap】</li>
+<li>使用另一个hashmap来记录每个频率对应的栈【FreqStackMap】</li>
+<li>每次在push一个key进来的时候，查hashmap找频率，再把他push到该频率对应的栈里</li>
+<li>每次在pop的时候，都从最大的频率的栈<code>keyFreqMap[keyFreqMap.size()]</code>的顶端pop出一个key，再将该key对应的频率减少1<code>--FreqStackMap[key]</code>即可。如果这个频率对应的栈空了，就给他删除。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FreqStack</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; freq;</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt;*&gt; freqMap;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    FreqStack():</span><br><span class="line">            freq&#123;&#125;,</span><br><span class="line">            freqMap&#123;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// we update the freq map</span></span><br><span class="line">        <span class="comment">// if we cannot find the key, initialize it</span></span><br><span class="line">        <span class="keyword">if</span>(freq.find(x) == freq.end())</span><br><span class="line">        &#123;</span><br><span class="line">            freq[x] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span><span class="comment">// the key could be found.</span></span><br><span class="line">        &#123;</span><br><span class="line">            ++freq[x];</span><br><span class="line">        &#125;</span><br><span class="line">        assert(freq[x] != <span class="number">0</span>);</span><br><span class="line">        <span class="comment">// check if the freq stack of this freq is initilized</span></span><br><span class="line">        <span class="keyword">if</span>(freqMap.find(freq[x]) == freqMap.end())</span><br><span class="line">            freqMap[freq[x]] = <span class="keyword">new</span> <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt;&#123;&#123;x&#125;&#125;;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            freqMap[freq[x]]-&gt;push(x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> maxFreqStack = freqMap[freqMap.size()];</span><br><span class="line">        <span class="keyword">int</span> res = maxFreqStack-&gt;top();</span><br><span class="line">        maxFreqStack-&gt;pop();</span><br><span class="line">        --freq[res];</span><br><span class="line">        <span class="keyword">if</span>(maxFreqStack-&gt;empty())&#123;</span><br><span class="line">            freqMap.erase(freqMap.find(freqMap.size()));</span><br><span class="line">            <span class="keyword">delete</span> maxFreqStack;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="栈用来实现二叉树的遍历"><a href="#栈用来实现二叉树的遍历" class="headerlink" title="栈用来实现二叉树的遍历"></a>栈用来实现二叉树的遍历</h2><p>见<a href="/posts/e85d694a/" title="二叉树">二叉树</a></p>
+<h2 id="栈与括号"><a href="#栈与括号" class="headerlink" title="栈与括号"></a>栈与括号</h2><p><a href="https://leetcode-cn.com/problems/decode-string/" target="_blank" rel="noopener">LC394, Decode String</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">char</span> ASCII_0 = <span class="number">48</span>;</span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">char</span> ASCII_LEFT_BRACKET = <span class="number">91</span>;</span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">static</span> <span class="keyword">char</span> ASCII_RIGHT_BRACKET = <span class="number">93</span>;</span><br><span class="line">    <span class="keyword">using</span> numStringPair = pair&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt;;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">decodeString</span><span class="params">(<span class="built_in">string</span> s)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;numStringPair&gt; <span class="built_in">stack</span>&#123;&#125;;</span><br><span class="line">        <span class="built_in">stack</span>.emplace_back(<span class="number">1</span>, <span class="built_in">string</span>&#123;&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> toDigit = [](<span class="keyword">char</span> c)-&gt;<span class="keyword">int</span>&#123;<span class="keyword">return</span> c - ASCII_0;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> i = s.begin(); i != s.end(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">isdigit</span>(*i))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">string</span> num&#123;&#125;;</span><br><span class="line">                <span class="keyword">while</span>(<span class="built_in">isdigit</span>(*i))</span><br><span class="line">                &#123;</span><br><span class="line">                    num.push_back(*i);</span><br><span class="line">                    ++i;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">stack</span>.emplace_back(atoi(num.c_str()), <span class="built_in">string</span>&#123;&#125;);</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(*i == ASCII_LEFT_BRACKET)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// skip the '[', it is useless.</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(*i == ASCII_RIGHT_BRACKET)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// append N copies of stack.top().second()</span></span><br><span class="line">                <span class="comment">// to the numStringPair before stack.top()</span></span><br><span class="line"></span><br><span class="line">                <span class="keyword">auto</span> topIt     = --<span class="built_in">stack</span>.end();</span><br><span class="line">                <span class="keyword">auto</span> nextTopIt = topIt - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; topIt-&gt;first; ++j)</span><br><span class="line">                &#123;</span><br><span class="line">                    nextTopIt-&gt;second.append(topIt-&gt;second);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="built_in">stack</span>.pop_back();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="comment">// i is a letter</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">stack</span>.back().second.push_back(*i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// now there should be only one string in the stack</span></span><br><span class="line">        assert(<span class="built_in">stack</span>.size() == <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">stack</span>.front().second;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="单调栈"><a href="#单调栈" class="headerlink" title="单调栈"></a>单调栈</h1><p>考虑一个递增栈，设栈顶元素为t，将要推入栈中的元素为n</p>
+<pre><code>- 1: 如果 n &gt; t， 将 n 推入栈中。此时 t 是 n 左侧第一个比他小的元素。
+- 2: 否则， 将栈顶t弹出，如果栈非空，设新的栈顶为t2
+    - t2 是 t **左侧第一个比他小的元素**
+    - n  是 t **右侧第一个比他小的元素**
+- 回到1
+</code></pre><p>考虑一个递减栈，设栈顶元素为t，将要推入栈中的元素为n</p>
+<pre><code>- 如果 n &lt; t，将 n 推入栈中。此时 t 是 n 左侧第一个比他大的元素
+- 否则，将栈顶t弹出，如果栈非空，设新的栈顶为t2
+    - t2 是 t **左侧第一个比他大的元素**
+    - n  是 t **右侧第一个比他大的元素**
+</code></pre><p>栈里一般存放元素的指针或者元素的index。需要弹出栈中元素，一般也是用来计算的结果的时候。</p>
+<p>单调递增栈，栈内元素的性质图解：<br>单调递增栈栈内两个相邻的元素$a_y &gt; a_x, y &gt; x$，在其原来的数组中，$a_y$和$a_x$之间的元素都在$(a_y, +\infty)$的范围内。即他们之间的元素$a_{i}, i \in (x, y)$，必然有$a_{i} &gt; a_y$</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">                        +-+</span><br><span class="line">                        | |</span><br><span class="line">                        | |</span><br><span class="line">                      +-+ |</span><br><span class="line">                      | | +-+  ^</span><br><span class="line">                      | | | |  |</span><br><span class="line">  +-+- - - - - - - - - - - - - - -+-+</span><br><span class="line">  | |                 | | | |     | |</span><br><span class="line">  | |                 | | | |     | |</span><br><span class="line">  | |                 | | | |     | |</span><br><span class="line">  | |                 | | | |     | |</span><br><span class="line">  | |                 | | | |     | |</span><br><span class="line">+-+ |  +----&gt; +-+     | | | |     | |</span><br><span class="line">| | |         | |     | | | |     | |</span><br><span class="line">| | |         | | ... | | | | ... | |</span><br><span class="line">| | |         | |     | | | |     | |</span><br><span class="line">| | |         | |     | | | |     | |</span><br><span class="line">+---+         +-+     +-----+     +-+</span><br></pre></td></tr></table></figure>
+<p>单调递减栈，栈内元素性质图解：<br>单调递减栈栈内两个相邻的元素$a_y &lt; a_x, y &gt; x$，在其原来的数组中，$a_y$和$a_x$之间的元素都在$(-\infty, a_y)$的范围内。即他们之间的元素$a_{i}, i \in (x, y)$，必然有$a_{i} &lt; a_y$</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">+-+          +-+</span><br><span class="line">| |          | |</span><br><span class="line">| |          | |</span><br><span class="line">| |          | |</span><br><span class="line">| |          | |</span><br><span class="line">| |          | |</span><br><span class="line">| +-+ +----&gt; | |- - - - - - - - - -+-+</span><br><span class="line">| | |        | |     +-+ +-+    |  | |</span><br><span class="line">| | |        | |     | | | +-+  v  | |</span><br><span class="line">| | |        | | ... | +-+ | | ... | |</span><br><span class="line">| | |        | |     | | | | |     | |</span><br><span class="line">+-+-+        +-+     +-+-+-+-+     +-+</span><br></pre></td></tr></table></figure>
+<blockquote><p>参考:</p>
+<ul>
+<li><a href="https://blog.csdn.net/qq_17550379/article/details/86519771" target="_blank" rel="noopener">Leetcode 单调栈问题总结,coordinate_blog, csdn</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/26465701" target="_blank" rel="noopener">刷题笔记6（浅谈单调栈）, 法号桑菜, 知乎</a></li>
+</ul>
+</blockquote>
+<h2 id="简单单调栈"><a href="#简单单调栈" class="headerlink" title="简单单调栈"></a>简单单调栈</h2><p><a href="https://leetcode-cn.com/problems/next-greater-element-i/" target="_blank" rel="noopener">LC496, Next Greater Element I</a></p>
+<p>先不管数组<code>nums1</code>。维护一个单调递减栈，并在<code>nums2</code>上进行遍历。</p>
+<ul>
+<li>如果栈为空，将当前数字入栈</li>
+<li>如果栈非空<ul>
+<li>检查当前元素是否大于栈顶元素，如果大于栈顶元素则说明当前元素为栈顶元素的<em>下一个更大元素</em>，将对应关系记录在一个hashmap中。并将栈顶元素<code>pop</code>出栈。循环直到栈顶元素大于大于当前元素 或 栈为空。</li>
+<li>将当前元素入栈。</li>
+</ul>
+</li>
+<li>根据hashmap，找到nums1当中对应的下一更大元素。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nextGreaterElement(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2) &#123;</span><br><span class="line">        <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; monoStack&#123;&#125;;</span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; nextGreater&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> n : nums2)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span> (!monoStack.empty() &amp;&amp; monoStack.top() &lt; n)</span><br><span class="line">            &#123;</span><br><span class="line">                nextGreater[monoStack.top()] = n;</span><br><span class="line">                monoStack.pop();</span><br><span class="line">            &#125;</span><br><span class="line">            monoStack.push(n);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(!monoStack.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            nextGreater[monoStack.top()] = <span class="number">-1</span>;</span><br><span class="line">            monoStack.pop();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; res&#123;&#125;;</span><br><span class="line">        transform(nums1.begin(), nums1.end(), back_inserter(res), [&amp;nextGreater](<span class="keyword">int</span> num)&#123;</span><br><span class="line">            <span class="keyword">return</span> nextGreater[num];</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/next-greater-element-ii/" target="_blank" rel="noopener">LC503, Next Greater Element II</a></p>
+<p>解法同上，用<code>mod</code>运算将数组”模拟”成循环数组就可以了。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Feb/19/2020 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nextGreaterElements(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">        <span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; monoStack&#123;&#125;;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; res(nums.size(), <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> ii = <span class="number">0</span>; ii &lt; nums.size() * <span class="number">2</span>; ++ii)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> i = ii % nums.size();</span><br><span class="line">            <span class="keyword">while</span> (!monoStack.empty() &amp;&amp; </span><br><span class="line">            nums[monoStack.top()] &lt; nums[i])</span><br><span class="line">            &#123;</span><br><span class="line">                res[monoStack.top()] = nums[i];</span><br><span class="line">                monoStack.pop();</span><br><span class="line">            &#125;</span><br><span class="line">            monoStack.push(i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/daily-temperatures/" target="_blank" rel="noopener">LC739, Daily Temperatures</a></p>
+<p>套壳的下一个更大数字。只不过求的不是数字，而是距离。用一个递减栈存迭代器即可解决。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; dailyTemperatures(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; temps) &#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; waitDays(temps.size(), <span class="number">0</span>);</span><br><span class="line">        <span class="built_in">stack</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator&gt; monoStack&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = temps.begin(); it != temps.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span> (!monoStack.empty() &amp;&amp; *monoStack.top() &lt; *it)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> day = monoStack.top();</span><br><span class="line">                waitDays[distance(temps.begin(), day)] = distance(day, it);</span><br><span class="line">                monoStack.pop();</span><br><span class="line">            &#125;</span><br><span class="line">            monoStack.push(it);</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">return</span> waitDays;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/online-stock-span/" target="_blank" rel="noopener">LC901, Online Stock Span</a></p>
+<ul>
+<li>遇到的每一元素初始化为<code>pair&lt;price, span = 1&gt;</code></li>
+<li>维护一个递减栈，每当遇到大于栈顶的元素时，将该栈顶元素出栈，并将出栈的元素的span加到该元素身上。之后再将这个元素放回栈中。之后返回这个元素的<code>span</code><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StockSpanner</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">elem</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="keyword">int</span> price;</span><br><span class="line">        <span class="keyword">int</span> span;</span><br><span class="line"></span><br><span class="line">        elem(<span class="keyword">int</span> price)</span><br><span class="line">        :price(price)</span><br><span class="line">        ,span(<span class="number">1</span>)</span><br><span class="line">        &#123;&#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;elem&gt; monoStack;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    StockSpanner() </span><br><span class="line">    :monoStack&#123;&#125;</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">next</span><span class="params">(<span class="keyword">int</span> price)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> cur_elem = elem&#123;price&#125;;</span><br><span class="line">        <span class="keyword">while</span>(!monoStack.empty() &amp;&amp; monoStack.back().price &lt;= cur_elem.price)</span><br><span class="line">        &#123;</span><br><span class="line">            cur_elem.span += monoStack.back().span;</span><br><span class="line">            monoStack.pop_back();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        monoStack.emplace_back(move(cur_elem));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> monoStack.back().span;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+</li>
+</ul>
+<h2 id="复杂单调栈"><a href="#复杂单调栈" class="headerlink" title="复杂单调栈"></a>复杂单调栈</h2><p><a href="https://leetcode-cn.com/problems/trapping-rain-water/" target="_blank" rel="noopener">LC42, Trapping Rain Water</a></p>
+<p>只有凹进去的地方才能储存雨水。递减栈每次需要弹出的时候，【新的元素，栈顶，栈顶下面一个元素】正好是一个坑。考虑用一个递减栈来计算雨水。</p>
+<p>思路参考：<a href="https://leetcode-cn.com/problems/trapping-rain-water/solution/xiang-xi-tong-su-de-si-lu-fen-xi-duo-jie-fa-by-w-8/" target="_blank" rel="noopener">windliang, 详细通俗的思路分析，多解法, lc42 solutions</a></p>
+<p>仍然是以个next greater element问题，但计算凹进去部分的存水比较麻烦。</p>
+<p>当遇到需要我们出栈的元素时，我们需要三个一组来计算存水</p>
+<ul>
+<li>记当前元素为r，从栈里pop出一个元素，记为m</li>
+<li>如果此时栈空了，证明m左边已经没有能挡水的板了，存不住水了，所以直接退出循环。</li>
+<li>如果此时栈里还有元素，将该元素出栈，记为l</li>
+<li>我们的任务就是计算(r,m,l)这个三元组能存多少水：<ul>
+<li>m 比 r 先出栈，所以一定有 m &lt; r, 我们又知道 m &lt; l，但是我们不知道r和l的关系，有可能l比r大。所以我们不可以在这个时候把l<code>pop</code>出栈。</li>
+<li>存水的多少 = <code>(distance(l, r) - 1) * (min(*l, *r) - *m)</code>。即只计算比中间挡板高的存水。比中间挡板低的存水在之前一定已经计算过了。</li>
+</ul>
+</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Feb/19/2020 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">trap</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; height)</span> </span>&#123;</span><br><span class="line">        height.push_back(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">auto</span> monoStack = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = height.begin(); it &lt; height.end(); ++it)</span><br><span class="line">        &#123;     </span><br><span class="line">            <span class="keyword">while</span>(!monoStack.empty() &amp;&amp; *monoStack.back() &lt; *it)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> mid = monoStack.back();</span><br><span class="line">                monoStack.pop_back();</span><br><span class="line">                <span class="comment">// if there is no more element on the left, we can trap any water.</span></span><br><span class="line">                <span class="keyword">if</span>(monoStack.empty()) <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">auto</span> left = monoStack.back();</span><br><span class="line">                <span class="comment">// compute how many water it could trap</span></span><br><span class="line">                res += (it - left - <span class="number">1</span>) * (min(*it, *left) - *mid);</span><br><span class="line">            &#125;</span><br><span class="line">            monoStack.push_back(it);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">trap</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; height)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">stack</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator&gt; s&#123;&#125;;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = height.begin(); it != height.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span> (!s.empty() &amp;&amp; *s.top() &lt; *it )</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> r = it;</span><br><span class="line">                <span class="keyword">auto</span> m = s.top();</span><br><span class="line">                s.pop();</span><br><span class="line">                <span class="keyword">if</span> (s.empty()) &#123;s.push(it);<span class="keyword">break</span>;&#125;</span><br><span class="line">                <span class="keyword">auto</span> l = s.top();</span><br><span class="line">                res += computeTrap(l, m, r);</span><br><span class="line">            &#125;</span><br><span class="line">            s.push(it);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">computeTrap</span><span class="params">(It l, It m, It r)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> width = distance(l,r) - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> height = min(*l,*r) - *m;</span><br><span class="line">        <span class="keyword">return</span> width * height;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/largest-rectangle-in-histogram/" target="_blank" rel="noopener">LC84, Largest Rectangle in Histogram</a></p>
+<p>算出所有以每个柱的顶部为上边界的最大的矩形的面积，再从中找到最大的面积，即为所求。<br>为了找到以柱a的顶部为上边的最大矩形面积，我需要确定这个矩形的左右边界。因此我们需要找到柱a左边第一个比柱a矮的柱(记为柱l)，以及柱a右边第一个比柱a高的柱(记为柱r)。因此问题就抽象为：找到每一个数字左右第一个比它小的数字。</p>
+<p>自然想到使用一个递增栈来完成：</p>
+<pre><code>- 每次遇到比栈顶元素(t)小的元素(i)--&gt;相当于给栈中的所有元素找到了矩形右边界(i)--&gt;左边界也在栈中(把t从栈中pop掉后新的栈顶，t2)--&gt;可以计算矩形面积了。
+    矩形面积 = (distance(t, i) - 1) * 柱高
+- 假设我们在所有柱子的左侧和右侧都添加一个高度为0的柱。
+    - 如果pop掉t后栈空了，左边界就是那个高度为0的最左侧的柱子。
+    - 最后一个高度为0的柱子用来帮助把在栈中，没有计算矩形面积的柱的最大矩形面积计算出来。
+</code></pre><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">largestRectangleArea</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; heights)</span> </span>&#123;</span><br><span class="line">        heights.push_back(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">int</span> rectArea = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">stack</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator&gt; <span class="built_in">stack</span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> i = heights.begin(); i != heights.end(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span> (!<span class="built_in">stack</span>.empty() &amp;&amp; *i &lt; *<span class="built_in">stack</span>.top())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> top = <span class="built_in">stack</span>.top();</span><br><span class="line">                <span class="built_in">stack</span>.pop();</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">stack</span>.empty())</span><br><span class="line">                    rectArea = max(rectArea, </span><br><span class="line">                        (<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(distance(heights.begin(), i))) * (*top));</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    rectArea = max(rectArea, </span><br><span class="line">                        (<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(distance(<span class="built_in">stack</span>.top(), i)) - <span class="number">1</span>) * (*top));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">stack</span>.push(i);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> rectArea;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/maximal-rectangle/" target="_blank" rel="noopener">LC85, Maximal Rectangle</a></p>
+<p>将二维数组的每一行都变成一个柱状图，然后用<a href="https://leetcode-cn.com/problems/largest-rectangle-in-histogram/" target="_blank" rel="noopener">LC84, Largest Rectangle in Histogram</a>的思路求解即可。</p>
+<p><a href="https://leetcode-cn.com/problems/maximal-rectangle/solution/xiang-xi-tong-su-de-si-lu-fen-xi-duo-jie-fa-by-1-8/" target="_blank" rel="noopener">详细通俗的思路分析，多解法, windliang, leetcode</a><br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maximalRectangle</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; matrix)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (matrix.empty() || matrix.front().empty()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// build the histograms </span></span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt;&gt; histograms(matrix.size(), <span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt;(matrix[<span class="number">0</span>].size()));</span><br><span class="line">        <span class="comment">// put the first row into the histogram.</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; matrix[<span class="number">0</span>].size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            histograms[<span class="number">0</span>][i] = matrix[<span class="number">0</span>][i] == <span class="string">'1'</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; matrix.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">size_t</span> j = <span class="number">0</span>; j &lt; matrix[i].size(); ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                histograms[i][j] = matrix[i][j] == <span class="string">'0'</span> ? <span class="number">0</span> : histograms[i - <span class="number">1</span>][j] + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> maxRectArea = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; histogram : histograms)</span><br><span class="line">        &#123;</span><br><span class="line">            maxRectArea = max(maxRectArea, maximalRectangleInHistogram(histogram));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> maxRectArea;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">maximalRectangleInHistogram</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt;&amp; histogram)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// put the guard into the back of the histogram.</span></span><br><span class="line">        histogram.push_back(<span class="number">0</span>);</span><br><span class="line">        <span class="comment">// monoStack</span></span><br><span class="line">        <span class="built_in">stack</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">size_t</span>&gt;::iterator&gt; <span class="built_in">stack</span>&#123;&#125;;</span><br><span class="line">        <span class="keyword">size_t</span> rectArea = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = histogram.begin(); it != histogram.end(); ++it)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// violation of increasing order.</span></span><br><span class="line">            <span class="keyword">while</span>(!<span class="built_in">stack</span>.empty() &amp;&amp; *it &lt; *<span class="built_in">stack</span>.top())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> topIt = <span class="built_in">stack</span>.top();</span><br><span class="line">                <span class="built_in">stack</span>.pop();</span><br><span class="line"></span><br><span class="line">                <span class="comment">// the leftBound is the "element" before begin.</span></span><br><span class="line">                <span class="keyword">if</span>(<span class="built_in">stack</span>.empty())</span><br><span class="line">                &#123;</span><br><span class="line">                    rectArea = max(rectArea, distance(histogram.begin(), it) * (*topIt));</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// the leftBound is the top element of the stack.</span></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    rectArea = max(rectArea, (distance(<span class="built_in">stack</span>.top(), it) - <span class="number">1</span>) * (*topIt));</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">stack</span>.push(it);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(rectArea);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div></p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A0%88/" rel="tag"># 栈</a>
+              <a href="/tags/%E9%98%9F%E5%88%97/" rel="tag"># 队列</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/69c852d4/" rel="prev" title="二叉堆">
+      <i class="fa fa-chevron-left"></i> 二叉堆
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/fbe4be33/" rel="next" title="排列、组合、子集">
+      排列、组合、子集 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#队列"><span class="nav-number">1.</span> <span class="nav-text">队列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#STL中的双端队列"><span class="nav-number">1.1.</span> <span class="nav-text">STL中的双端队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单实现一个双端队列"><span class="nav-number">1.2.</span> <span class="nav-text">简单实现一个双端队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用栈实现队列"><span class="nav-number">1.3.</span> <span class="nav-text">用栈实现队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#单调队列"><span class="nav-number">2.</span> <span class="nav-text">单调队列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#滑动窗口最大值"><span class="nav-number">2.1.</span> <span class="nav-text">滑动窗口最大值</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#和至少为K的最短子数组"><span class="nav-number">2.1.1.</span> <span class="nav-text">和至少为K的最短子数组</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#栈"><span class="nav-number">3.</span> <span class="nav-text">栈</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#STL中的栈"><span class="nav-number">3.1.</span> <span class="nav-text">STL中的栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用队列实现栈"><span class="nav-number">3.2.</span> <span class="nav-text">用队列实现栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最小栈"><span class="nav-number">3.3.</span> <span class="nav-text">最小栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最大栈"><span class="nav-number">3.4.</span> <span class="nav-text">最大栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最大频率栈"><span class="nav-number">3.5.</span> <span class="nav-text">最大频率栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#栈用来实现二叉树的遍历"><span class="nav-number">3.6.</span> <span class="nav-text">栈用来实现二叉树的遍历</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#栈与括号"><span class="nav-number">3.7.</span> <span class="nav-text">栈与括号</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#单调栈"><span class="nav-number">4.</span> <span class="nav-text">单调栈</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单单调栈"><span class="nav-number">4.1.</span> <span class="nav-text">简单单调栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#复杂单调栈"><span class="nav-number">4.2.</span> <span class="nav-text">复杂单调栈</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

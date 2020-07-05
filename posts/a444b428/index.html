@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="LC912 排序数组LC148 排序链表LC147 对链表进行插入排序LC88 合并两个有序数组[反向merge]⚠️LC75 颜色分类[计数排序 或 特制partition]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="排序">
+<meta property="og:url" content="http://xyfu.me/posts/a444b428/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="LC912 排序数组LC148 排序链表LC147 对链表进行插入排序LC88 合并两个有序数组[反向merge]⚠️LC75 颜色分类[计数排序 或 特制partition]">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-02-09T05:13:21.000Z">
+<meta property="article:modified_time" content="2020-02-29T22:50:10.114Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="排序">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/a444b428/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>排序 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/a444b428/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          排序
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-09 13:13:21" itemprop="dateCreated datePublished" datetime="2020-02-09T13:13:21+08:00">2020-02-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 06:50:10" itemprop="dateModified" datetime="2020-03-01T06:50:10+08:00">2020-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.5k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://xyfu.me/posts/a444b428/">LC912 排序数组</a><br><a href="https://xyfu.me/posts/2362a8ea/#%E9%93%BE%E8%A1%A8%E6%8E%92%E5%BA%8F">LC148 排序链表</a><br><a href="https://xyfu.me/posts/a444b428/#%E5%AF%B9%E9%93%BE%E8%A1%A8%E8%BF%9B%E8%A1%8C%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F">LC147 对链表进行插入排序</a><br><a href="https://xyfu.me/posts/a444b428/#%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F">LC88 合并两个有序数组</a>[反向merge]<br>⚠️<a href="https://xyfu.me/posts/a444b428/#%E8%AE%A1%E6%95%B0%E6%8E%92%E5%BA%8F">LC75 颜色分类</a>[计数排序 或 特制partition]</p>
+<a id="more"></a>
+<h1 id="洗牌算法"><a href="#洗牌算法" class="headerlink" title="洗牌算法"></a>洗牌算法</h1><h1 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h1><p>如果不交换相邻的相等元素，则是稳定的排序算法。平方复杂度。<br>优化：</p>
+<pre><code>- 如果内层循环没有发生交换，那么直接退出。
+</code></pre><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">auto</span> swapped = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = first, j = first + <span class="number">1</span>; </span><br><span class="line">            i != last &amp;&amp; j != last;</span><br><span class="line">            ++i,++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(*j &lt; *i)</span><br><span class="line">                &#123;</span><br><span class="line">                    iter_swap(i,j);</span><br><span class="line">                    swapped = <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">if</span>(!swapped) <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h1><p>用链表实现是稳定的。如果在数组上用交换的方式实现则不稳定。平方复杂度。改进版为堆排序。堆的存在将<code>min_element(first, last)</code>的时间复杂度变为对数级。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectionSort</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">    &#123;</span><br><span class="line">         <span class="keyword">auto</span> ptr = min_element(first, last);</span><br><span class="line">         iter_swap(first, ptr);</span><br><span class="line">         ++first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h1><p>不稳定。平方复杂度。</p>
+<p>插入排序作为STL中较小区间的默认排序算法，实现比较具有技巧性：</p>
+<ul>
+<li>维护循环不变式：<code>[first, i)</code>区间是有序的。</li>
+<li>用一个外层循环，不断的调用内层函数<code>linear_insert</code></li>
+<li><code>linear_insert</code>首先将<code>i</code>处的值复制下来。之后检查<code>first</code>处的值是不是比<code>i</code>的值大，如果是，就直接调用<code>copy_backward</code>将整个区间向后挪动一格，再把<code>i</code>放到腾出的<code>first</code>处。</li>
+<li>如果不是，就开始从<code>next = i - 1</code>处开始检查逆序对。这里并没有采用不断交换逆序对的手段。而是仍然类似之前，先记录下来<code>i</code>的值<code>value</code>，遇到<code>*next</code>比<code>value</code>小的情况，就把<code>*next</code>往后窜，直到<code>*next</code>不小于<code>value</code>，这时再将<code>value</code>放置到此时<code>next</code>的后一位置<code>last</code>处。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">insertionSort</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> i = first + <span class="number">1</span>; i &lt; last; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        linear_insert(first, i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linear_insert</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// copy the value for the last element</span></span><br><span class="line">    <span class="keyword">auto</span> value = *last;</span><br><span class="line">    <span class="comment">// if the value is smaller than all the elements</span></span><br><span class="line">    <span class="comment">// then we do not need to perform swap, just shift</span></span><br><span class="line">    <span class="comment">// the range right by one slot</span></span><br><span class="line">    <span class="keyword">if</span>(value &lt; *first)</span><br><span class="line">    &#123;</span><br><span class="line">        copy_backward(first, last, last + <span class="number">1</span>);</span><br><span class="line">        *first = value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        linear_insert(last, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linear_insert</span><span class="params">(It last, T value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> next = last;</span><br><span class="line">    --next;</span><br><span class="line">    <span class="comment">// we do not need to worry about whether </span></span><br><span class="line">    <span class="comment">// next will move out of range</span></span><br><span class="line">    <span class="comment">// because in the function above, </span></span><br><span class="line">    <span class="comment">// the situation value &lt; *first </span></span><br><span class="line">    <span class="comment">// is already treated with care.</span></span><br><span class="line">    <span class="keyword">while</span>(value &lt; *next)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//shift the value of next right by one slot</span></span><br><span class="line">        *last = *next;</span><br><span class="line">        last = next;</span><br><span class="line">        --next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// the slot where the value should be put in</span></span><br><span class="line">    *last = value;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="对链表进行插入排序"><a href="#对链表进行插入排序" class="headerlink" title="对链表进行插入排序"></a>对链表进行插入排序</h2><p><a href="https://leetcode-cn.com/problems/insertion-sort-list/" target="_blank" rel="noopener">LC147 对链表进行插入排序</a></p>
+
+    </div>
+</div>
+<h1 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h1><p>不稳定。低于平方复杂度。实现简单，效率高。在<a href="https://leetcode-cn.com/problems/sort-an-array/" target="_blank" rel="noopener">LC912 排序数组</a>这个题目的测试上，可以得到60ms左右的成绩。而采用STL库的内省式排序，则为30ms左右。</p>
+<p>根据插入排序的以下两个性质进行改进：</p>
+<pre><code>- 插入排序对几乎已经排好的数据进行排序时，可以达到近乎线性的效率
+- 插入排序每次只能将元素向前移动一个位置，较为低效
+</code></pre><p>因此希尔排序通过设置步长，将整个区间分为几块，分别排序，再不断缩小步长。这样在开始时，元素可以朝目标移动一大段距离。最后步长会变成1，进行一次普通的插入排序。但是此时数据已经几乎是有序的了，插入排序就能非常迅速的完成任务。</p>
+<p>几种常见的希尔排序增量：</p>
+<pre><code>- Hibbard增量：1, 3, 7, 15 ... 2^k - 1 保证相邻增量之间没有公因数，复杂度可证：$\Theta(N^{\frac{3}{2})$
+- Knuth增量：1, 4, 13, 40, ..., (3^k - 1) /2 递推式为 $a_{n+1} = 3 * a_{n} + 1$, $a_1 = 1$，复杂度可证：$\Theta(N^{\frac{3}{2})$
+- Sedgewick增量
+</code></pre><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        采用Knuth增量的ShellSort实现
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shellSort</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> len = last - first;</span><br><span class="line">    <span class="keyword">size_t</span> step = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(step &lt; len / <span class="number">3</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        step = step * <span class="number">3</span> + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    shellSort(first, last, step);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shellSort</span><span class="params">(It first, It last, <span class="keyword">size_t</span> step)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(step)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> i = first + step; i &lt; last; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">auto</span> j = i;</span><br><span class="line">                <span class="comment">// this is a very smart way to avoid j move out of range</span></span><br><span class="line">                j &gt;= first + step &amp;&amp; *j &lt; *(j - step); </span><br><span class="line">                j-= step)</span><br><span class="line">                iter_swap(j, j - step);</span><br><span class="line">        &#125;</span><br><span class="line">        step /= <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h1><p>堆排序的关键子算法为下沉。即GNU STL中的<code>__adjust_heap</code><a href="https://gcc.gnu.org/onlinedocs/libstdc++/libstdc++-html-USERS-4.1/stl__heap_8h.html" target="_blank" rel="noopener">stl_heap.h Reference</a>中的实现为了减少比较次数，没有在每次循环中判断下沉节点和较大子节点之间的关系，而是采用一沉到底再上浮的方法。</p>
+<p>另一个需要注意的点是STL中的堆序号是从0开始的，因此：</p>
+<ul>
+<li>节点i的左孩子为2 <em> i + 1，右孩子为2 </em> i</li>
+<li>设区间长度为len，则index为 (len - 2) / 2开始的节点为叶子节点。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        下沉的实现（即__adjust_heap）
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt; &gt;</span><br><span class="line"><span class="keyword">void</span> adjust_heap(It first, </span><br><span class="line">                <span class="keyword">typename</span> iterator_traits&lt;It&gt;::difference_type hole_idx, </span><br><span class="line">                It last, </span><br><span class="line">                <span class="keyword">const</span> Comp&amp; comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt;&#123;&#125;)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// get the value of the hole</span></span><br><span class="line">    <span class="keyword">auto</span> hole = first + hole_idx;</span><br><span class="line">    <span class="keyword">auto</span> val = *hole;</span><br><span class="line">    <span class="comment">// get the secondChild It</span></span><br><span class="line">    <span class="keyword">auto</span> secondChild = hole + (hole - first) + <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(secondChild &lt; last)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// compare second child with first child</span></span><br><span class="line">        <span class="keyword">if</span>(comp(*secondChild, *(secondChild - <span class="number">1</span>))) --secondChild;</span><br><span class="line">        <span class="comment">// check if val is greater than both children</span></span><br><span class="line">        <span class="keyword">if</span>(comp(*secondChild, val)) <span class="keyword">break</span>;</span><br><span class="line">        *hole = *secondChild;</span><br><span class="line">        hole = secondChild;</span><br><span class="line">        secondChild = hole + (hole - first) + <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// if it escape the loop because it does not </span></span><br><span class="line">    <span class="comment">// have a secondChild, we have to check if it</span></span><br><span class="line">    <span class="comment">// still needs to sink</span></span><br><span class="line">    <span class="keyword">if</span>(secondChild == last &amp;&amp; comp(val, *(--secondChild)))</span><br><span class="line">    &#123;</span><br><span class="line">        *hole = *secondChild;</span><br><span class="line">        hole =secondChild;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *hole = val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>在堆排序之前需要先进行建堆，即从最后一个叶子节点开始，从后往前对堆中元素进行下沉操作</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt; &gt;</span><br><span class="line"><span class="keyword">void</span> make_heap(It first, It last, <span class="keyword">const</span> Comp&amp; comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt;&#123;&#125;)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> hole_idx = (last - first - <span class="number">2</span>) / <span class="number">2</span> + <span class="number">1</span>; hole_idx--;)</span><br><span class="line">    &#123;</span><br><span class="line">        adjust_heap(first, hole_idx, last, comp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在堆排序中最经常被调用的算法为<code>pop_heap</code>，即将堆首元素弹出堆，置于堆尾。在一个已经建好的堆上不断调用<code>pop_heap</code>直到区间长度为1，就可以实现堆排序了。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        pop_heap的实现
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt; &gt;</span><br><span class="line"><span class="keyword">void</span> pop_heap(It first, It last, <span class="keyword">const</span> Comp&amp; comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt;&#123;&#125;)</span><br><span class="line">&#123;</span><br><span class="line">    iter_swap(first, last - <span class="number">1</span>);</span><br><span class="line">    adjust_heap(first, <span class="number">0</span>, last - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>最后是将以上组件组合在一起的的<code>heap_sort</code>实现：<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        heap_sort的实现
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt; &gt;</span><br><span class="line"><span class="keyword">void</span> heap_sort(It first, It last, <span class="keyword">const</span> Comp&amp; comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt;&#123;&#125;)</span><br><span class="line">&#123;</span><br><span class="line">    make_heap_williams(first, last, comp);</span><br><span class="line">    <span class="keyword">while</span>(last - first &gt; <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        pop_heap(first, last--, comp);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<h1 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h1><p>需要使用额外空间的稳定排序算法。复杂度为$\Theta(N\mathrm{log}(N))$</p>
+<p>在数组上进行merge，往往都需要额外的空间来储存结果。然而在链表上可以实现常数空间复杂度的归并排序。</p>
+<h2 id="STL中的merge"><a href="#STL中的merge" class="headerlink" title="STL中的merge"></a>STL中的merge</h2><p>STL中<code>&lt;algorithm&gt;</code>提供的函数<code>merge</code>，可以用于两个数组的归并。介绍中是这样描述的：</p>
+<ul>
+<li>归并二个已排序范围 [first1, last1) 和 [first2, last2) 到始于 d_first 的一个已排序范围中。</li>
+<li><em>稳定性</em>对于元范围中的等价元素，来自第一范围的元素（保持其原顺序）先于来自第二范围的元素（保持其原顺序）。</li>
+<li><em>需要额外空间</em>若目标范围与输入范围之一重叠，则行为未定义（输入范围可相互重叠）。</li>
+</ul>
+<p>STL中的merge实现并未有太特别之处。需要注意的地方有三：</p>
+<ul>
+<li>一是为了保证稳定性的小细节：即保证当序列1和序列2中的元素等价时，序列1中的元素在前。所以在判断的时候，先判断<code>*first2 &lt; *first1</code>，并把相等的部分放入了<code>else</code>分支中。</li>
+<li>二是最后调用copy来实现剩余区间的拷贝。</li>
+<li>三是区间一，区间二和输出区间各用一种迭代器，可以归并不同类型的迭代器的内容。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It1, <span class="keyword">typename</span> It2, <span class="keyword">typename</span> It3&gt;</span><br><span class="line"><span class="function">It3 <span class="title">merge_</span><span class="params">(It1 first1, It1 last1, It2 first2, It2 last2, It3 result)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(first1 &lt; last1 &amp;&amp; first2 &lt; last2)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(*first2 &lt; *first1)</span><br><span class="line">        &#123;</span><br><span class="line">            *result = *first2;</span><br><span class="line">            ++first2;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// be very careful about the order of comparing first2 and first1</span></span><br><span class="line">        <span class="comment">// we must make sure when first1 and first2 are equivalent,</span></span><br><span class="line">        <span class="comment">// first1 will be added into the result first.</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            *result = *first1;</span><br><span class="line">            ++first1;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ++result;</span><br><span class="line">    &#125;        </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> copy(first1, last1, copy(first2, last2, result));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="STL中的归并排序stable-sort"><a href="#STL中的归并排序stable-sort" class="headerlink" title="STL中的归并排序stable_sort"></a>STL中的归并排序<code>stable_sort</code></h2><p>STL中的归并排序<code>stable_sort</code>底层采用适应性分配缓冲区的<code>__stable_sort_adaptive</code>和<code>__merge_adaptive</code>，实现比较复杂。这里我们实现一个简单的归并排序。</p>
+<p>如果想要用归并，就必须得有缓冲区，GNU STL中使用的缓冲区位于<code>&lt;ext/memory&gt;</code>中<a href="https://gcc.gnu.org/onlinedocs/libstdc++/libstdc++-html-USERS-4.3/a00231.html" target="_blank" rel="noopener">GNU STL API</a>，构造函数定义如下。介绍为</p>
+<blockquote>
+<p>Requests storage large enough to hold a copy of [first,last).<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__gnu_cxx::temporary_buffer&lt;It, T&gt;::temporary_buffer(It first, It last)</span><br></pre></td></tr></table></figure><br>像一般容器一样，他也有<code>size()</code>,<code>begin()</code>,<code>end()</code>等方法，还有一个<code>requested_size()</code>。</p>
+</blockquote>
+<p>我们在实现时，可以申请一个[first, last)一样长的缓冲区，然后将[first, mid)的内容拷贝进缓冲区，然后再把缓冲区和[mid, last)调用merge，归并回[first, last)。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        简易stable_sort实现
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;ext/memory&gt;</span></span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">mergesort</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> n = (last - first);</span><br><span class="line">    <span class="comment">// base case</span></span><br><span class="line">    <span class="keyword">if</span>(n == <span class="number">0</span> || n == <span class="number">1</span>) <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// merge sort routine</span></span><br><span class="line">    <span class="keyword">auto</span> mid = first + n / <span class="number">2</span>;</span><br><span class="line">    mergesort(first, mid);</span><br><span class="line">    mergesort(mid, last);</span><br><span class="line">    <span class="comment">// apply for a buffer</span></span><br><span class="line">    <span class="keyword">auto</span> buf = __gnu_cxx::temporary_buffer&lt;It, <span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt;(first, last);</span><br><span class="line">    <span class="keyword">auto</span> buf_end = copy(first, mid, buf.begin());</span><br><span class="line">    merge(buf.begin(), buf_end, mid, last, first);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="合并两个有序数组"><a href="#合并两个有序数组" class="headerlink" title="合并两个有序数组"></a>合并两个有序数组</h2><p><a href="https://leetcode-cn.com/problems/merge-sorted-array/" target="_blank" rel="noopener">LC88 合并两个有序数组</a></p>
+<p>这个题目给出两个数组，并保证其中较长的数组有足够的空间容纳结果。我们可以实现不使用额外空间的merge：</p>
+<ul>
+<li>初始化三个指针。p1指向长数组使用部分的末尾。p2指向短数组的末尾（短数组没有剩余空间）。p指向长数组的末尾。</li>
+<li>从后向前来做归并。比较p1和p2的值：<ul>
+<li>p1 &lt; p2, 将p2放到p的位置，—p, —p2</li>
+<li>!(p1 &lt; p2)， 将p1放到p的位置，—p, —p1</li>
+</ul>
+</li>
+<li>如果p1的指针先挪出范围了，那就把p2到头的部分都赋值进p1</li>
+<li>如果p2的指针先挪出范围了，那就不用动了。</li>
+</ul>
+<p>我们可以利用这样的思路直接调用STL库函数里的merge。即传入反向迭代器，使用<code>greater&lt;int&gt;</code>实现从尾到头<code>merge</code>。<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="keyword">int</span> m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2, <span class="keyword">int</span> n)</span> </span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// how many slots are not in used in nums1?</span></span><br><span class="line">        <span class="keyword">auto</span> freeSlotNum = nums1.size() - m;</span><br><span class="line">        <span class="comment">// initialize all three ptrs</span></span><br><span class="line">        <span class="keyword">auto</span> it1 = nums1.rbegin() + freeSlotNum;</span><br><span class="line">        <span class="keyword">auto</span> it2 = nums2.rbegin();</span><br><span class="line">        <span class="keyword">auto</span> it  = nums1.rbegin();</span><br><span class="line">        <span class="comment">// merge from the end to begin.</span></span><br><span class="line">        <span class="built_in">std</span>::merge(it1, nums1.rend(), it2, nums2.rend(), it, greater&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<p>甚至可以写成一行<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        一行code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="keyword">int</span> m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2, <span class="keyword">int</span> n)</span> </span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">std</span>::merge(nums1.rbegin() + nums1.size() - m, nums1.rend(), nums2.rbegin(), nums2.rend(), nums1.rbegin(), greater&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<p>或者由我们来自己实现merge</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        自己实现merge
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="keyword">int</span> m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2, <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        merge_(nums1.rbegin() + nums1.size() - m, nums1.rend(), nums2.rbegin(), nums2.rend(), nums1.rbegin(), greater&lt;<span class="keyword">int</span>&gt;&#123;&#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp&gt;</span><br><span class="line">    <span class="function">It <span class="title">merge_</span><span class="params">(It first1, It last1, It first2, It last2, It result, Comp cmp)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(first1 &lt; last1 &amp;&amp; first2 &lt; last2)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(cmp(*first2, *first1))</span><br><span class="line">            &#123;</span><br><span class="line">                *result = *first2;</span><br><span class="line">                ++first2;</span><br><span class="line">            &#125;<span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                *result = *first1;</span><br><span class="line">                ++first1;</span><br><span class="line">            &#125;</span><br><span class="line">            ++result;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> copy(first1, last1, copy(first2, last2, result));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="归并链表"><a href="#归并链表" class="headerlink" title="归并链表"></a>归并链表</h2><p><a href="https://leetcode-cn.com/problems/sort-list/" target="_blank" rel="noopener">LC148 排序链表</a></p>
+<h2 id="多路归并"><a href="#多路归并" class="headerlink" title="多路归并"></a>多路归并</h2><h2 id="就地归并"><a href="#就地归并" class="headerlink" title="就地归并"></a>就地归并</h2><h1 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h1><p>SGI STL中的quicksort实现不同于一般我们上课或在教材当中学到的quicksort形式。他使用一个循环保证<code>[first, last)</code>区间非空。然后在循环当中对枢纽右侧区间递归调用，将枢纽赋给<code>last</code>后重新循环。形式更加简洁。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quicksort</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(first + <span class="number">1</span> &lt; last)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">auto</span> cut = unguarded_partition(first, last, </span><br><span class="line">        __gnu_cxx::__median(*first, *(first + (last - first)/<span class="number">2</span>), *(last - <span class="number">1</span>)));</span><br><span class="line">        quicksort(cut, last);</span><br><span class="line">        last = cut;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="用于快速排序的unguarded-parition"><a href="#用于快速排序的unguarded-parition" class="headerlink" title="用于快速排序的unguarded_parition"></a>用于快速排序的unguarded_parition</h2><p>代码同<code>std::__unguarded_partition</code>。这个unguarded_partition不像partition一样有很多流程控制保证<code>first</code>和<code>last</code>不会交错，因此效率更高。尚不知道<code>partition</code>那样做的原因。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">It <span class="title">unguarded_partition</span><span class="params">(It first, It last, T pivot)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">while</span>(*first &lt; pivot) ++first;</span><br><span class="line">        --last;</span><br><span class="line">        <span class="keyword">while</span>(pivot &lt; *last) --last;</span><br><span class="line">        <span class="keyword">if</span>(!(first &lt; last)) <span class="keyword">return</span> first;</span><br><span class="line">        iter_swap(first, last);</span><br><span class="line">        ++first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="用于划分的partition"><a href="#用于划分的partition" class="headerlink" title="用于划分的partition"></a>用于划分的partition</h2><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Pred&gt;</span><br><span class="line"><span class="function">It <span class="title">partition</span><span class="params">(It first, It last, Pred pred)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(first == last) <span class="keyword">return</span> first;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(pred(*first)) ++first;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">break</span>;</span><br><span class="line">           </span><br><span class="line">        &#125;</span><br><span class="line">        --last;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(first == last) <span class="keyword">return</span> first;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(!pred(*last)) --last;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        iter_swap(first, last);</span><br><span class="line">        ++first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="median-of-three"><a href="#median-of-three" class="headerlink" title="median-of-three"></a>median-of-three</h2><p>这个算三个数的中位数的程序可以在SGI STL的头文件<code>ext/algorithm</code>里找到，名字叫<code>__gnu_cxx::__median</code>。</p>
+<h2 id="防止栈溢出"><a href="#防止栈溢出" class="headerlink" title="防止栈溢出"></a>防止栈溢出</h2><h2 id="内省排序"><a href="#内省排序" class="headerlink" title="内省排序"></a>内省排序</h2><h1 id="基数排序"><a href="#基数排序" class="headerlink" title="基数排序"></a>基数排序</h1><h1 id="计数排序"><a href="#计数排序" class="headerlink" title="计数排序"></a>计数排序</h1><p><a href="https://leetcode-cn.com/problems/sort-colors/" target="_blank" rel="noopener">LC75 颜色分类</a></p>
+<p>思路一：记录每一种颜色的个数，然后再按顺序填回去即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sortColors</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> cnt = <span class="built_in">array</span>&lt;<span class="keyword">int</span>, <span class="number">3</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> x : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            ++cnt[x];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> it = nums.begin();</span><br><span class="line">        <span class="keyword">int</span> color = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> x : cnt)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span>(x)</span><br><span class="line">            &#123;</span><br><span class="line">                *it = color;</span><br><span class="line">                ++it;</span><br><span class="line">                --x;</span><br><span class="line">            &#125;</span><br><span class="line">            ++color;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>思路二：因为只有三种元素，所以可以采用partition的思路一次遍历。注意不能简单的带入hoare partition等算法。因为那是针对将区间划分成两个区域采用的。我们要将区间划分成三个区域。</p>
+<p>使用三个指针first, cur, last</p>
+<ul>
+<li>初始化first = begin, cur = begin, last = —end</li>
+<li>如果<code>*cur == 0</code>那么我们就把cur和first交换，然后++cur,++first（还是不理解为什么要++cur）</li>
+<li>如果<code>*cur == 1</code>，++cur</li>
+<li>如果<code>*cur == 2</code>，交换cur和last，然后—last，但不++cur(因为从右边换过来的数不一定是什么？)</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sortColors</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> cur = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> first = nums.begin();</span><br><span class="line">        <span class="keyword">auto</span> last = --nums.end();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// invariance </span></span><br><span class="line">        <span class="comment">// [begin, first) == 0</span></span><br><span class="line">        <span class="comment">// [last, end) == 2</span></span><br><span class="line">        <span class="comment">// cur &lt; last</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(cur &lt;= last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// swap it into [begin, first) range</span></span><br><span class="line">            <span class="keyword">if</span>(*cur == <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                iter_swap(cur, first); </span><br><span class="line">                ++first;</span><br><span class="line">                ++cur;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(*cur == <span class="number">2</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                iter_swap(cur, last);</span><br><span class="line">                --last;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">else</span> <span class="comment">// *cur == 1</span></span><br><span class="line">            &#123;</span><br><span class="line">                ++cur;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h1><link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag"># 排序</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/280d76fd/" rel="prev" title="四元数扩展卡尔曼滤波器">
+      <i class="fa fa-chevron-left"></i> 四元数扩展卡尔曼滤波器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/7cab1e06/" rel="next" title="二叉搜索树">
+      二叉搜索树 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#洗牌算法"><span class="nav-number">1.</span> <span class="nav-text">洗牌算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#冒泡排序"><span class="nav-number">2.</span> <span class="nav-text">冒泡排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#选择排序"><span class="nav-number">3.</span> <span class="nav-text">选择排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#插入排序"><span class="nav-number">4.</span> <span class="nav-text">插入排序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#对链表进行插入排序"><span class="nav-number">4.1.</span> <span class="nav-text">对链表进行插入排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#希尔排序"><span class="nav-number">5.</span> <span class="nav-text">希尔排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#堆排序"><span class="nav-number">6.</span> <span class="nav-text">堆排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#归并排序"><span class="nav-number">7.</span> <span class="nav-text">归并排序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#STL中的merge"><span class="nav-number">7.1.</span> <span class="nav-text">STL中的merge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#STL中的归并排序stable-sort"><span class="nav-number">7.2.</span> <span class="nav-text">STL中的归并排序stable_sort</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#合并两个有序数组"><span class="nav-number">7.3.</span> <span class="nav-text">合并两个有序数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#归并链表"><span class="nav-number">7.4.</span> <span class="nav-text">归并链表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多路归并"><span class="nav-number">7.5.</span> <span class="nav-text">多路归并</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#就地归并"><span class="nav-number">7.6.</span> <span class="nav-text">就地归并</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#快速排序"><span class="nav-number">8.</span> <span class="nav-text">快速排序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用于快速排序的unguarded-parition"><span class="nav-number">8.1.</span> <span class="nav-text">用于快速排序的unguarded_parition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用于划分的partition"><span class="nav-number">8.2.</span> <span class="nav-text">用于划分的partition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#median-of-three"><span class="nav-number">8.3.</span> <span class="nav-text">median-of-three</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防止栈溢出"><span class="nav-number">8.4.</span> <span class="nav-text">防止栈溢出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内省排序"><span class="nav-number">8.5.</span> <span class="nav-text">内省排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基数排序"><span class="nav-number">9.</span> <span class="nav-text">基数排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#计数排序"><span class="nav-number">10.</span> <span class="nav-text">计数排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#桶排序"><span class="nav-number">11.</span> <span class="nav-text">桶排序</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

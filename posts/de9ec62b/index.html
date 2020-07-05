@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="LC726 原子的数量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字符串：parser">
+<meta property="og:url" content="http://xyfu.me/posts/de9ec62b/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="LC726 原子的数量">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-06-21T03:38:01.000Z">
+<meta property="article:modified_time" content="2020-06-21T05:21:23.252Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="二叉树">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/de9ec62b/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>字符串：parser | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/de9ec62b/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          字符串：parser
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-06-21 11:38:01 / Modified: 13:21:23" itemprop="dateCreated datePublished" datetime="2020-06-21T11:38:01+08:00">2020-06-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.4k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://xyfu.me/posts/de9ec62b/#%E5%8E%9F%E5%AD%90%E7%9A%84%E6%95%B0%E9%87%8F">LC726 原子的数量</a></p>
+<a id="more"></a>
+<h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><h2 id="大小写和数字"><a href="#大小写和数字" class="headerlink" title="大小写和数字"></a>大小写和数字</h2><p>标准库头文件<code>&lt;ccype&gt;</code></p>
+<ul>
+<li>检查字母：<code>isalpha</code></li>
+<li>检查字母或数字：<code>isalnum</code></li>
+<li>检查大小写：<code>islower</code>, <code>isupper</code></li>
+<li>转换大小写：<code>to_upper</code>, <code>to_lower</code></li>
+<li>检查数字：<code>isdigit</code></li>
+</ul>
+<p>标准库头文件<code>&lt;charconv&gt;</code></p>
+<ul>
+<li>转换字符串到数字<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function">from_chars_result <span class="title">from_chars</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, <span class="keyword">auto</span>&amp; value, <span class="keyword">int</span> base = <span class="number">10</span>)</span></span></span><br></pre></td></tr></table></figure>
+返回值类型：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">from_chars_result</span> &#123;</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* ptr;</span><br><span class="line">    <span class="built_in">std</span>::errc ec;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>成功时<code>ptr</code>指向首个不匹配的字符。<code>ec</code>被初始化。</li>
+<li><p>失败时，<code>ptr == first</code>，且<code>ec == std::errc::invalid_argument</code></p>
+</li>
+<li><p>转换数字到字符串<br><code>to_string</code> 或者 </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function">to_chars_result <span class="title">to_chars</span><span class="params">(<span class="keyword">char</span>* first, <span class="keyword">char</span>* last,</span></span></span><br><span class="line"><span class="function"><span class="params">                              <span class="keyword">auto</span> value, <span class="keyword">int</span> base = <span class="number">10</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="建议"><a href="#建议" class="headerlink" title="建议"></a>建议</h2><ul>
+<li>写复杂的parser的时候，可以由小到大。先尝试写能parse一部分的小parser，再将这些小的parser组合成一个大的parser。</li>
+<li><p>parser的函数签名：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">parser</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, <span class="comment">/*out params*/</span>... args)</span></span></span><br></pre></td></tr></table></figure>
+<p><code>first</code>和<code>last</code>两个指针确定要parse的区间。parse的结果通过引用由outparam输出。返回已经parse的最后位置+1。<br>写每一个小parser的时候，为了方便逻辑处理，尽量对传入的内容作出假设。这些假设可以在调用小parser的大parser中保证。</p>
+</li>
+<li><p>大parser的主循环可以由下面的构成</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(first &lt; last)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(*first == <span class="comment">/*case 1*/</span>)</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(*first == <span class="comment">/*case 2*/</span>)</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* ...... */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<hr>
+<h1 id="原子的数量"><a href="#原子的数量" class="headerlink" title="原子的数量"></a>原子的数量</h1><p><a href="https://leetcode-cn.com/problems/number-of-atoms/" target="_blank" rel="noopener">LC726 原子的数量</a></p>
+<p>统计一个给定化学式中所有原子的数量。给定的化学式一定是合法的。化学式中含有括号。<br>首先我们需要先写能够parse一个元素和其数量的小parser。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* preconditions:</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * !(first &lt; last)</span></span><br><span class="line"><span class="comment"> * is_upper(*first) </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">element_parser</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, string_view&amp; element, <span class="keyword">int</span>&amp; number)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// string is not empty, number is at least 1</span></span><br><span class="line">  number = <span class="number">1</span>;</span><br><span class="line">  <span class="comment">// find the first lower case letter</span></span><br><span class="line">  <span class="keyword">auto</span> element_start = first;</span><br><span class="line">  ++first;</span><br><span class="line">  <span class="keyword">while</span>(first != last &amp;&amp; <span class="built_in">islower</span>(*first))</span><br><span class="line">  &#123;</span><br><span class="line">    ++first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  element = string_view&#123;element_start, <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(first - element_start)&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> [ptr, err] = from_chars(first, last, number);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ptr;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>这个parser不考虑括号，并假设传入的<code>[first, last)</code>一定是非空的，合法的。再假设<code>*first</code>一定是一个大写字母。</p>
+<ul>
+<li>因为有了字符串非空的假设，我们可以确定这个元素的数目至少为1。</li>
+<li>之后我们移动first指针到下一字符。该字符可能是：<ul>
+<li>一个小写字母：我们继续移动first，使first所指向的内容不是小写字母。这样我们就找到该元素的名字</li>
+<li>一个数字 或 字符串末尾：我们不再移动first，而是开始对数字进行parse</li>
+</ul>
+</li>
+<li>调用<code>from_chars</code>，如果first已经移动到字符串末尾 或 first所在的位置不是一个数字，<code>from_chars</code>的调用没有效果，<code>number</code>不会被修改，仍然为1。</li>
+<li>利用<code>from_chars</code>的返回值调整<code>first</code>的位置。如果没有parse任何数字，则<code>first</code>位置保持不变。</li>
+</ul>
+<p>可以观察到我们的<code>element_parser</code>的函数签名和设计和<code>from_chars</code>很相似。但是我们因为不考虑错误处理，所以实现起来会简单的很多。</p>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">auto formula_parser(const char* first, const char* last, str_int_map&amp; res) -&gt; const char *</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span>(first != last)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span>(*first == <span class="string">'('</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">auto</span> tmp = <span class="built_in">unordered_map</span>&lt;string_view, <span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">      first = formula_parser(first + <span class="number">1</span>, last, tmp);</span><br><span class="line">      <span class="keyword">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; p : tmp)</span><br><span class="line">      &#123;</span><br><span class="line">        res[p.first] += p.second;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(*first == <span class="string">')'</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">auto</span> multiplier = <span class="keyword">int</span>&#123;<span class="number">0</span>&#125;;</span><br><span class="line">      ++first;</span><br><span class="line">      <span class="keyword">auto</span> [ptr, errc] = from_chars(first, last, multiplier);</span><br><span class="line">      <span class="keyword">if</span>(multiplier)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp; p : res)</span><br><span class="line">        &#123;</span><br><span class="line">          p.second *= multiplier;</span><br><span class="line">        &#125;</span><br><span class="line">        first = ptr;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">auto</span> element = string_view&#123;&#125;;</span><br><span class="line">      <span class="keyword">auto</span> number = <span class="number">0</span>;</span><br><span class="line">      first = element_parser(first, last, element, number);</span><br><span class="line">      <span class="keyword">if</span>(number)</span><br><span class="line">      &#123;</span><br><span class="line">        res[element] += number;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> first;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来我们来设计大parser。这个parser的设计难点就在如何处理<code>&#39;(&#39;</code>。函数签名仍然和之前的保持类似。我们用一个<code>unordered_map&lt;string_view, int&gt;</code>来储存结果。</p>
+<p>在整个parse的过程中我们可能遇到的：</p>
+<ul>
+<li>左括号：<br>  这时我们需要递归地调用一个新的parser，并将返回的结果加到当前的结果上。</li>
+<li>右括号：<br>  这时我们需要去parse括号后的数字，并把所有结果都乘上这个数字。</li>
+<li>大写英文字母<br>  这时我们需要调用我们的之前写的小parser，尝试parser一个element+数量，并加到结果上。</li>
+</ul>
+<p>这里需要注意的是，当我们遇到右括号时，这个parse函数就结束了。因为我们调用parser时有两种可能的情况：</p>
+<pre><code>- 我们最初对formula调用parse
+- 我们因为遇到左括号调用parse
+</code></pre><p>在这两种情况中，只有因为遇到左括号而调用parse时，才可能遇到右括号。而一旦遇到右括号，我们就没必要再parse下去了，之后的parse应该交给调用他的parser。</p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag"># 二叉树</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/d9138479/" rel="prev" title="is_transparent">
+      <i class="fa fa-chevron-left"></i> is_transparent
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常用工具"><span class="nav-number">1.</span> <span class="nav-text">常用工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#大小写和数字"><span class="nav-number">1.1.</span> <span class="nav-text">大小写和数字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建议"><span class="nav-number">1.2.</span> <span class="nav-text">建议</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原子的数量"><span class="nav-number">2.</span> <span class="nav-text">原子的数量</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

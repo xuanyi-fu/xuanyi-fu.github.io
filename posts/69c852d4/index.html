@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="实现了二叉堆的基本算法：adjust_heap(下沉)，pop_heap，push_heap，make_heap，和sort_heap。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二叉堆">
+<meta property="og:url" content="http://xyfu.me/posts/69c852d4/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="实现了二叉堆的基本算法：adjust_heap(下沉)，pop_heap，push_heap，make_heap，和sort_heap。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-09-07T14:00:51.000Z">
+<meta property="article:modified_time" content="2020-02-29T22:19:08.927Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="二叉堆">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/69c852d4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>二叉堆 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/69c852d4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          二叉堆
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-09-07 22:00:51" itemprop="dateCreated datePublished" datetime="2019-09-07T22:00:51+08:00">2019-09-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 06:19:08" itemprop="dateModified" datetime="2020-03-01T06:19:08+08:00">2020-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.4k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>实现了二叉堆的基本算法：<code>adjust_heap</code>(下沉)，<code>pop_heap</code>，<code>push_heap</code>，<code>make_heap</code>，和<code>sort_heap</code>。</p>
+<a id="more"></a>
+<h1 id="二叉堆的实现"><a href="#二叉堆的实现" class="headerlink" title="二叉堆的实现"></a>二叉堆的实现</h1><ul>
+<li>二叉堆是完全二叉树</li>
+<li>一个高度为h的堆里，元素最多为$2^{(h+1)} - 1$个， 最少为$2^h$个.</li>
+</ul>
+<p>SGI STL的<code>heap</code>类算法并未使用哨兵，因为如果要用一个<code>vector</code>来初始化<code>priority_queue</code>，则需要把<code>vector</code>中所有元素右移1位，增加了建堆隐含的常数时间。</p>
+<ul>
+<li>根节点下标为0。</li>
+<li>i节点的左孩子为$2i + 1$，右孩子为$2i + 2$</li>
+<li>i节点的父亲节点为<code>(i - 1) / 2</code><br>  注意：需要处理<code>i == 0</code>的情况，否则对于<code>size_t</code> ,会溢出。</li>
+<li>叶子节点开始的下标为<code>len - 2 / 2</code><br>  注意：需要处理<code>len &lt; 2</code>的情况，否则对于<code>size_t</code> ,会溢出。</li>
+</ul>
+<h2 id="下沉-sink-percolate-down"><a href="#下沉-sink-percolate-down" class="headerlink" title="下沉(sink, percolate down)"></a>下沉(sink, percolate down)</h2><h3 id="实现1-GNU-C-STL采用的实现"><a href="#实现1-GNU-C-STL采用的实现" class="headerlink" title="实现1(GNU C++ STL采用的实现)"></a>实现1(GNU C++ STL采用的实现)</h3><p>假设一个节点：</p>
+<ul>
+<li><strong>左右子树都满足二叉堆的性质</strong></li>
+<li><strong>该节点小于其左孩子和（或）右孩子</strong><br>此时需要调整该节点使得以该节点为根的树满足二叉堆的性质，进行的操作叫做下沉。</li>
+</ul>
+<p>思路</p>
+<ul>
+<li>把这个节点的值先保存下来，将这个节点看作一个洞。</li>
+<li>比较这个洞的左孩子和右孩子的值，用有较大值的孩子节点的值填补这个洞。</li>
+<li>洞转移当前面有较大值的孩子节点。</li>
+</ul>
+<p>实现时因为可能一个节点没有右孩子，只有左孩子，所以我们先计算右孩子的值，并以右孩子不存在作为循环结束的条件。循环结束后，如果恰好右孩子是<code>size</code>，那么此时的洞就是只有左孩子的节点。我们用洞的左孩子填这个洞，洞变为他的左孩子。最后，再用一开始记录的<code>value</code>来填补这个洞。</p>
+<p>最重要的实现细节：此时这这洞被填完了不算完成。我们还必须对这个刚被填好的洞做一次上浮<code>swim</code>。因为我们在下沉这个洞的时候，没有考虑和最开始节点的值的关系。</p>
+<p>STL这样实现的原因：<strong>TODO</strong>(为什么不看着value的值来决定还下不下沉呢？而是沉到底在浮上来，很神秘。)</p>
+<p>最后的swim使用了限制上浮位置的swim，还不知道为什么这样做。不得不说STL里的有些实现真的是奇怪。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        GNU STL 中的实现
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sink</span><span class="params">(It first, It hole, It last, <span class="keyword">const</span> Compare&amp; comp)</span></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> hole_copy = hole;</span><br><span class="line">    <span class="keyword">auto</span> value = *hole;</span><br><span class="line">    <span class="keyword">auto</span> secondChild = hole + distance(first, hole) + <span class="number">2</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(secondChild &lt; last)&#123;</span><br><span class="line">        <span class="keyword">if</span>( comp(*secondChild, *(secondChild - <span class="number">1</span>) ) ) --secondChild;</span><br><span class="line">        *hole = *secondChild;</span><br><span class="line">        hole = secondChild;</span><br><span class="line">        secondChild = hole + distance(first, hole) + <span class="number">2</span>; </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(secondChild == last)&#123;</span><br><span class="line">        *hole = *(--secondChild);</span><br><span class="line">        hole = secondChild;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    *hole = value;</span><br><span class="line">    </span><br><span class="line">    swim_with_top(first, hole, hole_copy, last, comp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>限制了上浮位置的swim，供下沉的实现1使用，还不知道为什么要这样做。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swim_with_top</span><span class="params">(It first, It hole, It top, It last, <span class="keyword">const</span> Compare&amp; comp)</span></span>&#123;</span><br><span class="line">    <span class="comment">//if hole == first, distance(size_t) will underflow</span></span><br><span class="line">    <span class="keyword">if</span>(first == hole || first == last) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">auto</span> value  = *hole;</span><br><span class="line">    <span class="keyword">auto</span> parent = first + (distance(first, hole) - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">while</span>(hole &gt; top &amp;&amp; comp(*parent, value))&#123;</span><br><span class="line">        *hole = *parent;</span><br><span class="line">        hole = parent;</span><br><span class="line">        parent = first + (distance(first, hole) - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    *hole = value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="实现2-CLRS采用的实现，推荐"><a href="#实现2-CLRS采用的实现，推荐" class="headerlink" title="实现2(CLRS采用的实现，推荐)"></a>实现2(CLRS采用的实现，推荐)</h3><p>大体思路同STL中的实现。在循环里判断是否还需要下沉，不需要就<code>break</code>循环。之后在对于没有右孩子的特殊处理处，要加一个需要继续下沉的判断<code>comp(value, *(secondChild- 1))</code>。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sink_with_care</span><span class="params">(It first, It hole, It last, <span class="keyword">const</span> Compare&amp; comp)</span></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> value = *hole;</span><br><span class="line">    <span class="keyword">auto</span> secondChild = hole + distance(first, hole) + <span class="number">2</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(secondChild &lt; last )&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span>( comp(*secondChild, *(secondChild - <span class="number">1</span>) ) ) --secondChild;</span><br><span class="line">        <span class="comment">//检查是否value已经比两个孩子里最大的大了，是的话退出循环。</span></span><br><span class="line">        <span class="keyword">if</span>( comp(*secondChild, value) ) <span class="keyword">break</span>; </span><br><span class="line">        *hole = *secondChild;</span><br><span class="line">        hole = secondChild;</span><br><span class="line">        secondChild = hole + distance(first, hole) + <span class="number">2</span>; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//检查是不是还需要继续下沉，退出循环有两种情况：没有右孩子/比两个孩子都大。</span></span><br><span class="line">    <span class="keyword">if</span>(secondChild == last &amp;&amp; comp(value, *(secondChild- <span class="number">1</span>)))&#123;</span><br><span class="line">        *hole = *(--secondChild);</span><br><span class="line">        hole = secondChild;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    *hole = value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Feb/19/2019新实现（即__adjust_heap）
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt; &gt;</span><br><span class="line"><span class="keyword">void</span> adjust_heap(It first, </span><br><span class="line">                <span class="keyword">typename</span> iterator_traits&lt;It&gt;::difference_type hole_idx, </span><br><span class="line">                It last, </span><br><span class="line">                <span class="keyword">const</span> Comp&amp; comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt;&#123;&#125;)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// get the value of the hole</span></span><br><span class="line">    <span class="keyword">auto</span> hole = first + hole_idx;</span><br><span class="line">    <span class="keyword">auto</span> val = *hole;</span><br><span class="line">    <span class="comment">// get the secondChild It</span></span><br><span class="line">    <span class="keyword">auto</span> secondChild = hole + (hole - first) + <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(secondChild &lt; last)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// compare second child with first child</span></span><br><span class="line">        <span class="keyword">if</span>(comp(*secondChild, *(secondChild - <span class="number">1</span>))) --secondChild;</span><br><span class="line">        <span class="comment">// check if val is greater than both children</span></span><br><span class="line">        <span class="keyword">if</span>(comp(*secondChild, val)) <span class="keyword">break</span>;</span><br><span class="line">        *hole = *secondChild;</span><br><span class="line">        hole = secondChild;</span><br><span class="line">        secondChild = hole + (hole - first) + <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// if it escape the loop because it does not </span></span><br><span class="line">    <span class="comment">// have a secondChild, we have to check if it</span></span><br><span class="line">    <span class="comment">// still needs to sink</span></span><br><span class="line">    <span class="keyword">if</span>(secondChild == last &amp;&amp; comp(val, *(--secondChild)))</span><br><span class="line">    &#123;</span><br><span class="line">        *hole = *secondChild;</span><br><span class="line">        hole =secondChild;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *hole = val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="删除堆顶元素-pop-heap"><a href="#删除堆顶元素-pop-heap" class="headerlink" title="删除堆顶元素(pop_heap)"></a>删除堆顶元素(pop_heap)</h2><p>删除堆顶元素后仍要维护二叉堆的性质。我们只需将二叉堆最后一个元素放到堆顶，之后对堆顶进行下沉<code>sink()</code>即可。</p>
+<p>C++ STL中的<code>pop_heap()</code>实现并不是删除堆顶元素，而是将堆顶元素放置到区间的末尾。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        pop_heap的实现
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt; &gt;</span><br><span class="line"><span class="keyword">void</span> pop_heap(It first, It last, <span class="keyword">const</span> Comp&amp; comp = less&lt;<span class="keyword">typename</span> iterator_traits&lt;It&gt;::value_type&gt;&#123;&#125;)</span><br><span class="line">&#123;</span><br><span class="line">    iter_swap(first, last - <span class="number">1</span>);</span><br><span class="line">    adjust_heap(first, <span class="number">0</span>, last - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p>由于C++ STL中容器的元素删除必须通过容器的成员函数，所以下面的例子代码需要传入该容器的引用。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">pop</span><span class="params">(Container&amp; cont, <span class="keyword">const</span> Compare&amp; comp)</span></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> first = cont.begin();</span><br><span class="line">    <span class="keyword">auto</span> last  = cont.end();</span><br><span class="line">    *first = *(last - <span class="number">1</span>);</span><br><span class="line">    sink(first, first, last, comp);</span><br><span class="line">    cont.pop_back();  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="上浮-swim-percolate-up"><a href="#上浮-swim-percolate-up" class="headerlink" title="上浮(swim, percolate up)"></a>上浮(swim, percolate up)</h2><ul>
+<li>将要上浮的节点的值储存在value中，并把该节点看作一个洞。</li>
+<li>如果洞的父亲节点比value小，就把父亲节点的值复制到洞里，让父亲节点成为新的洞。</li>
+<li>注意洞不能是first节点。</li>
+<li>最后将洞用value填上。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swim</span><span class="params">(It first, It hole, It last, <span class="keyword">const</span> Compare&amp; comp)</span></span>&#123;</span><br><span class="line">    <span class="comment">//if hole == first, distance(size_t) will underflow</span></span><br><span class="line">    <span class="keyword">if</span>(first == hole || first == last) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">auto</span> value  = *hole;</span><br><span class="line">    <span class="keyword">auto</span> parent = first + (distance(first, hole) - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">while</span>(hole &gt; first &amp;&amp; comp(*parent, value) )&#123;</span><br><span class="line">        *hole = *parent;</span><br><span class="line">        hole = parent;</span><br><span class="line">        <span class="comment">//if hole == first, distance(size_t) will underflow</span></span><br><span class="line">        parent = first + (distance(first, hole) - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    *hole = value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="加入新元素-push-heap"><a href="#加入新元素-push-heap" class="headerlink" title="加入新元素(push_heap)"></a>加入新元素(push_heap)</h2><p>要求加入的新元素已经放在堆的最后面，对堆的最后面的元素做上浮即可。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Compare&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(It first, It last, <span class="keyword">const</span> Compare&amp; comp)</span></span>&#123;</span><br><span class="line">    swim(first, (last - <span class="number">1</span>), last, comp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="建堆-make-heap"><a href="#建堆-make-heap" class="headerlink" title="建堆(make_heap)"></a>建堆(make_heap)</h2><h3 id="Williams建堆"><a href="#Williams建堆" class="headerlink" title="Williams建堆"></a>Williams建堆</h3><p>一个一个元素加入，每次加入都push_heap一下。需要额外空间。（不推荐）。时间复杂度$\Theta(N\log N)$</p>
+<h3 id="Floyd建堆"><a href="#Floyd建堆" class="headerlink" title="Floyd建堆"></a>Floyd建堆</h3><p>自底向上，从第一个叶子节点到根节点，做下沉。时间复杂度为$O(N)$</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> It, <span class="keyword">typename</span> Compare = less&lt;<span class="keyword">typename</span> It::value_type&gt; &gt;</span><br><span class="line"><span class="keyword">void</span> make_heap_floyd(It first, It last, Compare comp = less&lt;<span class="keyword">typename</span> It::value_type&gt;&#123;&#125;)&#123;</span><br><span class="line">    <span class="keyword">auto</span> len = distance(first, last);</span><br><span class="line">    <span class="keyword">if</span>(len &lt; <span class="number">3</span>)&#123;</span><br><span class="line">        sort(first, last, [&amp;comp](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; lhs, <span class="keyword">const</span> <span class="keyword">auto</span>&amp; rhs)&#123;<span class="keyword">return</span> comp(rhs, lhs);&#125;);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> it = first + (distance(first, last) - <span class="number">2</span>)/<span class="number">2</span>; </span><br><span class="line">    	it &gt;= first; --it) sink(first, it, last, comp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="堆排序-sort-heap"><a href="#堆排序-sort-heap" class="headerlink" title="堆排序(sort_heap)"></a>堆排序(sort_heap)</h2><p>首先在给定的要排序的数组上建堆，之后不断将最大元素用<code>pop_heap</code>从堆中移出，放在最后。最大堆得到的是从小到大的排序。最小堆得到的是从大到小的排序。</p>
+<h2 id="优先级队列-priority-queue"><a href="#优先级队列-priority-queue" class="headerlink" title="优先级队列(priority_queue)"></a>优先级队列(priority_queue)</h2><p>一般在数组上建堆实现。C++ STL的<code>priority_queue</code>默认使用<code>vector</code>作为底层容器。仅提供<br><code>top</code>，<code>pop</code>，<code>push</code>等接口。作为一个容器适配器，<code>priority_queue</code>不提供迭代器，因此不能访问除了最大值以外的内容。</p>
+<p><code>priority_queue</code>注意，它的第二个模版参数是Container，第三个才是Comapre。但是构造函数里，是先传Compare，再传Container。</p>
+<p>如果需要更灵活的建堆和访问操作，可以使用<code>algorithm</code>算法库中提供的仅支持随机访问迭代器的算法：</p>
+<pre><code>- `make_heap`
+- `push_heap`（需保证想要放入堆中的元素已经放在末尾）
+- `pop_heap`
+- `sort_heap`
+- `is_heap`
+- `is_heap_until` 
+</code></pre><h2 id="使用哨兵实现的二叉堆"><a href="#使用哨兵实现的二叉堆" class="headerlink" title="使用哨兵实现的二叉堆"></a>使用哨兵实现的二叉堆</h2><ul>
+<li>一个有n个节点的二叉堆<ul>
+<li>叶子节点为$\lfloor n/2 \rfloor + 1,\,\lfloor n/2 \rfloor + 2, \cdots ,n$</li>
+<li>非叶子节点为$\lfloor n/2 \rfloor,\,\lfloor n/2 \rfloor - 1, \cdots , 1$</li>
+</ul>
+</li>
+<li>下标为0的位置留做哨兵(sentinel)，根节点下标为1。</li>
+<li>i节点的左孩子为$2i$,<code>i &lt;&lt; 1</code>，右孩子为$2i + 1$,<code>(i &lt;&lt; 1) + 1</code></li>
+<li>i节点的父亲节点为$\lfloor i/2 \rfloor$, <code>i / 2</code><br>具体实现可参考：</li>
+<li>C++实现： <a href="https://github.com/xiexiexx/DSAD/blob/e15449d3079af24e1dc80b3ece1c306ea0f76ffc/Ch10/xPriority_Queue.h" target="_blank" rel="noopener">Github - xiexiexx - xPriority_Queue</a></li>
+<li>C实现： The Algorithm Design Manual, Second Edition, S.Skiena, Chapter 4.</li>
+</ul>
+<h1 id="K路归并"><a href="#K路归并" class="headerlink" title="K路归并"></a>K路归并</h1><p>[CLRS]6.5-9, <a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a><br>见<a href="https://xyfu.me/posts/2362a8ea/#%E5%90%88%E5%B9%B6k%E4%B8%AA%E6%8E%92%E5%BA%8F%E7%9A%84%E9%93%BE%E8%A1%A8">链表#链表排序##合并k个排序的链表</a></p>
+<h1 id="矩阵上的第k小元素"><a href="#矩阵上的第k小元素" class="headerlink" title="矩阵上的第k小元素"></a>矩阵上的第k小元素</h1><p><a href="https://leetcode-cn.com/problems/kth-smallest-element-in-a-sorted-matrix/" target="_blank" rel="noopener">LC378 有序矩阵中第K小的元素</a><br>见<a href="https://xyfu.me/posts/3a3ae49d/#%E7%9F%A9%E9%98%B5%E4%B8%8A%E7%9A%84TopK">顺序统计量#TopK问题##矩阵上的TopK</a></p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BA%8C%E5%8F%89%E5%A0%86/" rel="tag"># 二叉堆</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/a80d0031/" rel="prev" title="动态规划">
+      <i class="fa fa-chevron-left"></i> 动态规划
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/6534ce06/" rel="next" title="栈与队列">
+      栈与队列 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#二叉堆的实现"><span class="nav-number">1.</span> <span class="nav-text">二叉堆的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下沉-sink-percolate-down"><span class="nav-number">1.1.</span> <span class="nav-text">下沉(sink, percolate down)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现1-GNU-C-STL采用的实现"><span class="nav-number">1.1.1.</span> <span class="nav-text">实现1(GNU C++ STL采用的实现)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现2-CLRS采用的实现，推荐"><span class="nav-number">1.1.2.</span> <span class="nav-text">实现2(CLRS采用的实现，推荐)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#删除堆顶元素-pop-heap"><span class="nav-number">1.2.</span> <span class="nav-text">删除堆顶元素(pop_heap)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#上浮-swim-percolate-up"><span class="nav-number">1.3.</span> <span class="nav-text">上浮(swim, percolate up)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加入新元素-push-heap"><span class="nav-number">1.4.</span> <span class="nav-text">加入新元素(push_heap)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建堆-make-heap"><span class="nav-number">1.5.</span> <span class="nav-text">建堆(make_heap)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Williams建堆"><span class="nav-number">1.5.1.</span> <span class="nav-text">Williams建堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Floyd建堆"><span class="nav-number">1.5.2.</span> <span class="nav-text">Floyd建堆</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#堆排序-sort-heap"><span class="nav-number">1.6.</span> <span class="nav-text">堆排序(sort_heap)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优先级队列-priority-queue"><span class="nav-number">1.7.</span> <span class="nav-text">优先级队列(priority_queue)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用哨兵实现的二叉堆"><span class="nav-number">1.8.</span> <span class="nav-text">使用哨兵实现的二叉堆</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#K路归并"><span class="nav-number">2.</span> <span class="nav-text">K路归并</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#矩阵上的第k小元素"><span class="nav-number">3.</span> <span class="nav-text">矩阵上的第k小元素</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

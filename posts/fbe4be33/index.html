@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="排列：LC31 Next Permutation[找到一个大于，不能是大于等于]LC46 Permutations[别忘了排序]LC60 Permutation Sequence 子集：LC78 子集 组合：LC77 组合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="排列、组合、子集">
+<meta property="og:url" content="http://xyfu.me/posts/fbe4be33/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="排列：LC31 Next Permutation[找到一个大于，不能是大于等于]LC46 Permutations[别忘了排序]LC60 Permutation Sequence 子集：LC78 子集 组合：LC77 组合">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-01-05T23:34:39.000Z">
+<meta property="article:modified_time" content="2020-02-29T22:52:20.895Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="组合">
+<meta property="article:tag" content="排列">
+<meta property="article:tag" content="子集">
+<meta property="article:tag" content="并查集">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/fbe4be33/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>排列、组合、子集 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/fbe4be33/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          排列、组合、子集
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-06 07:34:39" itemprop="dateCreated datePublished" datetime="2020-01-06T07:34:39+08:00">2020-01-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-01 06:52:20" itemprop="dateModified" datetime="2020-03-01T06:52:20+08:00">2020-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.9k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>排列：<br><a href="https://xyfu.me/posts/fbe4be33/#%E6%8E%92%E5%88%97">LC31 Next Permutation</a>[找到一个<em>大于</em>，不能是大于等于]<br><a href="https://xyfu.me/posts/fbe4be33/#%E6%8E%92%E5%88%97">LC46 Permutations</a>[别忘了排序]<br><a href="https://xyfu.me/posts/fbe4be33/#%E7%AC%ACk%E4%B8%AA%E6%8E%92%E5%88%97">LC60 Permutation Sequence</a></p>
+<p>子集：<br><a href="https://xyfu.me/posts/fbe4be33/#%E5%AD%90%E9%9B%86">LC78 子集</a></p>
+<p>组合：<br><a href="https://xyfu.me/posts/f92eff5d/#%E7%BB%84%E5%90%88">LC77 组合</a></p>
+<a id="more"></a>
+<h1 id="排列"><a href="#排列" class="headerlink" title="排列"></a>排列</h1><h2 id="下一排列-上一排列"><a href="#下一排列-上一排列" class="headerlink" title="下一排列/上一排列"></a>下一排列/上一排列</h2><h3 id="STL中的排列操作"><a href="#STL中的排列操作" class="headerlink" title="STL中的排列操作"></a>STL中的排列操作</h3><ul>
+<li><code>std::is_permutation</code>: 判断一个序列是否为另一个序列的排列</li>
+<li><code>std::next_permutation</code>: 变换范围 [first, last) 为来自所有按相对于 operator&lt; 或 comp 的字典序的下个排列。若这种排列存在则返回 true ，<strong>否则变换范围为首个排列</strong>（如同用 std::sort(first, last) ）并返回 false 。</li>
+<li><code>std::prev_permutation</code>: 变换范围 [first, last) 为来自于相对于 operator&lt; 或 comp 的字典序的所有排列集合的上个排列。若这种排列存在则返回 true ，<strong>否则变换范围为末排列</strong>（如同用 std::sort(first, last); std::reverse(first, last); ）并返回 false 。</li>
+</ul>
+<h3 id="简单实现"><a href="#简单实现" class="headerlink" title="简单实现"></a>简单实现</h3><ul>
+<li><p>下一排列</p>
+<ul>
+<li>找到序列a的最长不增后缀，即从后往前遍历序列，找到<code>i</code>, 使得<code>a[i - 1] &lt; a[i]</code>, 该后缀记为<code>a[i:]</code>。如果找不到这样的<code>i</code>，说明当前排列已经是最大的排列了。比如[5,4,3,2,1]，可以看到该序列中不存在这样一个元素<code>a[i]</code>使得<code>a[i - 1] &lt; a[i]</code>。最大排列为排序的逆序。</li>
+<li><code>a[i:]</code>已经是不增的序列了。换句话说，<code>a[i:]</code>已经是自己的最大排列了。我们不能靠交换<code>a[i:]</code>中的元素来获得更大的排列。我们尝试交换<code>a[i:]</code>中的元素和<code>a[:i]</code>中的元素来获得更大的排列。</li>
+<li>为了让修改后的序列是<em>下一排列</em>，我们不能让<code>a[i - 1]</code>变得太大。我们考虑更改<code>a[i:]</code>前一个元素<code>a[i - 1]</code>。我们找到<code>a[i:]</code>中第一个比<code>a[i - 1]</code><em>大</em>的元素，用它和<code>a[i - 1]</code>交换。[注意此处必须是大于，不能是大于等于]</li>
+<li>❓交换后的后缀<code>a[i:]</code>仍然是一个不增的后缀。为了获得最小的，有新的前缀的序列，我们把<code>a[i:]</code>逆序即可。[对于最后两步的原理还不是很明白]</li>
+</ul>
+</li>
+<li><p>例子[1,3,5,4,2]: </p>
+<ul>
+<li>找到最长不增后缀:[5,4,2] —&gt; i = 2, a[i] = 5 </li>
+<li>找到该后缀中第一个大于后缀前一个元素(a[1])的元素 —&gt; a[3] = 4。</li>
+<li>交换a[4]和a[1] —&gt; [1,4,5,3,2]</li>
+<li>逆序后缀 —&gt; [1,4,2,3,5]</li>
+</ul>
+</li>
+</ul>
+<p>详细解释见: <a href="https://www.nayuki.io/page/next-lexicographical-permutation-algorithm" target="_blank" rel="noopener">Next lexicographical permutation algorithm, Project Nayuki</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        Feb/20/2020 code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">nextPermutation</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums.size() &lt; <span class="number">2</span>) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">auto</span> i = --nums.end();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(i != nums.begin())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> ii = i;</span><br><span class="line">            --i;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(*i &lt; *ii)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> j = --nums.end();</span><br><span class="line">                <span class="comment">// must be the greater, cannot be equal</span></span><br><span class="line">                <span class="keyword">while</span>(!(*j &gt; *i))</span><br><span class="line">                &#123;</span><br><span class="line">                    --j;</span><br><span class="line">                &#125;</span><br><span class="line">                iter_swap(i, j);</span><br><span class="line">                reverse(ii, nums.end());</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        reverse(nums.begin(), nums.end());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        next_permutation
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">nextPermutation</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (nums.size() &lt; <span class="number">2</span>) <span class="keyword">return</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">auto</span> i = nums.end();</span><br><span class="line">        --i;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> ii = i;</span><br><span class="line">            --i;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(*i &lt; *ii)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> j = nums.end();</span><br><span class="line">                --j;</span><br><span class="line">                <span class="keyword">while</span>(!(*i &lt; *j)) --j;</span><br><span class="line">                iter_swap(i,j);</span><br><span class="line">                reverse(ii, nums.end());</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> (i == nums.begin())</span><br><span class="line">            &#123;</span><br><span class="line">                reverse(nums.begin(), nums.end());</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="产生所有排列"><a href="#产生所有排列" class="headerlink" title="产生所有排列"></a>产生所有排列</h2><h3 id="递归法"><a href="#递归法" class="headerlink" title="递归法"></a>递归法</h3><p>一个序列$S = \{1, 2, 3, \cdots , n\}$的所有排列为<br>    固定$1$, $S - \{1\}$的所有排列<br>    固定$2$, $S - \{2\}$的所有排列<br>    $\cdots$<br>    固定$n$, $S - \{n\}$的所有排列  </p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; permute(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; permutations&#123;&#125;;</span><br><span class="line">        permute(nums, <span class="number">0</span>, permutations);</span><br><span class="line">        <span class="keyword">return</span> permutations;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">permute</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">size_t</span> k, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &gt;&amp; permutations)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (k == nums.size())</span><br><span class="line">        &#123;</span><br><span class="line">            permutations.push_back(nums);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">size_t</span> i = k; i &lt; nums.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            swap(nums[i], nums[k]);</span><br><span class="line">            permute(nums, k + <span class="number">1</span>, permutations);</span><br><span class="line">            swap(nums[i], nums[k]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h3 id="使用下一排列产生所有排列："><a href="#使用下一排列产生所有排列：" class="headerlink" title="使用下一排列产生所有排列："></a>使用下一排列产生所有排列：</h3><p>该方法较采用递归法效率较高。但是如果要产生所有排列，需要先把序列排序称为最小排列。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; permute(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">        sort(nums.begin(), nums.end());</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        res.push_back(nums);</span><br><span class="line">        <span class="keyword">while</span>(next_permutation_(nums.begin(), nums.end()))</span><br><span class="line">        &#123;</span><br><span class="line">            res.push_back(nums);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> It&gt;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">next_permutation_</span><span class="params">(It first, It last)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(last - first &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="comment">// find the head of the reverse increasing subarray</span></span><br><span class="line">        <span class="keyword">auto</span> i = last - <span class="number">1</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span>(i != first)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> ii = i;</span><br><span class="line">            --i;</span><br><span class="line">            <span class="keyword">if</span>(*i &lt; *ii)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// find the first element j in the reverse increasing</span></span><br><span class="line">                <span class="comment">// subarray, such that *j &gt; *i</span></span><br><span class="line">                <span class="keyword">auto</span> j = last - <span class="number">1</span>;</span><br><span class="line">                <span class="keyword">while</span>(!(*j &gt; *i)) --j;</span><br><span class="line">                <span class="comment">// swap i and j</span></span><br><span class="line">                iter_swap(i, j);</span><br><span class="line">                <span class="comment">// reverse the subarray</span></span><br><span class="line">                reverse(ii, last);</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// the last permutation</span></span><br><span class="line">        reverse(first, last);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; permute(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums.size() &lt; <span class="number">2</span>) <span class="keyword">return</span> &#123;nums&#125;;</span><br><span class="line">        sort(nums.begin(), nums.end());</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &gt; permutations;</span><br><span class="line">        permutations.push_back(nums);</span><br><span class="line">        <span class="keyword">while</span>(next_permutation(nums.begin(), nums.end()))</span><br><span class="line">            permutations.push_back(nums);</span><br><span class="line">        <span class="keyword">return</span> permutations;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="第k个排列"><a href="#第k个排列" class="headerlink" title="第k个排列"></a>第k个排列</h2><p><a href="https://leetcode.com/problems/permutation-sequence/" target="_blank" rel="noopener">LC60, Permutation Sequence</a><br>详细解法见:<a href="https://www.cnblogs.com/devymex/archive/2010/08/17/1801122.html" target="_blank" rel="noopener">全排列生成算法：next_permutation, 程序控, cnblogs</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">getPermutation</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        --k;</span><br><span class="line">        <span class="comment">// prepare the factorials</span></span><br><span class="line">        <span class="built_in">array</span>&lt;<span class="keyword">int</span>, 11&gt; fs&#123;&#125;;</span><br><span class="line">        fs[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; fs.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            fs[i] = i * fs[i - <span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// prepare the num list</span></span><br><span class="line">        <span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt; nums(n);</span><br><span class="line">        iota(nums.begin(), nums.end(), <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// prepare the stringBuilder</span></span><br><span class="line">        <span class="built_in">stringstream</span> ss&#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// start</span></span><br><span class="line">        <span class="keyword">while</span>(n &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">int</span> num = k / fs[--n];</span><br><span class="line">            <span class="keyword">auto</span> it = nums.begin();</span><br><span class="line">            <span class="keyword">while</span>(num &gt; <span class="number">0</span>) &#123;++it; --num;&#125;</span><br><span class="line">            ss &lt;&lt; *it;</span><br><span class="line">            nums.erase(it);</span><br><span class="line">            k = k % fs[n];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ss.str();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="子集"><a href="#子集" class="headerlink" title="子集"></a>子集</h1><p><a href="https://leetcode-cn.com/problems/subsets/" target="_blank" rel="noopener">LC78 子集</a></p>
+<p>$\varnothing$的幂集为$\{\varnothing\}$<br>$\{a\}$的幂集为$\{\varnothing, \{a\}\}$ = 空集的幂集 并 空集的幂集中所有的集合并a产生的集合<br>同理：$\{a,b\}$的幂集为$\{\varnothing, \{a\}, \{b\}, \{a,b\}\}$</p>
+<p>推论：求一个集合A的幂集，我们可以先从这个集合中去掉一个元素a。求去掉元素a的集合$A - {a}$的幂集P，然后将再将a和幂集P中所有集合求并得到集合Q。A的幂集为P+Q。</p>
+<ul>
+<li>为了防止迭代器失效，我们先将结果幂集<code>vector&lt;vector&lt;int&gt;&gt;</code>初始化为我们想要的大小。</li>
+<li>C++11中提供计算2的整数次幂的函数<code>exp2</code>，我们可以用它来计算幂集的大小。</li>
+<li>此时幂集中的<code>vector&lt;int&gt;</code>全为空集，我们初始化一个迭代器last，让他指向第一个空集之后。</li>
+<li>对于<code>nums</code>中的元素<code>n</code>，不断的将区间[begin, last)之间的vector拷贝，<code>push_back(n)</code>，之后再放回集合。可以通过<code>transform</code>实现。</li>
+</ul>
+<p>设<code>nums</code>数组总元素个数为N，每次构造一个子集最坏需要$O(N)$的时间，一共有$\Theta(2^N)$个集合，因此复杂度为$O(N2^N)$<br><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; subsets(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">        <span class="comment">// compute the size for the powerset</span></span><br><span class="line">        <span class="keyword">size_t</span> powerset_size = exp2(nums.size());</span><br><span class="line">        <span class="comment">// create and allocate the space for powerset</span></span><br><span class="line">        <span class="keyword">auto</span> powerset = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(powerset_size);</span><br><span class="line">        <span class="keyword">auto</span> last = ++powerset.begin();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> n : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            transform(powerset.begin(), last, last, </span><br><span class="line">            <span class="comment">// we must copy the set here</span></span><br><span class="line">            [n](<span class="keyword">auto</span> <span class="built_in">set</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">set</span>.push_back(n);</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">set</span>;</span><br><span class="line">            &#125;);</span><br><span class="line">            last += last - powerset.begin();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> powerset;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div></p>
+<h1 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h1><p>见<a href="/posts/f92eff5d/" title="回溯#组合">回溯#组合</a></p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BB%84%E5%90%88/" rel="tag"># 组合</a>
+              <a href="/tags/%E6%8E%92%E5%88%97/" rel="tag"># 排列</a>
+              <a href="/tags/%E5%AD%90%E9%9B%86/" rel="tag"># 子集</a>
+              <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" rel="tag"># 并查集</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/6534ce06/" rel="prev" title="栈与队列">
+      <i class="fa fa-chevron-left"></i> 栈与队列
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/38a918c7/" rel="next" title="智能指针(施工中)">
+      智能指针(施工中) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#排列"><span class="nav-number">1.</span> <span class="nav-text">排列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下一排列-上一排列"><span class="nav-number">1.1.</span> <span class="nav-text">下一排列&#x2F;上一排列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#STL中的排列操作"><span class="nav-number">1.1.1.</span> <span class="nav-text">STL中的排列操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单实现"><span class="nav-number">1.1.2.</span> <span class="nav-text">简单实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#产生所有排列"><span class="nav-number">1.2.</span> <span class="nav-text">产生所有排列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#递归法"><span class="nav-number">1.2.1.</span> <span class="nav-text">递归法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用下一排列产生所有排列："><span class="nav-number">1.2.2.</span> <span class="nav-text">使用下一排列产生所有排列：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第k个排列"><span class="nav-number">1.3.</span> <span class="nav-text">第k个排列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#子集"><span class="nav-number">2.</span> <span class="nav-text">子集</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#组合"><span class="nav-number">3.</span> <span class="nav-text">组合</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:33</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>
