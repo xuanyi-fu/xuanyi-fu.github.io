@@ -54,7 +54,7 @@
 <meta property="og:description" content="LC1 两数之和   思路一：固定a，将b从a的下一个位置向右移动，直到a + b &#x3D;&#x3D; target。时间$O(N^2)$，空间$O(1)$。 思路二（仅适用于没用重复的数组）： 建立一个unordered_map记录数值和对应的下标。不存在重复的数值，因为题目中提到每种输入只会对应一个答案。 遍历所有节点，得到所有的数值—下标对。 再遍历所有下标对，对于每个(a, a_i)，在unordere">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-05T23:45:37.000Z">
-<meta property="article:modified_time" content="2020-07-06T13:29:10.114Z">
+<meta property="article:modified_time" content="2020-07-06T13:50:20.223Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="位运算">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-07-06 07:45:37 / Modified: 21:29:10" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
+              <time title="Created: 2020-07-06 07:45:37 / Modified: 21:50:20" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -370,6 +370,16 @@
     </div>
 </div>
 <hr>
+<p><a href="https://leetcode-cn.com/problems/3sum-closest/" target="_blank" rel="noopener">LC16 最接近的三数之和</a></p>
+<p>仍然按照三数之和的代码进行，但是当<code>sum != target</code>时要差最小的<code>sum</code>。当<code>sum == target</code>时，直接返回<code>sum</code>。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">threeSumClosest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        sort(nums.begin(), nums.end());</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dif = INT_MAX;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = nums.begin(); i &lt; nums.end(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> j = i + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">auto</span> k = nums.end() - <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">while</span>(j != nums.end() &amp;&amp; j &lt; k)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(<span class="keyword">auto</span> sum = *i + *j + *k;</span><br><span class="line">                sum != target)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span>(dif &gt; <span class="built_in">abs</span>(sum - target))</span><br><span class="line">                    &#123;</span><br><span class="line">                        dif = <span class="built_in">abs</span>(sum - target);</span><br><span class="line">                        res = sum;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span>(sum &gt; target)</span><br><span class="line">                    &#123;</span><br><span class="line">                        --k;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        ++j;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> sum;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
     </div>
 
@@ -519,7 +529,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">114k</span>
+    <span title="Symbols count total">115k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
