@@ -342,7 +342,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-07-06 07:45:37 / Modified: 13:24:46" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
+              <time title="Created: 2020-07-06 07:45:37 / Modified: 14:36:19" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -362,7 +362,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.5k</span>
+              <span>1.7k</span>
             </span>
 
         </div>
@@ -377,13 +377,14 @@
           <p><a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a> </p>
 <ul>
 <li>思路一：固定<code>a</code>，将<code>b</code>从<code>a</code>的下一个位置向右移动，直到<code>a + b == target</code>。时间$O(N^2)$，空间$O(1)$。</li>
-<li>思路二：<ul>
+<li>思路二（仅适用于没用重复的数组）：<ul>
 <li>建立一个<code>unordered_map</code>记录数值和对应的下标。不存在重复的数值，因为题目中提到<em>每种输入只会对应一个答案</em>。</li>
 <li>遍历所有节点，得到所有的数值—下标对。</li>
 <li>再遍历所有下标对，对于每个<code>(a, a_i)</code>，在<code>unordered_map</code>中寻找是否存在<code>(target - a, j)</code>。如果存在，则返回<code>{a_i, j}</code>。</li>
+<li>仅适用于没用重复的数组，如果数组中有重复元素，去重会相当的麻烦。</li>
 </ul>
 </li>
-<li>思路三：<ul>
+<li>思路三（自动去重）：<ul>
 <li>思路二对数组进行了两次遍历，我们可以只进行一次遍历。</li>
 <li>从左到右遍历数组，在遍历过程中，对于每个元素<code>a</code>，查询<code>unordered_map</code>中是否有<code>target - a</code>。如果有，就返回结果。</li>
 <li>将<code>(a, a_i)</code>放入<code>unordered_map</code>中。</li>
@@ -451,14 +452,29 @@
 </div>
 <p>思路二：花费很大经历去写BST的迭代器比较麻烦。直接中序便利整个BST，将结果放入一个数组里再用双指针。<br>思路三：无视BST的有序性质，直接采用<a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a>的<code>unordered_map</code>来做。</p>
 <hr>
-<p><a href="https://leetcode-cn.com/problems/two-sum-less-than-k/" target="_blank" rel="noopener">1099 小于 K 的两数之和</a></p>
-<p>将数组排序后，使用[LC1 两数值和]的双指针法。当<code>*l + *r &gt;= K</code>时，因为数组有序，在[l, r)之间的任意的位置p都会使得<code>*p + *r &gt;= K</code>，因此<code>--r</code>。当<code>*l + *r &lt; K</code>时，记录下此时的<code>*l + *r</code>，[begin, l)之间任意的位置p，都会使得<code>*p + *r &lt; *l + *r</code>，绝不比<code>*l + *r</code>更接近<code>K</code>。因此<code>++l</code>。</p>
+<p><a href="https://leetcode-cn.com/problems/two-sum-less-than-k/" target="_blank" rel="noopener">LC1099 小于 K 的两数之和</a></p>
+<p>将数组排序后，使用[LC1 两数之和]的双指针法。当<code>*l + *r &gt;= K</code>时，因为数组有序，在[l, r)之间的任意的位置p都会使得<code>*p + *r &gt;= K</code>，因此<code>--r</code>。当<code>*l + *r &lt; K</code>时，记录下此时的<code>*l + *r</code>，[begin, l)之间任意的位置p，都会使得<code>*p + *r &lt; *l + *r</code>，绝不比<code>*l + *r</code>更接近<code>K</code>。因此<code>++l</code>。</p>
 <div class='spoiler collapsed'>
     <div class='spoiler-title'>
         code
     </div>
     <div class='spoiler-content'>
         <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">twoSumLessThanK</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; A, <span class="keyword">int</span> K)</span> </span>&#123;</span><br><span class="line">        sort(A.begin(), A.end());</span><br><span class="line">        <span class="keyword">auto</span> l = A.begin();</span><br><span class="line">        <span class="keyword">auto</span> r = A.end() - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> res = INT_MIN;</span><br><span class="line">        <span class="keyword">while</span>(l &lt; r)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(!(*l + *r &lt; K))</span><br><span class="line">            &#123;</span><br><span class="line">                --r;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                res = max(res, *l + *r);</span><br><span class="line">                ++l;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res == INT_MIN ? <span class="number">-1</span> : res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/subarray-sum-equals-k/" target="_blank" rel="noopener">LC560 和为K的子数组</a></p>
+<p>利用数组的前缀和，将问题转化为两数之和问题：</p>
+<ul>
+<li>寻找两个前缀和<code>a</code>，<code>b</code>，使得<code>b - a == k</code>或寻找一个数字<code>a</code>，使得<code>a == k</code></li>
+<li>因为有重复元素，因此按照[LC1 两数之和]的去重<code>hashmap</code>法来做。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">subarraySum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> mp = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> cnt = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> n : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            sum += n;</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = mp.find(sum - k);</span><br><span class="line">            it != mp.end())</span><br><span class="line">            &#123;</span><br><span class="line">                cnt += it-&gt;second;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(sum == k)</span><br><span class="line">            &#123;</span><br><span class="line">                ++cnt;</span><br><span class="line">            &#125;</span><br><span class="line">            ++mp[sum];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cnt;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
     </div>
 </div>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
@@ -1310,7 +1326,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">104k</span>
+    <span title="Symbols count total">105k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
