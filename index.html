@@ -342,7 +342,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-07-06 07:45:37 / Modified: 08:42:24" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
+              <time title="Created: 2020-07-06 07:45:37 / Modified: 08:49:29" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -362,7 +362,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>894</span>
+              <span>862</span>
             </span>
 
         </div>
@@ -375,16 +375,23 @@
 
       
           <p><a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a> </p>
-<p>思路一：固定<code>a</code>，将<code>b</code>从<code>a</code>的下一个位置向右移动，直到<code>a + b == target</code>。时间$O(N^2)$，空间$O(1)$。<br>思路二：</p>
-<pre><code>- 建立一个`unordered_map`记录数值和对应的下标。不存在重复的数值，因为题目中提到*每种输入只会对应一个答案*。
-- 遍历所有节点，得到所有的数值--下标对。
-- 再遍历所有下标对，对于每个`(a, a_i)`，在`unordered_map`中寻找是否存在`(target - a, j)`。如果存在，则返回`{a_i, j}`。
-</code></pre><p>思路三：</p>
-<pre><code>- 思路二对数组进行了两次遍历，我们可以只进行一次遍历。
-- 从左到右遍历数组，在遍历过程中，对于每个元素`a`，查询`unordered_map`中是否有`target - a`。如果有，就返回结果。
-- 将`(a, a_i)`放入`unordered_map`中。
-- 即使遍历一次，仍然考虑到了所有的`(i, j)`的可能性。
-</code></pre><div class='spoiler collapsed'>
+<ul>
+<li>思路一：固定<code>a</code>，将<code>b</code>从<code>a</code>的下一个位置向右移动，直到<code>a + b == target</code>。时间$O(N^2)$，空间$O(1)$。</li>
+<li>思路二：<ul>
+<li>建立一个<code>unordered_map</code>记录数值和对应的下标。不存在重复的数值，因为题目中提到<em>每种输入只会对应一个答案</em>。</li>
+<li>遍历所有节点，得到所有的数值—下标对。</li>
+<li>再遍历所有下标对，对于每个<code>(a, a_i)</code>，在<code>unordered_map</code>中寻找是否存在<code>(target - a, j)</code>。如果存在，则返回<code>{a_i, j}</code>。</li>
+</ul>
+</li>
+<li>思路三：<ul>
+<li>思路二对数组进行了两次遍历，我们可以只进行一次遍历。</li>
+<li>从左到右遍历数组，在遍历过程中，对于每个元素<code>a</code>，查询<code>unordered_map</code>中是否有<code>target - a</code>。如果有，就返回结果。</li>
+<li>将<code>(a, a_i)</code>放入<code>unordered_map</code>中。</li>
+<li>即使遍历一次，仍然考虑到了所有的<code>(i, j)</code>的可能性。</li>
+</ul>
+</li>
+</ul>
+<div class='spoiler collapsed'>
     <div class='spoiler-title'>
         code
     </div>
