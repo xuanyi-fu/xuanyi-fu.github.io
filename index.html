@@ -315,6 +315,128 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/cfca6522/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/cfca6522/" class="post-title-link" itemprop="url">N数之和</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-07-06 07:45:37 / Modified: 08:42:24" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
+                    <span itemprop="name">LeetCode</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>894</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a> </p>
+<p>思路一：固定<code>a</code>，将<code>b</code>从<code>a</code>的下一个位置向右移动，直到<code>a + b == target</code>。时间$O(N^2)$，空间$O(1)$。<br>思路二：</p>
+<pre><code>- 建立一个`unordered_map`记录数值和对应的下标。不存在重复的数值，因为题目中提到*每种输入只会对应一个答案*。
+- 遍历所有节点，得到所有的数值--下标对。
+- 再遍历所有下标对，对于每个`(a, a_i)`，在`unordered_map`中寻找是否存在`(target - a, j)`。如果存在，则返回`{a_i, j}`。
+</code></pre><p>思路三：</p>
+<pre><code>- 思路二对数组进行了两次遍历，我们可以只进行一次遍历。
+- 从左到右遍历数组，在遍历过程中，对于每个元素`a`，查询`unordered_map`中是否有`target - a`。如果有，就返回结果。
+- 将`(a, a_i)`放入`unordered_map`中。
+- 即使遍历一次，仍然考虑到了所有的`(i, j)`的可能性。
+</code></pre><div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; twoSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">auto</span> m = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="keyword">size_t</span>&#123;&#125;; i &lt; nums.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> x = nums[i];</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = m.find(target - x);</span><br><span class="line">            it != m.end())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;it-&gt;second, <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(i)&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            m[x] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="number">-1</span>, <span class="number">-1</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<p><a href="https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank" rel="noopener">167 两数之和 II - 输入有序数组</a></p>
+<p>当数组有序时<br>我们设置两个指针，一个位于数组第一个元素<code>front</code>，一个位于数组最后一个元素<code>back</code>。</p>
+<ul>
+<li>保证<code>front &lt; back</code><ul>
+<li>如果<code>target &lt; *front + *back</code>，说明<code>*first</code>小了，将<code>first</code>往前移动一位。</li>
+<li>如果<code>target &gt; *front + *back</code>，说明<code>*back</code>大了，将<code>back</code>往后移动一位。</li>
+<li>如果<code>target == *front + *back</code>，得到结果返回。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">  j 0 1 2 3 4 5      j 0 1 2 3 4 5      j 0 1 2 3 4 5</span><br><span class="line">i  +-+-+-+-+-+-+   i  +-+-+-+-+-+-+   i  +-+-+-+-+-+-+</span><br><span class="line">0  | | | | | |S|   0  |X|X|X|X|X|X|   0  | | | | | |X|</span><br><span class="line">   +-----------+      +-----------+      +-----------+</span><br><span class="line">1  | | | | | | |   1  | | | | | | |   1  | | | | | |X|</span><br><span class="line">   +-----------+      +-----------+      +-----------+</span><br><span class="line">2  | | | | | | |   2  | | | | | | |   2  | | | | | |X|</span><br><span class="line">   +-----------+      +-----------+      +-----------+</span><br><span class="line">3  | | | | | | |   3  | | | | | | |   3  | | | | | |X|</span><br><span class="line">   +-----------+      +-----------+      +-----------+</span><br><span class="line">4  | | | | | | |   4  | | | | | | |   4  | | | | | |X|</span><br><span class="line">   +-----------+      +-----------+      +-----------+</span><br><span class="line">5  | | | | | | |   5  | | | | | | |   5  | | | | | |X|</span><br><span class="line">   +-+---+-+-+-+      +-+-+---+-+-+      +-+-+---+-+-+</span><br><span class="line">       |    (0, 5) &lt; target ^                  ^</span><br><span class="line">       +--------------------+                  |</span><br><span class="line">       |    (0, 5) &gt; target                    |</span><br><span class="line">       +------------+--------------------------+</span><br></pre></td></tr></table></figure>
+<p>算法开始时，我们搜索位置$(0,5)$。因为数组是有序的，所以第一行中位置$(0,0)$到$(0,4)$的值都要比$(0,5)$小。最后一列中$(1,5)$到$(5,5)$都要比$(0,5)$大。</p>
+<ul>
+<li>如果我们发现target $ &gt; (0,5)$，那么第一行中所有的值因为必然小于$(0, 5)$，也就小于target，就不必再搜索了。因此我们向前移动<code>i</code></li>
+<li>同理，如果$(0,5)$比target大，那么最后一列的内容就不必搜索了。因此我们向前移动<code>j</code></li>
+<li>之后重复上述过程，即可找到<code>target</code>。</li>
+</ul>
+<p>解释：<a href="https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/solution/yi-zhang-tu-gao-su-ni-on-de-shuang-zhi-zhen-jie-fa/" target="_blank" rel="noopener">一张图告诉你 O(n) 的双指针解法的本质原理（C++/Java）- nettee, Leetcode</a></p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; twoSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; numbers, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">auto</span> f = numbers.begin();</span><br><span class="line">        <span class="keyword">auto</span> b = numbers.end() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(f &lt; b)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(*f + *b &lt; target)</span><br><span class="line">            &#123;</span><br><span class="line">                ++f;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(*f + *b &gt; target)</span><br><span class="line">            &#123;</span><br><span class="line">                --b;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(f - numbers.begin() + <span class="number">1</span>),</span><br><span class="line">                    <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(b - numbers.begin() + <span class="number">1</span>)</span><br><span class="line">                &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="number">-1</span>, <span class="number">-1</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/de9ec62b/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1023,102 +1145,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/7cab1e06/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Xuanyi Fu">
-      <meta itemprop="description" content="Xuanyi Fu的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Xuanyi Fu Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/7cab1e06/" class="post-title-link" itemprop="url">二叉搜索树</a>
-        </h1>
-
-        <div class="post-meta">
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-11 15:18:51" itemprop="dateCreated datePublished" datetime="2020-02-11T15:18:51+08:00">2020-02-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-20 14:43:27" itemprop="dateModified" datetime="2020-06-20T14:43:27+08:00">2020-06-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
-                    <span itemprop="name">LeetCode</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.8k</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>删除节点：<br><a href="https://xyfu.me/posts/7cab1e06/#BST%E8%8A%82%E7%82%B9%E7%9A%84%E5%88%A0%E9%99%A4">LC669 修剪二叉搜索树</a><br><a href="https://xyfu.me/posts/7cab1e06/#BST%E8%8A%82%E7%82%B9%E7%9A%84%E5%88%A0%E9%99%A4">LC450 删除二叉搜索树中的节点</a></p>
-<p>根据有序数组生成BST：<br>⭕<a href="https://xyfu.me/posts/7cab1e06/#%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E4%B8%BA%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A0%E6%A0%91">LC108 有序数组生成BBST</a>[2]<br><a href="https://xyfu.me/posts/7cab1e06/#%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E4%B8%BA%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A0%E6%A0%91">LC109 有序链表生成BBST</a><br>⭕<a href="https://xyfu.me/posts/7cab1e06/#%E7%94%9F%E6%88%90%E7%BB%99%E5%AE%9A%E5%8C%BA%E9%97%B4%E6%89%80%E6%9C%89%E7%9A%84%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91">LC95 生成所有BST</a>[2]（注意在空区间时，要返回<code>vector&lt;TreeNode*&gt;{nullptr}</code>）<br>⭕<a href="https://xyfu.me/posts/2c0e3eb8/#%E5%8D%A1%E5%A1%94%E5%85%B0%E6%95%B0">LC96 生成所有BST - 数量</a>[2]<br>⭕<a href="https://xyfu.me/posts/7cab1e06/#%E6%9C%80%E5%A4%A7%E4%BA%8C%E5%8F%89%E6%A0%91">LC654 生成最大的BST</a>[1]</p>
-<p>验证BST<br>⭕<a href="https://xyfu.me/posts/7cab1e06/#%E9%AA%8C%E8%AF%81BST%E6%9C%AC%E4%BD%93">LC98 验证BST</a>[2]这个题会用INT32_MIN来测试，所以我们用INT64_MIN来记录上一个节点。<br>⭕<a href="https://xyfu.me/posts/7cab1e06/#%E9%AA%8C%E8%AF%81BST%E5%90%8E%E7%BB%AD%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97">LC面试题33 二叉搜索树的后续遍历序列</a><br>⚠️<a href="https://xyfu.me/posts/7cab1e06/#%E9%AA%8C%E8%AF%81BST%E5%89%8D%E5%BA%8F%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97">LC255 验证前序遍历序列二叉搜索树</a>(单调栈)</p>
-<p>二叉搜索树展成链表：<br>⚠️<a href="https://xyfu.me/posts/7cab1e06/#BST%E5%B1%95%E5%BC%80%E4%B8%BA%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8">LC426 BST展开为双向链表</a><br>⭕<a href="https://xyfu.me/posts/7cab1e06/#BST%E5%B1%95%E5%BC%80%E6%88%90%E5%8D%95%E5%90%91%E9%93%BE%E8%A1%A8">LC114 BST展开为单向链表</a></p>
-<p>⭕<a href="https://xyfu.me/posts/7cab1e06/#%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E7%AC%ACk%E5%B0%8F%E8%8A%82%E7%82%B9">LC230 Kth Smallest Element in a BST</a><br><a href="https://xyfu.me/posts/7cab1e06/#%E6%9C%80%E6%8E%A5%E8%BF%91%E7%9A%84%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E5%80%BC">LC272 最接近的二叉搜索树值II</a><br>⚠️<a href="https://xyfu.me/posts/7cab1e06/#BST%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9">LC285 Inorder Successor in BST</a>没有双亲节点指针<br>⭕<a href="https://xyfu.me/posts/7cab1e06/#BST%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9">LC510 Inorder Successor in BST II</a>有双亲节点指针<br>⭕<a href="https://xyfu.me/posts/7cab1e06/#%E6%81%A2%E5%A4%8D%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91">LC99 恢复二叉搜索树</a>[2]没有INT32_MIN这种坑<br>⭕️<a href="https://xyfu.me/posts/7cab1e06/#%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%BD%AC%E5%8F%98%E4%B8%BA%E7%B4%AF%E5%8A%A0%E6%A0%91">LC538 把二叉搜索树转变为累加树</a>[1]<br>⚠️<a href="https://xyfu.me/posts/7cab1e06/#%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E4%B8%AD%E7%9A%84%E4%BC%97%E6%95%B0">LC501 二叉搜索树中的众数</a>[1]</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/7cab1e06/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1189,7 +1215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1241,12 +1267,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">103k</span>
+    <span title="Symbols count total">104k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:33</span>
+    <span title="Reading time total">1:34</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
