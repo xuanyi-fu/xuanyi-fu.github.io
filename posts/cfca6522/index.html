@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="LC1237 找出给定方程的正整数解 给定函数严格单调递增$f(x, y) &lt; f(x + 1, y)$$f(x, y) &lt; f(x, y + 1)$在$0 \leq x \leq 1000$ 和 $0 \leq y \leq 1000$的条件下，找到使得$f(x, y) - z &#x3D; 0$的所有可能的解。思路：搜索空间为$\{(x,y)| 0 \leq x \leq 1000, 0 \">
+  <meta name="description" content="N数之和问题：给定一个对于所有自变量$x_1, x_2, \cdots, x_n$都在一个有限的整数区间中，且严格单调递增的函数$f(x_1, x_2, \cdots, x_n)$。如何找到该函数的零点？ 为了解决N数之和问题，我们首先考虑两数之和问题： 问题一：给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。找到$f(x,y)$的零点。通过暴力搜索所有可能的状">
 <meta property="og:type" content="article">
 <meta property="og:title" content="N数之和">
 <meta property="og:url" content="http://xyfu.me/posts/cfca6522/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="LC1237 找出给定方程的正整数解 给定函数严格单调递增$f(x, y) &lt; f(x + 1, y)$$f(x, y) &lt; f(x, y + 1)$在$0 \leq x \leq 1000$ 和 $0 \leq y \leq 1000$的条件下，找到使得$f(x, y) - z &#x3D; 0$的所有可能的解。思路：搜索空间为$\{(x,y)| 0 \leq x \leq 1000, 0 \">
+<meta property="og:description" content="N数之和问题：给定一个对于所有自变量$x_1, x_2, \cdots, x_n$都在一个有限的整数区间中，且严格单调递增的函数$f(x_1, x_2, \cdots, x_n)$。如何找到该函数的零点？ 为了解决N数之和问题，我们首先考虑两数之和问题： 问题一：给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。找到$f(x,y)$的零点。通过暴力搜索所有可能的状">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-05T23:45:37.000Z">
-<meta property="article:modified_time" content="2020-07-07T01:29:27.999Z">
+<meta property="article:modified_time" content="2020-07-07T15:38:12.170Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="位运算">
 <meta name="twitter:card" content="summary">
@@ -202,7 +202,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-07 09:29:27" itemprop="dateModified" datetime="2020-07-07T09:29:27+08:00">2020-07-07</time>
+                <time title="Modified: 2020-07-07 23:38:12" itemprop="dateModified" datetime="2020-07-07T23:38:12+08:00">2020-07-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -222,7 +222,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3k</span>
+              <span>4.2k</span>
             </span>
 
         </div>
@@ -234,23 +234,35 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://leetcode-cn.com/problems/find-positive-integer-solution-for-a-given-equation/" target="_blank" rel="noopener">LC1237 找出给定方程的正整数解</a></p>
-<p>给定函数严格单调递增<br>$f(x, y) &lt; f(x + 1, y)$<br>$f(x, y) &lt; f(x, y + 1)$<br>在$0 \leq x \leq 1000$ 和 $0 \leq y \leq 1000$的条件下，找到使得$f(x, y) - z = 0$的所有可能的解。<br>思路：<br>搜索空间为$\{(x,y)| 0 \leq x \leq 1000, 0 \leq y \leq 1000, x \in \mathbb{Z}, y \in \mathbb{Z}\}$，如下图所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">                     (a, b)</span><br><span class="line">                      ^</span><br><span class="line">                      |</span><br><span class="line">    j 0   ...  1000   |    j 0   ...  1000        j 0   ...  1000</span><br><span class="line">  i  +-+-+-+-+---+    |  i  +-+-+-+-+---+       i  +-----------+</span><br><span class="line">  0  | | | | | |S+----+  0  | | | | | |X|       0  |X|X|X|X|X|X|</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">  .  +-----------+       .  +-----------+       .  +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">1000 | | | | | | |     1000 | | | | | |X|     1000 | | | | | | |</span><br><span class="line">     +-+---+-+-+-+          +-+-+---+---+          +-+-+-+---+-+</span><br><span class="line">         |                        ^                        ^</span><br><span class="line">         |    f(a, b) - z &gt; 0     |                        |</span><br><span class="line">         +------------------------+                        |</span><br><span class="line">         |                                                 |</span><br><span class="line">         |    f(a, b) - z &lt; 0                              |</span><br><span class="line">         +-------------------------------------------------+</span><br></pre></td></tr></table></figure><br>根据函数严格单调递增的性质，我们知道<br>$f(a, b) - z &lt; 0$，且$b$一定时，$\Rightarrow \forall x \in [a, 1000], f(x, b) &lt; 0$<br>$f(a, b) - z &gt; 0$，且$a$一定时，$\Rightarrow \forall x \in [b, 1000], f(a, x) &gt; 0$<br>$f(a, b) - z = 0$，当$a$一定时，$\Rightarrow \forall x \in (b, 1000], f(a, x) \neq 0$<br>$f(a, b) - z = 0$，当$b$一定时，$\Rightarrow \forall x \in (a, 1000], f(x, b) \neq 0$<br>从右上角$(0, 1000)$的位置开始搜索。根据$f(a, b) - z$和$0$的大小关系，可以划去一行和（或）者一列。</p>
-<ul>
-<li>即当$f(a, b) - z &gt; 0$时，我们可以划去当前$a$在搜索空间中对应的这一行数字，因为函数单调递增，增加$a$只会使得$f(a, b) - z$变得更大。</li>
-<li>当$f(a, b) - z &lt; 0$时，我们可以划去$b$在搜索空间中对应的这一列数字。</li>
-<li>当$f(a, b) - z = 0$时，我们同时划去$(a, b)$在搜索空间对应这一行和这一列。</li>
-</ul>
-<div class='spoiler collapsed'>
-    <div class='spoiler-title'>
-        code
-    </div>
-    <div class='spoiler-content'>
-        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; findSolution(CustomFunction&amp; customfunction, <span class="keyword">int</span> z) &#123;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> b = <span class="number">1000</span>;</span><br><span class="line">        <span class="keyword">while</span>(a &lt;= <span class="number">1000</span> &amp;&amp; b &gt;= <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(customfunction.f(a, b) - z &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ++a;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(customfunction.f(a, b) - z &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                --b;</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                res.emplace_back&lt;<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt;&gt;(&#123;a, b&#125;);</span><br><span class="line">                ++a;</span><br><span class="line">                --b;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-    </div>
-</div>
+        <p>N数之和问题：给定一个对于所有自变量$x_1, x_2, \cdots, x_n$都在一个有限的整数区间中，且严格单调递增的函数$f(x_1, x_2, \cdots, x_n)$。如何找到该函数的零点？</p>
+<p>为了解决N数之和问题，我们首先考虑两数之和问题：</p>
+<p>问题一：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。找到$f(x,y)$的零点。<br>通过暴力搜索所有可能的状态空间找到答案。搜索空间的大小即$|S|^2$。通过遍历所有的$(x, y)$，找到所有使得$f(x, y)=0$的解。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  y 0   ...   N</span><br><span class="line">x  +-----------+</span><br><span class="line">0  |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">.  +-----------+</span><br><span class="line">.  |X|X|X|X|X|X|</span><br><span class="line">.  +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">N  |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br></pre></td></tr></table></figure>
 <hr>
-<p><a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a> </p>
+<p>问题二：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。对于方程$f(x, y) = 0$，有隐函数$y = h(x)$。找到$f(x,y)$的零点。</p>
+<p>由于函数$y = h(x)$存在，在给定$x$的时候，我们可以找到对应的$y$。因此当我们在遍历$x$的所有可能取值时，可以用$h(x)$计算出其对应的$y$，并放在一个hashmap中。每次到下一个$s$的可能取值时，因为$x$和$y$的取值范围是完全相同的，所以可以先在hashmap中查看是否有该值，如果有，则找到了一个解。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">x 0   ...   N</span><br><span class="line"> +-----------+</span><br><span class="line"> |X|X|X|X|X|X|</span><br><span class="line"> ++-+-+-+-+-++</span><br><span class="line">  ^ ^ ^ ^ ^ ^</span><br><span class="line">  | | | | | | y &#x3D; h(x)</span><br><span class="line">  v v v v v v</span><br><span class="line"> +++++++++++++</span><br><span class="line"> | | | | | | |</span><br><span class="line"> +-+-+-+-+-+-+</span><br></pre></td></tr></table></figure>
+<hr>
+<p>问题三：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$，且严格单调递增的函数$f(x, y)$，找到$f(x,y)$的零点。</p>
+<p>考虑函数的单调性：<br>因为$f(x, y)$严格单调递增，所以我们有</p>
+<ul>
+<li>$\forall t &gt; x, f(t, y) &gt; f(x, y)$</li>
+<li>$\forall t &lt; y, f(x, t) &lt; f(x, y)$</li>
+</ul>
+<p>为了利用上述两条性质，我们将有限区间$S$所有可能的取值进行排序。之后让$x$等于区间中的最小值$i$。让$y$等于区间中的最大值$j$。判断$f(i, j)$和0的大小关系：</p>
+<ul>
+<li>如果$f(i, j) &lt; 0$，则$\forall t &lt; j, f(i, t) &lt; f(i, j) &lt; 0$。因此当$x = i$时，$\forall y \in S, f(i, y) &lt; 0$。我们可以在搜索空间中划除$i$对应的这一行。</li>
+<li>如果$f(i, j) &gt; 0$，则$\forall t &gt; i, f(t, j) &gt; f(i, j) &gt; 0$。因此当$y = j$时，$\forall x \in S, f(x, j) &gt; 0$。我们可以在搜索空间中划去$j$对应的这一列。</li>
+<li>如果$f(i, j) = 0$，我们找到了一个结果。但根据严格单调递增性，我们不会在$i$,$j$所在的行列再找到任何其他一对数字使得$f(x, y) = 0$。我们可以在搜索空间划去$i$对应的这一行和$j$对应的这一列。</li>
+</ul>
+<p>之后我们得到了一个新的搜索空间。我们继续从这个搜索空间的右上角（即$i$取最小值，$j$取最大值）重复上面的算法，直到搜索空间为空。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">                start                 start</span><br><span class="line">  y i   ...   j   +     y i   ...   j   +</span><br><span class="line">x  +-----------+  |   x  +-----------+  |</span><br><span class="line">i  |X|X|X|X|X|X+&lt;-+   i  |X| | | | | +&lt;-+</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">   | | | | | | |         |X| | | | | |</span><br><span class="line">.  +-----------+      .  +-----------+</span><br><span class="line">.  | | | | | | |      .  |X| | | | | |</span><br><span class="line">.  +-----------+      .  +-----------+</span><br><span class="line">   | | | | | | |         |X| | | | | |</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">   | | | | | | |         |X| | | | | |</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">j  | | | | | | |      j  |X| | | | | |</span><br><span class="line">   +-----------+         +-----------+</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h1 id="两数之和"><a href="#两数之和" class="headerlink" title="两数之和"></a>两数之和</h1><p>最简单的两数之和问题</p>
+<blockquote>
+<p>给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那两个整数，并返回他们的数组下标。</p>
+</blockquote>
+<p>改变叙述方式，该题目即</p>
 <ul>
 <li>思路一：固定<code>a</code>，将<code>b</code>从<code>a</code>的下一个位置向右移动，直到<code>a + b == target</code>。时间$O(N^2)$，空间$O(1)$。</li>
 <li>思路二（仅适用于没用重复的数组）：<ul>
@@ -276,6 +288,22 @@
         <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; twoSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">auto</span> m = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="keyword">size_t</span>&#123;&#125;; i &lt; nums.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> x = nums[i];</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = m.find(target - x);</span><br><span class="line">            it != m.end())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;it-&gt;second, <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(i)&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            m[x] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="number">-1</span>, <span class="number">-1</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
     </div>
 </div>
+<p><a href="https://leetcode-cn.com/problems/find-positive-integer-solution-for-a-given-equation/" target="_blank" rel="noopener">LC1237 找出给定方程的正整数解</a></p>
+<p>给定函数严格单调递增<br>$f(x, y) &lt; f(x + 1, y)$<br>$f(x, y) &lt; f(x, y + 1)$<br>在$0 \leq x \leq 1000$ 和 $0 \leq y \leq 1000$的条件下，找到使得$f(x, y) - z = 0$的所有可能的解。<br>思路：<br>搜索空间为$\{(x,y)| 0 \leq x \leq 1000, 0 \leq y \leq 1000, x \in \mathbb{Z}, y \in \mathbb{Z}\}$，如下图所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">                     (a, b)</span><br><span class="line">                      ^</span><br><span class="line">                      |</span><br><span class="line">    j 0   ...  1000   |    j 0   ...  1000        j 0   ...  1000</span><br><span class="line">  i  +-+-+-+-+---+    |  i  +-+-+-+-+---+       i  +-----------+</span><br><span class="line">  0  | | | | | |S+----+  0  | | | | | |X|       0  |X|X|X|X|X|X|</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">  .  +-----------+       .  +-----------+       .  +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">1000 | | | | | | |     1000 | | | | | |X|     1000 | | | | | | |</span><br><span class="line">     +-+---+-+-+-+          +-+-+---+---+          +-+-+-+---+-+</span><br><span class="line">         |                        ^                        ^</span><br><span class="line">         |    f(a, b) - z &gt; 0     |                        |</span><br><span class="line">         +------------------------+                        |</span><br><span class="line">         |                                                 |</span><br><span class="line">         |    f(a, b) - z &lt; 0                              |</span><br><span class="line">         +-------------------------------------------------+</span><br></pre></td></tr></table></figure><br>根据函数严格单调递增的性质，我们知道<br>$f(a, b) - z &lt; 0$，且$b$一定时，$\Rightarrow \forall x \in [a, 1000], f(x, b) &lt; 0$<br>$f(a, b) - z &gt; 0$，且$a$一定时，$\Rightarrow \forall x \in [b, 1000], f(a, x) &gt; 0$<br>$f(a, b) - z = 0$，当$a$一定时，$\Rightarrow \forall x \in (b, 1000], f(a, x) \neq 0$<br>$f(a, b) - z = 0$，当$b$一定时，$\Rightarrow \forall x \in (a, 1000], f(x, b) \neq 0$<br>从右上角$(0, 1000)$的位置开始搜索。根据$f(a, b) - z$和$0$的大小关系，可以划去一行和（或）者一列。</p>
+<ul>
+<li>即当$f(a, b) - z &gt; 0$时，我们可以划去当前$a$在搜索空间中对应的这一行数字，因为函数单调递增，增加$a$只会使得$f(a, b) - z$变得更大。</li>
+<li>当$f(a, b) - z &lt; 0$时，我们可以划去$b$在搜索空间中对应的这一列数字。</li>
+<li>当$f(a, b) - z = 0$时，我们同时划去$(a, b)$在搜索空间对应这一行和这一列。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; findSolution(CustomFunction&amp; customfunction, <span class="keyword">int</span> z) &#123;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> b = <span class="number">1000</span>;</span><br><span class="line">        <span class="keyword">while</span>(a &lt;= <span class="number">1000</span> &amp;&amp; b &gt;= <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(customfunction.f(a, b) - z &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ++a;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(customfunction.f(a, b) - z &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                --b;</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                res.emplace_back&lt;<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt;&gt;(&#123;a, b&#125;);</span><br><span class="line">                ++a;</span><br><span class="line">                --b;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
 <hr>
 <p><a href="https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank" rel="noopener">167 两数之和 II - 输入有序数组</a></p>
 <p>当数组有序时<br>我们设置两个指针，一个位于数组第一个元素<code>front</code>，一个位于数组最后一个元素<code>back</code>。</p>
@@ -510,6 +538,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#两数之和"><span class="nav-number">1.</span> <span class="nav-text">两数之和</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -575,12 +604,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">116k</span>
+    <span title="Symbols count total">117k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:45</span>
+    <span title="Reading time total">1:47</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
