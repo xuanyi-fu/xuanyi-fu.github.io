@@ -340,10 +340,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-06 15:44:56 / Modified: 19:40:51" itemprop="dateCreated datePublished" datetime="2020-07-06T15:44:56+08:00">2020-07-06</time>
+              <time title="Created: 2020-07-06 15:44:56" itemprop="dateCreated datePublished" datetime="2020-07-06T15:44:56+08:00">2020-07-06</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-07 22:19:22" itemprop="dateModified" datetime="2020-07-07T22:19:22+08:00">2020-07-07</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -351,7 +357,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>9.4k</span>
+              <span>9.9k</span>
             </span>
 
         </div>
@@ -363,7 +369,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>How to write portable code that achieves the same effects as <em>type punning</em> in mordern C++ without undefined behaviour?<br><a href="https://www.youtube.com/watch?v=_qzMpk-22cc" target="_blank" rel="noopener">CppCon 2019: Timur Doumler “Type punning in modern C++”</a></p>
+          <p>类型双关(type punning)经常在需要高性能的代码和网络编程中出现。比如：</p>
+<ul>
+<li>利用强制类型转换，将<code>float</code>和<code>int</code>互相转换。</li>
+<li>将<code>malloc</code>申请来的内存指针<code>void *</code>强制类型转换为一个对象的指针类型<code>X *</code>，并通过该指针访问<code>X</code>的成员。</li>
+</ul>
+<p>然而，C++中的大部分的type punning（包括以上的两种）都会导致undefined behaviour。<br>我们将解决以下问题：</p>
+<ul>
+<li>type punning 会导致怎样的undefined behaviour?</li>
+<li>type punning 为何会导致undefined behaviour?</li>
+<li>哪些type punning是正确的，哪些是错误的？</li>
+<li>当我们必须进行type punning时，如何避免undefined behaviour来实现type punning的功能？</li>
+</ul>
+<p><a href="https://www.youtube.com/watch?v=_qzMpk-22cc" target="_blank" rel="noopener">CppCon 2019: Timur Doumler “Type punning in modern C++”</a></p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/posts/326396eb/#more" rel="contents">
@@ -415,10 +433,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-06 07:45:37 / Modified: 21:50:20" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
+              <time title="Created: 2020-07-06 07:45:37" itemprop="dateCreated datePublished" datetime="2020-07-06T07:45:37+08:00">2020-07-06</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-07 09:29:27" itemprop="dateModified" datetime="2020-07-07T09:29:27+08:00">2020-07-07</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -437,7 +461,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.1k</span>
+              <span>3k</span>
             </span>
 
         </div>
@@ -449,7 +473,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a> </p>
+          <p><a href="https://leetcode-cn.com/problems/find-positive-integer-solution-for-a-given-equation/" target="_blank" rel="noopener">LC1237 找出给定方程的正整数解</a></p>
+<p>给定函数严格单调递增<br>$f(x, y) &lt; f(x + 1, y)$<br>$f(x, y) &lt; f(x, y + 1)$<br>在$0 \leq x \leq 1000$ 和 $0 \leq y \leq 1000$的条件下，找到使得$f(x, y) - z = 0$的所有可能的解。<br>思路：<br>搜索空间为$\{(x,y)| 0 \leq x \leq 1000, 0 \leq y \leq 1000, x \in \mathbb{Z}, y \in \mathbb{Z}\}$，如下图所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">                     (a, b)</span><br><span class="line">                      ^</span><br><span class="line">                      |</span><br><span class="line">    j 0   ...  1000   |    j 0   ...  1000        j 0   ...  1000</span><br><span class="line">  i  +-+-+-+-+---+    |  i  +-+-+-+-+---+       i  +-----------+</span><br><span class="line">  0  | | | | | |S+----+  0  | | | | | |X|       0  |X|X|X|X|X|X|</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">  .  +-----------+       .  +-----------+       .  +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">1000 | | | | | | |     1000 | | | | | |X|     1000 | | | | | | |</span><br><span class="line">     +-+---+-+-+-+          +-+-+---+---+          +-+-+-+---+-+</span><br><span class="line">         |                        ^                        ^</span><br><span class="line">         |    f(a, b) - z &gt; 0     |                        |</span><br><span class="line">         +------------------------+                        |</span><br><span class="line">         |                                                 |</span><br><span class="line">         |    f(a, b) - z &lt; 0                              |</span><br><span class="line">         +-------------------------------------------------+</span><br></pre></td></tr></table></figure><br>根据函数严格单调递增的性质，我们知道<br>$f(a, b) - z &lt; 0$，且$b$一定时，$\Rightarrow \forall x \in [a, 1000], f(x, b) &lt; 0$<br>$f(a, b) - z &gt; 0$，且$a$一定时，$\Rightarrow \forall x \in [b, 1000], f(a, x) &gt; 0$<br>$f(a, b) - z = 0$，当$a$一定时，$\Rightarrow \forall x \in (b, 1000], f(a, x) \neq 0$<br>$f(a, b) - z = 0$，当$b$一定时，$\Rightarrow \forall x \in (a, 1000], f(x, b) \neq 0$<br>从右上角$(0, 1000)$的位置开始搜索。根据$f(a, b) - z$和$0$的大小关系，可以划去一行和（或）者一列。</p>
+<ul>
+<li>即当$f(a, b) - z &gt; 0$时，我们可以划去当前$a$在搜索空间中对应的这一行数字，因为函数单调递增，增加$a$只会使得$f(a, b) - z$变得更大。</li>
+<li>当$f(a, b) - z &lt; 0$时，我们可以划去$b$在搜索空间中对应的这一列数字。</li>
+<li>当$f(a, b) - z = 0$时，我们同时划去$(a, b)$在搜索空间对应这一行和这一列。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; findSolution(CustomFunction&amp; customfunction, <span class="keyword">int</span> z) &#123;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> b = <span class="number">1000</span>;</span><br><span class="line">        <span class="keyword">while</span>(a &lt;= <span class="number">1000</span> &amp;&amp; b &gt;= <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(customfunction.f(a, b) - z &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ++a;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(customfunction.f(a, b) - z &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                --b;</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                res.emplace_back&lt;<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt;&gt;(&#123;a, b&#125;);</span><br><span class="line">                ++a;</span><br><span class="line">                --b;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a> </p>
 <ul>
 <li>思路一：固定<code>a</code>，将<code>b</code>从<code>a</code>的下一个位置向右移动，直到<code>a + b == target</code>。时间$O(N^2)$，空间$O(1)$。</li>
 <li>思路二（仅适用于没用重复的数组）：<ul>
@@ -601,7 +641,31 @@
         <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">threeSumClosest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        sort(nums.begin(), nums.end());</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> dif = INT_MAX;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = nums.begin(); i &lt; nums.end(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> j = i + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">auto</span> k = nums.end() - <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">while</span>(j != nums.end() &amp;&amp; j &lt; k)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(<span class="keyword">auto</span> sum = *i + *j + *k;</span><br><span class="line">                sum != target)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span>(dif &gt; <span class="built_in">abs</span>(sum - target))</span><br><span class="line">                    &#123;</span><br><span class="line">                        dif = <span class="built_in">abs</span>(sum - target);</span><br><span class="line">                        res = sum;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span>(sum &gt; target)</span><br><span class="line">                    &#123;</span><br><span class="line">                        --k;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        ++j;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> sum;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
     </div>
 </div>
-<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/4sum/" target="_blank" rel="noopener">LC18 四数之和</a></p>
+<p>在三数之和外面再套一层循环即可。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; fourSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        sort(nums.begin(), nums.end());</span><br><span class="line">        <span class="keyword">auto</span> s = <span class="built_in">set</span>&lt;tuple&lt;<span class="keyword">int</span>, <span class="keyword">int</span>, <span class="keyword">int</span>, <span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> a = nums.begin();a &lt; nums.end(); ++a)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> b = a + <span class="number">1</span>; b &lt; nums.end(); ++b)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> c = b + <span class="number">1</span>;</span><br><span class="line">                <span class="keyword">auto</span> d = nums.end() - <span class="number">1</span>;</span><br><span class="line">                <span class="keyword">while</span>(c &lt; d)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span>(*a + *b + *c + *d &lt; target)</span><br><span class="line">                    &#123;</span><br><span class="line">                        ++c;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span>(*a + *b + *c + *d &gt; target)</span><br><span class="line">                    &#123;</span><br><span class="line">                        --d;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        s.emplace(*a, *b, *c, *d);</span><br><span class="line">                        ++c;</span><br><span class="line">                        --d;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(s.size());</span><br><span class="line">        transform(s.begin(), s.end(), res.begin(), [](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; t) -&gt; <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> apply([](<span class="keyword">auto</span>... args) -&gt; <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;args...&#125;;</span><br><span class="line">            &#125;, t);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/4sum-ii/" target="_blank" rel="noopener">454 四数相加 II</a></p>
+<ul>
+<li>用一个hashmap去记录AB数组中的所有可能的和</li>
+<li>遍历CD数组，寻找CD数组的和的相反数在hashmap中的个数</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">fourSumCount</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; A, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; B, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; C, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; D)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> mp = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">size_t</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> a : A)</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> b : B)</span><br><span class="line">                ++mp[a + b];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">auto</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> c : C)</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> d : D)</span><br><span class="line">                <span class="keyword">if</span>(mp.count(-(c + d)))</span><br><span class="line">                    res += mp[-(c + d)];</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div><link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
       
     </div>
 
@@ -1351,12 +1415,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">115k</span>
+    <span title="Symbols count total">116k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:44</span>
+    <span title="Reading time total">1:45</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
