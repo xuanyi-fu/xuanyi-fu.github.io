@@ -54,7 +54,7 @@
 <meta property="og:description" content="N数之和问题：给定一个对于所有自变量$x_1, x_2, \cdots, x_n$都在一个有限的整数区间中，且严格单调递增的函数$f(x_1, x_2, \cdots, x_n)$。如何找到该函数的零点？ 为了解决N数之和问题，我们首先考虑两数之和问题： 问题一：给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。找到$f(x,y)$的零点。通过暴力搜索所有可能的状">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-05T23:45:37.000Z">
-<meta property="article:modified_time" content="2020-07-07T15:41:15.011Z">
+<meta property="article:modified_time" content="2020-07-08T23:18:26.996Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="位运算">
 <meta name="twitter:card" content="summary">
@@ -202,7 +202,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-07 23:41:15" itemprop="dateModified" datetime="2020-07-07T23:41:15+08:00">2020-07-07</time>
+                <time title="Modified: 2020-07-09 07:18:26" itemprop="dateModified" datetime="2020-07-09T07:18:26+08:00">2020-07-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -222,7 +222,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.2k</span>
+              <span>5k</span>
             </span>
 
         </div>
@@ -240,7 +240,8 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  y 0   ...   N</span><br><span class="line">x  +-----------+</span><br><span class="line">0  |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">.  +-----------+</span><br><span class="line">.  |X|X|X|X|X|X|</span><br><span class="line">.  +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">N  |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br></pre></td></tr></table></figure>
 <hr>
 <p>问题二：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。对于方程$f(x, y) = 0$，有隐函数$y = h(x)$。找到$f(x,y)$的零点。</p>
-<p>由于函数$y = h(x)$存在，在给定$x$的时候，我们可以找到对应的$y$。因此当我们在遍历$x$的所有可能取值时，可以用$h(x)$计算出其对应的$y$，并放在一个hashmap中。每次到下一个$s$的可能取值时，因为$x$和$y$的取值范围是完全相同的，所以可以先在hashmap中查看是否有该值，如果有，则找到了一个解。</p>
+<p>由于函数$y = h(x)$存在，在给定$x$的时候，我们可以找到对应的$y$。因此当我们在遍历$x$的所有可能取值时，可以用$h(x)$计算出其对应的$y$，并放在一个hashset中。每次到下一个$s$的可能取值时，因为$x$和$y$的取值范围是完全相同的，所以可以先在hashset中查看是否有该值，如果有，则找到了一个解。</p>
+<p>或者当函数$y = h(x)$计算代价不大时，我们不必在<code>hashset</code>中记录$x$对应的$y$，而是直接记录$x$。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">x 0   ...   N</span><br><span class="line"> +-----------+</span><br><span class="line"> |X|X|X|X|X|X|</span><br><span class="line"> ++-+-+-+-+-++</span><br><span class="line">  ^ ^ ^ ^ ^ ^</span><br><span class="line">  | | | | | | y &#x3D; h(x)</span><br><span class="line">  v v v v v v</span><br><span class="line"> +++++++++++++</span><br><span class="line"> | | | | | | |</span><br><span class="line"> +-+-+-+-+-+-+</span><br></pre></td></tr></table></figure>
 <hr>
 <p>问题三：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$，且严格单调递增的函数$f(x, y)$，找到$f(x,y)$的零点。</p>
@@ -257,38 +258,7 @@
 </ul>
 <p>之后我们得到了一个新的搜索空间。我们继续从这个搜索空间的右上角（即$i$取最小值，$j$取最大值）重复上面的算法，直到搜索空间为空。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">                start                 start</span><br><span class="line">  y i   ...   j   +     y i   ...   j   +</span><br><span class="line">x  +-----------+  |   x  +-----------+  |</span><br><span class="line">i  |X|X|X|X|X|X+&lt;-+   i  | | | | | |X+&lt;-+</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">   | | | | | | |         | | | | | |X|</span><br><span class="line">.  +-----------+      .  +-----------+</span><br><span class="line">.  | | | | | | |      .  | | | | | |X|</span><br><span class="line">.  +-----------+      .  +-----------+</span><br><span class="line">   | | | | | | |         | | | | | |X|</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">   | | | | | | |         | | | | | |X|</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">j  | | | | | | |      j  | | | | | |X|</span><br><span class="line">   +-----------+         +-----------+</span><br></pre></td></tr></table></figure>
-<a id="more"></a>
-<h1 id="两数之和"><a href="#两数之和" class="headerlink" title="两数之和"></a>两数之和</h1><p>最简单的两数之和问题</p>
-<blockquote>
-<p>给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那两个整数，并返回他们的数组下标。</p>
-</blockquote>
-<p>改变叙述方式，该题目即</p>
-<ul>
-<li>思路一：固定<code>a</code>，将<code>b</code>从<code>a</code>的下一个位置向右移动，直到<code>a + b == target</code>。时间$O(N^2)$，空间$O(1)$。</li>
-<li>思路二（仅适用于没用重复的数组）：<ul>
-<li>建立一个<code>unordered_map</code>记录数值和对应的下标。不存在重复的数值，因为题目中提到<em>每种输入只会对应一个答案</em>。</li>
-<li>遍历所有节点，得到所有的数值—下标对。</li>
-<li>再遍历所有下标对，对于每个<code>(a, a_i)</code>，在<code>unordered_map</code>中寻找是否存在<code>(target - a, j)</code>。如果存在，则返回<code>{a_i, j}</code>。</li>
-<li>仅适用于没用重复的数组，如果数组中有重复元素，去重会相当的麻烦。</li>
-</ul>
-</li>
-<li>思路三（自动去重）：<ul>
-<li>思路二对数组进行了两次遍历，我们可以只进行一次遍历。</li>
-<li>从左到右遍历数组，在遍历过程中，对于每个元素<code>a</code>，查询<code>unordered_map</code>中是否有<code>target - a</code>。如果有，就返回结果。</li>
-<li>将<code>(a, a_i)</code>放入<code>unordered_map</code>中。</li>
-<li>即使遍历一次，仍然考虑到了所有的<code>(i, j)</code>的可能性。</li>
-</ul>
-</li>
-</ul>
-<div class='spoiler collapsed'>
-    <div class='spoiler-title'>
-        code
-    </div>
-    <div class='spoiler-content'>
-        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; twoSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">auto</span> m = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="keyword">size_t</span>&#123;&#125;; i &lt; nums.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> x = nums[i];</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = m.find(target - x);</span><br><span class="line">            it != m.end())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;it-&gt;second, <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(i)&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            m[x] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="number">-1</span>, <span class="number">-1</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-    </div>
-</div>
-<p><a href="https://leetcode-cn.com/problems/find-positive-integer-solution-for-a-given-equation/" target="_blank" rel="noopener">LC1237 找出给定方程的正整数解</a></p>
+<p>问题三的一个典型例题，未给出函数表达式，仅强调了单调性：<a href="https://leetcode-cn.com/problems/find-positive-integer-solution-for-a-given-equation/" target="_blank" rel="noopener">LC1237 找出给定方程的正整数解</a></p>
 <p>给定函数严格单调递增<br>$f(x, y) &lt; f(x + 1, y)$<br>$f(x, y) &lt; f(x, y + 1)$<br>在$0 \leq x \leq 1000$ 和 $0 \leq y \leq 1000$的条件下，找到使得$f(x, y) - z = 0$的所有可能的解。<br>思路：<br>搜索空间为$\{(x,y)| 0 \leq x \leq 1000, 0 \leq y \leq 1000, x \in \mathbb{Z}, y \in \mathbb{Z}\}$，如下图所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">                     (a, b)</span><br><span class="line">                      ^</span><br><span class="line">                      |</span><br><span class="line">    j 0   ...  1000   |    j 0   ...  1000        j 0   ...  1000</span><br><span class="line">  i  +-+-+-+-+---+    |  i  +-+-+-+-+---+       i  +-----------+</span><br><span class="line">  0  | | | | | |S+----+  0  | | | | | |X|       0  |X|X|X|X|X|X|</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">  .  +-----------+       .  +-----------+       .  +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">1000 | | | | | | |     1000 | | | | | |X|     1000 | | | | | | |</span><br><span class="line">     +-+---+-+-+-+          +-+-+---+---+          +-+-+-+---+-+</span><br><span class="line">         |                        ^                        ^</span><br><span class="line">         |    f(a, b) - z &gt; 0     |                        |</span><br><span class="line">         +------------------------+                        |</span><br><span class="line">         |                                                 |</span><br><span class="line">         |    f(a, b) - z &lt; 0                              |</span><br><span class="line">         +-------------------------------------------------+</span><br></pre></td></tr></table></figure><br>根据函数严格单调递增的性质，我们知道<br>$f(a, b) - z &lt; 0$，且$b$一定时，$\Rightarrow \forall x \in [a, 1000], f(x, b) &lt; 0$<br>$f(a, b) - z &gt; 0$，且$a$一定时，$\Rightarrow \forall x \in [b, 1000], f(a, x) &gt; 0$<br>$f(a, b) - z = 0$，当$a$一定时，$\Rightarrow \forall x \in (b, 1000], f(a, x) \neq 0$<br>$f(a, b) - z = 0$，当$b$一定时，$\Rightarrow \forall x \in (a, 1000], f(x, b) \neq 0$<br>从右上角$(0, 1000)$的位置开始搜索。根据$f(a, b) - z$和$0$的大小关系，可以划去一行和（或）者一列。</p>
 <ul>
 <li>即当$f(a, b) - z &gt; 0$时，我们可以划去当前$a$在搜索空间中对应的这一行数字，因为函数单调递增，增加$a$只会使得$f(a, b) - z$变得更大。</li>
@@ -303,9 +273,30 @@
         <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; findSolution(CustomFunction&amp; customfunction, <span class="keyword">int</span> z) &#123;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> b = <span class="number">1000</span>;</span><br><span class="line">        <span class="keyword">while</span>(a &lt;= <span class="number">1000</span> &amp;&amp; b &gt;= <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(customfunction.f(a, b) - z &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ++a;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(customfunction.f(a, b) - z &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                --b;</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                res.emplace_back&lt;<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt;&gt;(&#123;a, b&#125;);</span><br><span class="line">                ++a;</span><br><span class="line">                --b;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
     </div>
 </div>
+<a id="more"></a>
+<h1 id="两数之和"><a href="#两数之和" class="headerlink" title="两数之和"></a>两数之和</h1><blockquote>
+<p>给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那两个整数，并返回他们的数组下标。</p>
+</blockquote>
+<p>改变叙述方式，该题目即对于属于整数数组中的$x$和$y$，找到函数$f(x, y) = x + y - t$的一个零点。</p>
+<p>思路一：</p>
+<ul>
+<li>对于$y$，我们可以求得其对应的$x$为$x = t - y$。因此我们可以使用问题二的思路，通过一个hashmap来解决。<ul>
+<li>从左到右遍历数组，在遍历过程中，对于每个元素<code>a</code>，查询<code>unordered_map</code>中是否有<code>target - a</code>。如果有，就返回结果。</li>
+<li>将<code>(a, a_i)</code>放入<code>unordered_map</code>中。</li>
+<li>即使遍历一次，仍然考虑到了所有的<code>(i, j)</code>的可能性。</li>
+</ul>
+</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; twoSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">auto</span> m = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = <span class="keyword">size_t</span>&#123;&#125;; i &lt; nums.size(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> x = nums[i];</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = m.find(target - x);</span><br><span class="line">            it != m.end())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;it-&gt;second, <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(i)&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            m[x] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="number">-1</span>, <span class="number">-1</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
 <hr>
-<hr>
-<p><a href="https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank" rel="noopener">167 两数之和 II - 输入有序数组</a></p>
+<p>我们可以发现，函数表达式$f(x, y) = x + y - t$对于$x$和$y$都是严格单调递增的。因此我们可以采用问题三的思路。先将数组排序，之后从$x$取最小值，$y$取最大值的位置开始搜索。即双指针法。然而<a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a>这个题目，要求返回原来的元素下标。因此我们必须使用一个<code>map</code> 来建立有序的数值-下标对应关系。或者使用一个<code>unordered_map</code>来记录对应关系后再进行排序。这两种方法都不如思路一简单，且效率较低。最适合利用单调性的是输入的数组已经排序好了的<a href="https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank" rel="noopener">167 两数之和 II - 输入有序数组</a></p>
 <p>当数组有序时<br>我们设置两个指针，一个位于数组第一个元素<code>front</code>，一个位于数组最后一个元素<code>back</code>。</p>
 <ul>
 <li>保证<code>front &lt; back</code><ul>
@@ -332,8 +323,10 @@
     </div>
 </div>
 <hr>
-<p><a href="https://leetcode-cn.com/problems/two-sum-iii-data-structure-design/" target="_blank" rel="noopener">170. 两数之和 III - 数据结构设计</a></p>
+<p>接下来是一个在动态的数组上寻找两数之和的问题：<a href="https://leetcode-cn.com/problems/two-sum-iii-data-structure-design/" target="_blank" rel="noopener">170. 两数之和 III - 数据结构设计</a></p>
+<p>不同于之前的两数之和问题，该题目中可能出现重复的数字，也可能出现多个可能解。</p>
 <p>选择一：排序数组。每次<code>add</code>操作必须要保证数组有序，因此会有$O(N)$的时间复杂度。<code>find</code>操作可以使用双指针。<br>选择二：排序链表。<code>add</code>不能进行二分查找，$O(N)$的时间复杂度。<code>find</code>可以使用双指针。内存局部性差。<br>选择三：hashmap。<code>add</code>期望$O(1)$，查找$O(N)$。<br>选择四：数组不排序。每次<code>find</code>时再排序。之后双指针查找。</p>
+<p>可以看到，如果想要利用单调性来解决该问题，就必须得维持数组有序，代价较高。在已知表达式的情况下，显然是<code>hashmap</code>法要更简洁高效。</p>
 <p>注意：因为存在重复元素，我们需要统计元素的个数。当<code>hashmap</code>中存在一个元素<code>a</code>，<code>2 * a</code>和所查询元素相等时，如果<code>a</code>只出现1次，要返回<code>false</code>。</p>
 <div class='spoiler collapsed'>
     <div class='spoiler-title'>
@@ -344,7 +337,7 @@
     </div>
 </div>
 <hr>
-<p><a href="https://leetcode-cn.com/problems/two-sum-iv-input-is-a-bst/" target="_blank" rel="noopener">653. 两数之和 IV - 输入 BST</a></p>
+<p>在BST上的两数之和问题，可以尝试设计BST的迭代器来解决。<br><a href="https://leetcode-cn.com/problems/two-sum-iv-input-is-a-bst/" target="_blank" rel="noopener">653. 两数之和 IV - 输入 BST</a></p>
 <p>思路一：双指针。为了实现在BST上的双指针，我们需要一个BST的正向迭代器，和一个反向迭代器。迭代其的实现见<a href="https://xyfu.me/posts/7cab1e06/#BST%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9">173. 二叉搜索树迭代器</a></p>
 <div class='spoiler collapsed'>
     <div class='spoiler-title'>
@@ -357,7 +350,17 @@
 <p>思路二：花费很大经历去写BST的迭代器比较麻烦。直接中序便利整个BST，将结果放入一个数组里再用双指针。<br>思路三：无视BST的有序性质，直接采用<a href="https://leetcode-cn.com/problems/two-sum/" target="_blank" rel="noopener">LC1 两数之和</a>的<code>unordered_map</code>来做。</p>
 <hr>
 <p><a href="https://leetcode-cn.com/problems/two-sum-less-than-k/" target="_blank" rel="noopener">LC1099 小于 K 的两数之和</a></p>
-<p>将数组排序后，使用[LC1 两数之和]的双指针法。当<code>*l + *r &gt;= K</code>时，因为数组有序，在[l, r)之间的任意的位置p都会使得<code>*p + *r &gt;= K</code>，因此<code>--r</code>。当<code>*l + *r &lt; K</code>时，记录下此时的<code>*l + *r</code>，[begin, l)之间任意的位置p，都会使得<code>*p + *r &lt; *l + *r</code>，绝不比<code>*l + *r</code>更接近<code>K</code>。因此<code>++l</code>。</p>
+<p>按照问题二的思路：<br>我们不能再使用无序的hashset来记录已经遍历的结果。因为对于我们当前的数$x$，我们要找到以前遍历过的数字中，小于$K - x$且最最大的。因此我们需要使用一个有序容器<code>set</code>来记录之前遍历的数字。我们以<code>greater&lt;int&gt;</code>作为<code>set</code>的比较函数，这样我们在使用<code>upper_bound</code>时，就可以找到首个小于$K - x$的元素了。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">twoSumLessThanK</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; A, <span class="keyword">int</span> K)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> s = <span class="built_in">set</span>&lt;<span class="keyword">int</span>, greater&lt;<span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> res = INT_MIN;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> i = A.begin(); i &lt; A.end(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> j = s.upper_bound(K - *i);</span><br><span class="line">            <span class="keyword">if</span>(j != s.end())</span><br><span class="line">            &#123;</span><br><span class="line">                res = max(res, *i + *j);</span><br><span class="line">            &#125;</span><br><span class="line">            s.insert(*i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res == INT_MIN ? <span class="number">-1</span> : res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div> 
+<p>按照问题三的思路，我们将数组排序后利用单调性：</p>
+<p>当<code>*l + *r &gt;= K</code>时，因为数组有序，在[l, r)之间的任意的位置p都会使得<code>*p + *r &gt;= K</code>，因此<code>--r</code>。当<code>*l + *r &lt; K</code>时，记录下此时的<code>*l + *r</code>，[begin, l)之间任意的位置p，都会使得<code>*p + *r &lt; *l + *r</code>，绝不比<code>*l + *r</code>更接近<code>K</code>。因此<code>++l</code>。</p>
 <div class='spoiler collapsed'>
     <div class='spoiler-title'>
         code
@@ -382,7 +385,26 @@
     </div>
 </div>
 <hr>
-<p><a href="https://leetcode-cn.com/problems/3sum/" target="_blank" rel="noopener">LC15 三数之和</a></p>
+<p><a href="https://leetcode-cn.com/problems/count-of-range-sum/" target="_blank" rel="noopener">LC327 区间和的个数</a></p>
+<p>类似<a href="https://leetcode-cn.com/problems/subarray-sum-equals-k/" target="_blank" rel="noopener">LC560 和为K的子数组</a>，利用前缀和，将问题转化为两数之和。</p>
+<ul>
+<li>因为不是寻找相等的，而是寻找在一个区间内的，我们使用multiset来代替hashmap</li>
+<li>遍历数组，计算每个位置对应的前缀和<ul>
+<li>如果该前缀和<code>sum</code>本身位于<code>[l, u]</code>之间，那么该位置到数组头一个元素构成的区间满足条件，<code>++cnt</code>（也可以在<code>multiset</code>中放置一个guard元素<code>0</code>来省略这一步）</li>
+<li>之后在<code>multiset</code>中寻找能够使得<code>sum - b</code>满足位于<code>[l, u]</code>之间的<code>b</code>。<code>b</code>应该满足<code>sum - b &gt;= l &amp;&amp; sum - b &lt;= u + 1</code>。即寻找<code>lower_bound(sum - l + 1)</code>到<code>lower_bound(sum - u)</code>之间元素的个数。<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">countRangeSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int64_t</span> l, <span class="keyword">int64_t</span> u)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> sum = <span class="keyword">int64_t</span>&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> s = <span class="built_in">multiset</span>&lt;<span class="keyword">int64_t</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> cnt = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> n : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            sum += n;</span><br><span class="line">            <span class="keyword">if</span>(sum &gt;= l &amp;&amp; sum &lt;= u)</span><br><span class="line">            &#123;</span><br><span class="line">                ++cnt;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">auto</span> li = s.lower_bound(sum - u);</span><br><span class="line">            <span class="keyword">auto</span> ui = s.lower_bound(sum - l + <span class="number">1</span>);</span><br><span class="line">            cnt += distance(li, ui);</span><br><span class="line">            s.insert(sum);         </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cnt;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">countRangeSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int64_t</span> l, <span class="keyword">int64_t</span> u)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> sum = <span class="keyword">int64_t</span>&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> s = <span class="built_in">multiset</span>&lt;<span class="keyword">int64_t</span>&gt;&#123;&#125;;</span><br><span class="line">        s.insert(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">auto</span> cnt = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> n : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            sum += n;</span><br><span class="line">            <span class="keyword">auto</span> li = s.lower_bound(sum - u);</span><br><span class="line">            <span class="keyword">auto</span> ui = s.lower_bound(sum - l + <span class="number">1</span>);</span><br><span class="line">            cnt += distance(li, ui);</span><br><span class="line">            s.insert(sum);         </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cnt;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="N数之和问题"><a href="#N数之和问题" class="headerlink" title="N数之和问题"></a>N数之和问题</h1><p><a href="https://leetcode-cn.com/problems/3sum/" target="_blank" rel="noopener">LC15 三数之和</a></p>
 <p>固定<code>a</code>的位置，移动<code>b</code>和<code>c</code>来当作两数之和来做。</p>
 <ul>
 <li>找到所有可能的三元组：每当找到一个可能的三元组时，因为数组有序，我们可以确定地认为：<ul>
@@ -538,7 +560,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#两数之和"><span class="nav-number">1.</span> <span class="nav-text">两数之和</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#两数之和"><span class="nav-number">1.</span> <span class="nav-text">两数之和</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#N数之和问题"><span class="nav-number">2.</span> <span class="nav-text">N数之和问题</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -604,7 +626,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">117k</span>
+    <span title="Symbols count total">118k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
