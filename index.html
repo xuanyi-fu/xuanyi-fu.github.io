@@ -315,6 +315,157 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/3ad196a7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/3ad196a7/" class="post-title-link" itemprop="url">就地构造</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-07-09 16:15:32 / Modified: 19:16:55" itemprop="dateCreated datePublished" datetime="2020-07-09T16:15:32+08:00">2020-07-09</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a href="https://www.youtube.com/watch?v=oTMSgI1XjF8" target="_blank" rel="noopener">CppCon 2019: Ben Deane “Everyday Efficiency: In-Place Construction (Back to Basics?)”</a></p>
+<p>本文章适用于C++17（及后续）标准。</p>
+<h1 id="常见的复制消除-copy-elision"><a href="#常见的复制消除-copy-elision" class="headerlink" title="常见的复制消除(copy elision)"></a>常见的复制消除(copy elision)</h1><p><a href="https://zh.cppreference.com/w/cpp/language/copy_elision" target="_blank" rel="noopener">复制消除 - cppreference</a></p>
+<h2 id="强制的复制-移动消除："><a href="#强制的复制-移动消除：" class="headerlink" title="强制的复制/移动消除："></a>强制的复制/移动消除：</h2><ul>
+<li>在 return 语句中，当操作数为与函数返回类型为同一类类型的纯右值（忽略 cv 限定）时。要求返回类型的析构函数必须在 return 语句位置可访问且未被删除，即使无待销毁的 T 对象。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">T <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> T();</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">f(); <span class="comment">// 仅调用一次 T 的默认构造函数</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>在对象的初始化中，当初始化器表达式为与变量类型为同一类类型的纯右值（忽略 cv 限定）时：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T x = T(T(f())); <span class="comment">// 仅调用一次 T 的默认构造函数以初始化 x</span></span><br></pre></td></tr></table></figure>
+<h2 id="非强制的复制-移动消除（RVO-NRVO）"><a href="#非强制的复制-移动消除（RVO-NRVO）" class="headerlink" title="非强制的复制/移动消除（RVO, NRVO）"></a>非强制的复制/移动消除（RVO, NRVO）</h2><ul>
+<li><p><code>return</code> 语句中，当操作数是拥有自动存储期的非 <code>volatile</code>对象的名字，其并非函数形参或 <code>catch</code>子句形参，且其具有与函数返回类型相同的类类型（忽略 cv 限定）时。这种复制消除的变体被称为 NRVO，“具名返回值优化 (named return value optimization)”。</p>
+</li>
+<li><p>在协程中，可以消除将形参向协程状态内的复制/移动，只要除了对形参的构造函数与析构函数的调用被忽略以外，不改变程序的行为即可。若在暂停点后始终不使用形参，或者整个协程状态本就始终不在堆上分配，则可出现此情形。</p>
+</li>
+</ul>
+<h1 id="无法进行RVO的常见情况"><a href="#无法进行RVO的常见情况" class="headerlink" title="无法进行RVO的常见情况"></a>无法进行RVO的常见情况</h1><ul>
+<li><p>return 语句的操作数为函数的形参。因为s不是由该函数构造的，无法进行RVO。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">sad_function</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	s += <span class="string">"No RVO for you!"</span>;</span><br><span class="line">	<span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>return 语句的操作数和函数返回值类型不同。在下面的例子中，操作数类型为<code>std::string&amp;&amp;</code>，函数返回值类型为<code>std::string</code>。大部分情况下<code>return std::move(...)</code>是错误的。</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">sad_function</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	s += <span class="string">"No RVO for you!"</span>;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">std</span>::move(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>因为分支语句，导致编译器获得的信息不足。在下面的例子中，因为不知道该就地构造<code>happy</code>还是<code>sad</code>，因此无法进行RVO</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">sad_function</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">auto</span> happy = <span class="string">"happy"</span>s;</span><br><span class="line">	<span class="keyword">auto</span> sad   = <span class="string">"sad"</span>s;</span><br><span class="line">	<span class="keyword">if</span>(get_happiness() &gt; <span class="number">0.5</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> happy;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> sad;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>constexpr</code>函数不可进行NRVO，但强制进行RVO</li>
+</ul>
+<hr>
+<p>以下情况是否能进行RVO？</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// example 1</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> S <span class="title">will_it_rvo_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//example 2</span></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//example 3</span></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo</span><span class="params">(<span class="keyword">bool</span> b, S s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		s = S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//example 4</span></span><br><span class="line"><span class="function">S <span class="title">get_S</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_4</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> get_S&#123;&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//example 5</span></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_5</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">		<span class="keyword">return</span> s;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_6</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> s;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_7</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	<span class="keyword">return</span> b ? s : S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">get_S</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_8</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> b ? get_S() : S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_9</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	s = S&#123;<span class="number">2</span>&#125;;</span><br><span class="line">	<span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_10</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	<span class="keyword">return</span> (s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">P</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	constexpr P() : x&#123;0&#125;&#123;&#125;</span><br><span class="line">	constexpr P(P&amp;&amp;): x&#123;1&#125;&#123;&#125;</span><br><span class="line">	<span class="keyword">int</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <span class="title">will_this_rvo_11</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	P p;</span><br><span class="line">	<span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">auto</span> = will_this_rvo_11();</span><br><span class="line">	<span class="keyword">return</span> p.x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        答案
+    </div>
+    <div class='spoiler-content'>
+        <ol>
+<li>return 操作数为纯右值，忽略cv限定后与函数返回值一致。C++17标准要求进行复制消除。</li>
+<li>return 操作数为纯右值，忽略cv限定后与函数返回值一致。C++17标准要求进行复制消除。即使在debug编译模式，仍然进行RVO。</li>
+<li>不能进行RVO，return 操作数为形参。</li>
+<li>函数返回值为纯右值。return 操作数为纯右值，忽略cv限定后与函数返回值一致。C++17标准要求进行复制消除。</li>
+<li>clang会进行RVO，MSVC和gcc不会RVO。(?)</li>
+<li>？</li>
+<li>涉及到三目运算符的value category。或许因为违反”the name of a stack variable”而不能RVO。</li>
+<li>该三目运算符的value category为prvalue。强制复制消除。</li>
+<li>NRVO</li>
+<li>NRVO 标准规定：The Standard, [class.copy.elision]/(3.1)<blockquote>
+<p>If the expression in a return or co_return statement is a <strong>(possibly parenthesized)</strong> idexpression that names an implicitly movable entity declared in the body or parameter-declaration-clause of the innermost enclosing function or lambda-expression, or …</p>
+</blockquote>
+</li>
+<li><code>constexpr</code>不可进行NRVO</li>
+</ol>
+<iframe width="800px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEJNJb0AGTy1MAOWMAjTMRABmTqQAOqBYXVaPUMTMx8/ALobO0cjFzdPRWVMVUCGAmZiAmDjU3MlFTU6dMyCaIdnVw8vBQysnND8urLbCriqzwBKRVQDYmQOAHIAemGAagAVAE9vTDGp3uIxtCwxhFdMUjGSMdZUZnQxkTHMAA9mI292ADpxAAYAQSl3W2RDVfF3HXVa4kwLz7Ye4PX4GVRjBjA8QAdlkjzGCLGtgIYwUnzhD0REIgyLGp06wKxMIxWKxCjGnwAIniKTIxpx0YTSQjaugQChegRPjpuWj3CTETDKYzHkKRU9HgwxgB3PCsVgAfUICuIADdUAqAKwQJyofRjJwE0WwqF3ACceCoOqNErNxNNdvNUrRsIZ0OF/Id9zNfwIfVoqPF3rFovNvv9EOJdzFnuNwtDDylsvlSoIKvVCoAbDq9awDTb7aGzc7iW6PRjvZbrV6TUXveHiAG%2BRXzSHbQ2A5DYdH3UH3YNuqwQINNYNSKZBncx6hhzyZHJUYsBrTPGOCMOp51ugBrECau5CYfcMcTqekGeDMcKEAH9eTgekOCwGCIDmXOWuciUNDv9huN4iMAnB3CBpBUHKBCuNeOobmOTi2JkUzDpwY4/kYWgEAA8rQrBIfepBYEYgHsLBBF4H8qSqpg174WcKQGJByFjsiyikaweBOMQiF6FgTGkAQxB4EYTHdDQ9BMGwHA8PwgjCKIKByHIQgcdekDdKg3hFLQNEALSYe4V7JKkGgQJYDSmF4ljlLE8SCL4/haeZdkRFp1mVG4NRGVpJT1PouSCAUKTec0bntB5ijNE5NQha0NlVJw3QKEuUmDsOo7jqRF6nAAHJmOmZtwyxycA9J3NcZV3GMEC4IQOzPF4Yx6L%2BrgrgljWKTIa6wVupC7vuh6DMepDCf1p7TsOV43vx3WPi%2BEBID%2B3gfmQFAQIty0gEBdxeOBrCQcQ0FOKR8G0IhfFoRh2G4aRhHEUMZ74BRahUTRZ50cgDFDCh5D0Kx%2BHsZx3EYF9a6CcJgwoaJdCMCwJHSQI5jFQp84yMpTiqRA6maYEun6YZhSBJo2hRRY2ihbZXj2ZEQR%2BaElMuYE5PxUkBPFJFtMWSzQVpDFMTuQF7MhJztSlEzHmJclXCpSOJ6ZcOOV5QVYzAMgyCldcnBVTVRBLPVWxNUtf4rpInTtSj0hdfePXrAcVSYwNQ0jQeY3nhNihTXem47nuB5DoMBkZfhF6W17A2SLLQdu57A7dFRB2E9wQA%3D"></iframe>
+    </div>
+</div>
+<h1 id="push-back-or-emplace-back"><a href="#push-back-or-emplace-back" class="headerlink" title="push_back or emplace_back?"></a>push_back or emplace_back?</h1><p>想要在<code>std::vector</code>最后放入一个元素，是选择<code>push_back</code>还是<code>emplace_back</code>？</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_back</span><span class="params">(<span class="keyword">const</span> T&amp; x)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_back</span><span class="params">(T&amp;&amp; x)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</span><br><span class="line"><span class="comment">// returns a reference since C++ 17</span></span><br><span class="line">reference </span><br><span class="line">emplace_back(Args&amp;&amp;... args);</span><br></pre></td></tr></table></figure>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// example 1</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; v&#123;&#125;;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* s = <span class="string">"Hello"</span>;</span><br><span class="line"></span><br><span class="line">v.push_back(s); <span class="comment">// char* is first used in the construction of parameter</span></span><br><span class="line">v.emplace_back(s); <span class="comment">// char* is forwarded directly into the string.</span></span><br></pre></td></tr></table></figure>
+<p>在这个例子当中，使用<code>emplace_back</code>是更高效的。<code>s</code>被直接转发到该<code>vector</code>末尾元素的构造函数中。</p>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// S has an 'explicit' ctor from 'int'</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v&#123;&#125;;</span><br><span class="line"></span><br><span class="line">v.push_back(<span class="number">1</span>); <span class="comment">// cannot compile --&gt; push_back cannot be used in explicit construction</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span>&amp; s = v.emplace_back(<span class="number">1</span>); <span class="comment">// explicit is good for emplace_back</span></span><br></pre></td></tr></table></figure>
+<p>在这个例子中，<code>S</code>有一个限定为<code>explicit</code>的单参数构造函数。我们无法使用<code>push_back</code>来构造，必须使用<code>emplace_back</code>。</p>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// S has a ctor from Arg</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;Arg, 3&gt; = &#123;Arg&#123;&#125;, Arg&#123;&#125;, Arg&#123;&#125;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v&#123;&#125;;</span><br><span class="line">v.reserve(a.size());</span><br><span class="line"><span class="built_in">std</span>::copy(a.cbegin(), a.cend(), <span class="built_in">std</span>::back_inserter(v));</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，<code>back_inserter</code>会不断调用<code>push_back</code>，不会被就地构造在<code>v</code>的末尾。我们用<code>Arg</code>去构造<code>S</code>，产生一个临时对象，该临时对象被<code>std::move</code>后调用<code>push_back</code>的针对右值的重载。</p>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;Arg, 3&gt; = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v&#123;&#125;;</span><br><span class="line">v.reserve(a.size());</span><br><span class="line"><span class="built_in">std</span>::copy(a.cbegin(), a.cend(), <span class="built_in">std</span>::back_inserter(v));</span><br></pre></td></tr></table></figure>
+<p>无法编译，使用<code>int</code>的构造函数被限定为<code>explicit</code>。用transform修复。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/326396eb/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1085,99 +1236,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/c517589e/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Xuanyi Fu">
-      <meta itemprop="description" content="Xuanyi Fu的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Xuanyi Fu Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/c517589e/" class="post-title-link" itemprop="url">并查集</a>
-        </h1>
-
-        <div class="post-meta">
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-20 15:05:22" itemprop="dateCreated datePublished" datetime="2020-02-20T15:05:22+08:00">2020-02-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-17 20:13:31" itemprop="dateModified" datetime="2020-06-17T20:13:31+08:00">2020-06-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
-                    <span itemprop="name">LeetCode</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.1k</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>并查集主要用来解决动态连通性问题。<br>连通性问题：<br><a href="https://xyfu.me/posts/c517589e/#%E8%BF%9E%E9%80%9A%E6%80%A7%E9%97%AE%E9%A2%98">LC200 Number of Islands</a><br><a href="https://xyfu.me/posts/c517589e/#%E5%8A%A8%E6%80%81%E8%BF%9E%E9%80%9A%E6%80%A7">LC305 Number of Islands II</a><br><a href="https://xyfu.me/posts/c517589e/#%E6%9C%8B%E5%8F%8B%E5%9C%88">LC547 Friend Circles</a><br><a href="https://xyfu.me/posts/c517589e/#%E8%A2%AB%E5%9B%B4%E7%BB%95%E7%9A%84%E5%8C%BA%E5%9F%9F">LC130 Surrounded Regions</a></p>
-<p><a href="https://xyfu.me/posts/c517589e/#%E5%8F%A5%E5%AD%90%E7%9B%B8%E4%BC%BC%E6%80%A7">LC737 句子相似性II</a><br><a href="https://xyfu.me/posts/c517589e/#%E8%B4%A6%E6%88%B7%E5%90%88%E5%B9%B6/">LC721, 账户合并</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/c517589e/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1248,7 +1306,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1300,12 +1358,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">119k</span>
+    <span title="Symbols count total">121k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:48</span>
+    <span title="Reading time total">1:50</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
