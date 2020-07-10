@@ -54,7 +54,7 @@
 <meta property="og:description" content="指针使用前，一定要检查指针是否是nullptr。 善用dummyNode 链表操作三板斧：slice, transform, splice 裁剪，变换，拼接 裁剪下来的节点，一定要设置next为nullptr。  链表逆序：LC206 Reverse Linked List⚠️LC92 Reverse Linked List II[用dummyHead更容易处理m &#x3D;&#x3D; 0的情况]链表删除：LC">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2019-08-22T11:20:30.000Z">
-<meta property="article:modified_time" content="2020-07-10T05:23:47.249Z">
+<meta property="article:modified_time" content="2020-07-10T05:49:47.414Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="链表">
 <meta name="twitter:card" content="summary">
@@ -202,7 +202,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-10 13:23:47" itemprop="dateModified" datetime="2020-07-10T13:23:47+08:00">2020-07-10</time>
+                <time title="Modified: 2020-07-10 13:49:47" itemprop="dateModified" datetime="2020-07-10T13:49:47+08:00">2020-07-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -624,6 +624,14 @@
 <li>我们总是保证r在l前面，这一点体现将l从链表中拿下接到新链表之后。l和r都要向前一步。</li>
 <li>如果在检查l和r相等的分支中，r移动到了链表末尾，我们可以直接break循环，因为此时l到r之间全为重复节点。</li>
 </ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">deleteDuplicates</span><span class="params">(ListNode* head)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> dummy = ListNode&#123;INT_MIN&#125;;</span><br><span class="line">        <span class="keyword">auto</span> p = &amp;dummy;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(head)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> l = head;</span><br><span class="line">            <span class="keyword">auto</span> r = head-&gt;next;</span><br><span class="line">            <span class="comment">// dupicate</span></span><br><span class="line">            <span class="keyword">while</span>(r &amp;&amp; l-&gt;val == r-&gt;val)</span><br><span class="line">            &#123;</span><br><span class="line">                r = r-&gt;next;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// duplicate if r was moved.</span></span><br><span class="line">            <span class="keyword">if</span>(r != l-&gt;next)</span><br><span class="line">            &#123;</span><br><span class="line">                head = r;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// backup </span></span><br><span class="line">            <span class="keyword">auto</span> next = head-&gt;next;</span><br><span class="line">            <span class="comment">// slice</span></span><br><span class="line">            <span class="keyword">auto</span> cur = head;</span><br><span class="line">            cur-&gt;next = <span class="literal">nullptr</span>;</span><br><span class="line">            <span class="comment">// splice</span></span><br><span class="line">            p-&gt;next = cur;</span><br><span class="line">            <span class="comment">// forward</span></span><br><span class="line">            head = next;</span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
 <div class='spoiler collapsed'>
     <div class='spoiler-title'>
         Feb/18/2020-code
