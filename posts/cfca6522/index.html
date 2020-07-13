@@ -54,7 +54,7 @@
 <meta property="og:description" content="N数之和问题：给定一个对于所有自变量$x_1, x_2, \cdots, x_n$都在一个有限的整数区间中，且严格单调递增的函数$f(x_1, x_2, \cdots, x_n)$。如何找到该函数的零点？ 为了解决N数之和问题，我们首先考虑两数之和问题： 问题一：给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。找到$f(x,y)$的零点。通过暴力搜索所有可能的状">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-05T23:45:37.000Z">
-<meta property="article:modified_time" content="2020-07-09T07:51:48.134Z">
+<meta property="article:modified_time" content="2020-07-13T03:43:48.982Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="位运算">
 <meta name="twitter:card" content="summary">
@@ -202,7 +202,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-09 15:51:48" itemprop="dateModified" datetime="2020-07-09T15:51:48+08:00">2020-07-09</time>
+                <time title="Modified: 2020-07-13 11:43:48" itemprop="dateModified" datetime="2020-07-13T11:43:48+08:00">2020-07-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -222,7 +222,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>6k</span>
+              <span>6.1k</span>
             </span>
 
         </div>
@@ -413,6 +413,17 @@
     </div>
     <div class='spoiler-content'>
         <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">subarraySum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> mp = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> cnt = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> n : nums)</span><br><span class="line">        &#123;</span><br><span class="line">            sum += n;</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = mp.find(sum - k);</span><br><span class="line">            it != mp.end())</span><br><span class="line">            &#123;</span><br><span class="line">                cnt += it-&gt;second;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(sum == k)</span><br><span class="line">            &#123;</span><br><span class="line">                ++cnt;</span><br><span class="line">            &#125;</span><br><span class="line">            ++mp[sum];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cnt;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><a href="https://leetcode-cn.com/problems/remove-zero-sum-consecutive-nodes-from-linked-list/" target="_blank" rel="noopener">LC1171 从链表中删去总和为零的连续节点</a></p>
+<p>使用前缀和。因为要求总和为零，所以表达式已知。使用一个hashmap从前向后遍历。要求<strong>直到不存在这样的序列为止</strong>。因此在遍历过程中递归。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">removeZeroSumSublists</span><span class="params">(ListNode* head)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> dummy = ListNode&#123;<span class="number">0</span>&#125;;</span><br><span class="line">        <span class="keyword">auto</span> np = &amp;dummy;</span><br><span class="line">        np-&gt;next = head;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> mp = <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, ListNode*&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(np)</span><br><span class="line">        &#123;</span><br><span class="line">            sum += np-&gt;val;</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">auto</span> it = mp.find(sum);</span><br><span class="line">            it != mp.end())</span><br><span class="line">            &#123;</span><br><span class="line">                it-&gt;second-&gt;next = np-&gt;next;</span><br><span class="line">                dummy.next = removeZeroSumSublists(dummy.next);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            mp[sum] = np;</span><br><span class="line">            np = np-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
     </div>
 </div>
 <hr>
@@ -662,7 +673,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:50</span>
+    <span title="Reading time total">1:51</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
