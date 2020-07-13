@@ -204,7 +204,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-13 09:21:35" itemprop="dateModified" datetime="2020-07-13T09:21:35+08:00">2020-07-13</time>
+                <time title="Modified: 2020-07-13 21:17:35" itemprop="dateModified" datetime="2020-07-13T21:17:35+08:00">2020-07-13</time>
               </span>
 
           <br>
@@ -213,7 +213,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>147</span>
+              <span>158</span>
             </span>
 
         </div>
@@ -255,7 +255,7 @@
 <td style="text-align:center"><a href="/posts/69c852d4/" title="二叉堆">二叉堆</a></td>
 <td style="text-align:center"><a href="/posts/a444b428/" title="排序">排序</a></td>
 <td style="text-align:center"></td>
-<td style="text-align:center"><a href="/posts/326396eb/" title="Type Punning">Type Punning</a></td>
+<td style="text-align:center"><a href="/posts/326396eb/" title="type punning">type punning</a></td>
 </tr>
 <tr>
 <td style="text-align:center"><a href="/posts/e85d694a/" title="二叉树">二叉树</a></td>
@@ -267,7 +267,7 @@
 <td style="text-align:center"><a href="/posts/7cab1e06/" title="二叉搜索树">二叉搜索树</a></td>
 <td style="text-align:center"><a href="/posts/fbe4be33/" title="排列、组合、子集">排列、组合、子集</a></td>
 <td style="text-align:center"></td>
-<td style="text-align:center"></td>
+<td style="text-align:center"><a href="/posts/8f07748/" title="实参依赖查找(ADL)">实参依赖查找(ADL)</a></td>
 </tr>
 <tr>
 <td style="text-align:center"><a href="/posts/c517589e/" title="并查集">并查集</a></td>
@@ -342,7 +342,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-07-13 15:10:28 / Modified: 17:26:12" itemprop="dateCreated datePublished" datetime="2020-07-13T15:10:28+08:00">2020-07-13</time>
+              <time title="Created: 2020-07-13 15:10:28 / Modified: 21:14:02" itemprop="dateCreated datePublished" datetime="2020-07-13T15:10:28+08:00">2020-07-13</time>
             </span>
 
           <br>
@@ -351,7 +351,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.5k</span>
+              <span>3.8k</span>
             </span>
 
         </div>
@@ -367,8 +367,9 @@
 <li>标识符与名字查找</li>
 <li>为什么需要ADL</li>
 <li>ADL的大致步骤</li>
+<li>ADL与hidden friend</li>
 </ul>
-<p>参考<br><a href="http://www.tmplbook.com/" target="_blank" rel="noopener">C++ Templates: The Complete Guide</a></p>
+<p>参考<br><a href="http://www.tmplbook.com/" target="_blank" rel="noopener">C++ Templates: The Complete Guide</a><br><a href="https://quuxplusone.github.io/blog/2019/04/26/what-is-adl/" target="_blank" rel="noopener">What is ADL? - Arthur O’Dwyer</a><br><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1601r0.pdf" target="_blank" rel="noopener">P1601r0</a></p>
 <h1 id="标识符分类"><a href="#标识符分类" class="headerlink" title="标识符分类"></a>标识符分类</h1><p>标准中关于标识符(<strong>identifier</strong>)的分类：</p>
 <ul>
 <li><p><strong>identifier</strong><br>  标识符是一个由数字，下划线，大小写拉丁字母和大多数 Unicode 字符组成的任意长度的序列。标识符不能以数字开头。</p>
@@ -426,12 +427,13 @@
 <h1 id="为什么需要ADL"><a href="#为什么需要ADL" class="headerlink" title="为什么需要ADL"></a>为什么需要ADL</h1><p>假设<strong>名字查找</strong>只有<strong>有限定的名字查找</strong>和<strong>无限定的名字查找</strong>，考虑下面的例子：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">T <span class="title">max</span><span class="params">(T a, T b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> BigMath</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">BigNumber</span></span></span><br><span class="line"><span class="class">	&#123;</span></span><br><span class="line">		<span class="comment">// ...</span></span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">bool</span> opreator &lt; (<span class="keyword">const</span> BigNumber&amp;, <span class="keyword">const</span> BigNumber&amp;);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> BigMath::BigNumber;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(<span class="keyword">const</span> BigNumber&amp; a, <span class="keyword">const</span> BigNumber&amp; b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	<span class="keyword">auto</span> x = ::max(a, b); <span class="comment">// cannot find BigNumber::operator&lt; without ADL</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>函数模板<code>template&lt;typename T&gt; T max(T a, T b)</code>并不知道<code>namespace BigMath</code>的存在，如果仅进行<strong>无限定的名字查找</strong>，并不能在其函数作用域或者外部的全局命名空间找到<code>bool opreator &lt; (const BigNumber&amp;, const BigNumber&amp;)</code>。ADL则被用来解决这种状况。</p>
-<h1 id="ADL的大致步骤"><a href="#ADL的大致步骤" class="headerlink" title="ADL的大致步骤"></a>ADL的大致步骤</h1><p>ADL主要适用于对<strong>unqualified-name</strong>的<strong>函数</strong>进行的名字查找。查找对象是一个在进行函数调用或者运算符调用的<strong>非成员函数</strong>。<br>首先，若通常的<strong>无限定名字查找</strong>所生成的集合含有下列任何内容，则不考虑ADL:</p>
+<h1 id="ADL如何进行？"><a href="#ADL如何进行？" class="headerlink" title="ADL如何进行？"></a>ADL如何进行？</h1><p>ADL主要适用于对<strong>unqualified-name</strong>的<strong>函数</strong>进行的名字查找。查找对象是一个在进行函数调用或者运算符调用的<strong>非成员函数</strong>。<br>首先，若通常的<strong>无限定名字查找</strong>所生成的集合含有下列任何内容，则不考虑ADL:</p>
 <ol>
 <li>类成员的声明</li>
 <li>块作用域的（并非 <code>using</code> 声明的）函数声明</li>
 <li>任何非函数或函数模板之声明（例如函数对象或另一变量，其名字与正在查找的函数名冲突）</li>
 </ol>
+<hr>
 <p>否则，对于每个函数调用表达式中的实参，检验其类型，以确定它将向查找所添加的命名空间与类的关联集：</p>
 <ol>
 <li>对于基础类型的实参，命名空间与类的关联集为空集</li>
@@ -444,16 +446,42 @@
 <li>添加到集合的各个类的最内层外围命名空间</li>
 </ul>
 </li>
-<li>若实参是一组重载函数（或函数模板）的名字或取址表达式，则检验重载集合中的每个函数，并向集合添加其类与命名空间的关联集合。另外，若以 模板标识（带模板实参的模板名）指名重载集，则检验其所有类型模板实参与模板模板实参（但不包括非类型模板实参），并向集合添加其类与命名空间的关联集合。</li>
+<li>若实参是一组重载函数（或函数模板）的名字或取址表达式，则检验重载集合中的每个函数，并向集合添加其类与命名空间的关联集合。另外，若以 模板标识（带模板实参的模板名），比如<code>A&lt;B&gt;</code>指名重载集，则检验其所有类型模板实参与模板模板实参（但不包括非类型模板实参），并向集合添加其类与命名空间的关联集合。</li>
 <li>对于指向类 X 的数据成员 T 的指针类型的实参，检验该成员类型和类型 X，并向集合添加它们的类与命名空间的关联集合。</li>
 </ol>
-<p>之后，ADL根据下列特殊规则，将通过常规无限定查找所找到的声明的集合，与通过 ADL 所生成的关联集合的所有元素中找到的声明集合进行合并：</p>
+<p>在确定命名空间与类的关联集合后，忽略此集中所有于类中找到的声明，但不包括命名空间作用域的友元函数及函数模板。之后，ADL根据下列特殊规则，将通过常规无限定查找所找到的声明的集合，与通过 ADL 所生成的关联集合的所有元素中找到的声明集合进行合并：</p>
 <ol>
 <li>忽略关联命名空间中的 <code>using</code> 指令</li>
 <li>声明于关联类中的命名空间作用域的友元函数（及函数模板）通过 ADL 可见，即使它们通过普通查找不可见。</li>
 <li>忽略除函数与函数模板外的所有名字（不会与变量之间发生冲突）</li>
 </ol>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> X</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> N</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">using</span> <span class="keyword">namespace</span> X; <span class="comment">//ADL will ignore this</span></span><br><span class="line">	<span class="keyword">enum</span> E &#123;e1,&#125;;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(E)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"N::f(N::E) called\n"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"::f(int) called\n"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	::f(N::e1); <span class="comment">// 有限定的名字查找，不进行ADL</span></span><br><span class="line">	f(N::e1);   <span class="comment">// 无限定的名字查找，找到 `::f(int)`</span></span><br><span class="line">	            <span class="comment">// 之后进行ADL，实参为枚举类型，向集合中添加声明该枚举的命名空间</span></span><br><span class="line">	            <span class="comment">// 之后根据规则合并时，忽略`using namespace X`指令</span></span><br><span class="line">	            <span class="comment">// 然后在 `namespace N` 中进行无限定查找</span></span><br><span class="line">	            <span class="comment">// 名字查找最终找到 `::f(int)` 和 `N::f(E)`</span></span><br><span class="line">	            <span class="comment">// 重载决议选择了后者`N::f(E)`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+<hr>
+<p>例子一：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> X</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> N</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">using</span> <span class="keyword">namespace</span> X; <span class="comment">//ADL will ignore this</span></span><br><span class="line">	<span class="keyword">enum</span> E &#123;e1,&#125;;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(E)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"N::f(N::E) called\n"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"::f(int) called\n"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	::f(N::e1); <span class="comment">// 有限定的名字查找，不进行ADL</span></span><br><span class="line">	f(N::e1);   <span class="comment">// 无限定的名字查找，找到 `::f(int)`</span></span><br><span class="line">	            <span class="comment">// 之后进行ADL，实参为枚举类型，向集合中添加声明该枚举的命名空间</span></span><br><span class="line">	            <span class="comment">// 之后根据规则合并时，忽略`using namespace X`指令</span></span><br><span class="line">	            <span class="comment">// 然后在 `namespace N` 中进行无限定查找</span></span><br><span class="line">	            <span class="comment">// 名字查找最终找到 `::f(int)` 和 `N::f(E)`</span></span><br><span class="line">	            <span class="comment">// 重载决议选择了后者`N::f(E)`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>例子二：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> A &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">A</span> &#123;</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> B &#123;</span><br><span class="line">    <span class="keyword">using</span> T = A::A;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> C &#123;</span><br><span class="line">    B::T c;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> C &#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        f(C::c);  <span class="comment">// HERE</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>在<code>// HERE</code>的位置，我们以<code>A::A</code>类型的参数调用了函数<code>f()</code>。即便对<code>C::c</code>进行<strong>有限定名字查找</strong>的过程中涉及到了<code>namespace C</code>、<code>namespace B</code>、<code>namespace A</code>和<code>struct A</code>。但这些都和ADL无关。ADL只关心“用<code>A::A</code>类型调用了一个未限定的函数名<code>f</code></p>
+<hr>
+<p>例子三：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> A &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">A</span> &#123;</span> <span class="function"><span class="keyword">operator</span> <span class="title">int</span><span class="params">()</span></span>; &#125;;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">h</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">i</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">j</span><span class="params">(A)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> B &#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line">    <span class="keyword">auto</span> h = [](<span class="keyword">int</span>) &#123;&#125;;</span><br><span class="line">    <span class="keyword">using</span> i = <span class="keyword">int</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        A::A a;</span><br><span class="line">        f(a);           <span class="comment">// #1</span></span><br><span class="line">        g(a);           <span class="comment">// #2</span></span><br><span class="line">        h(a);           <span class="comment">// #3</span></span><br><span class="line">        <span class="keyword">int</span> ia = i(a);  <span class="comment">// #4</span></span><br><span class="line">        <span class="keyword">int</span> j = j(a);   <span class="comment">// #5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ol>
+<li><strong>无限定名字查找</strong> 在函数作用域未找到<code>f</code>。在<code>namespace B</code>中找到<code>void f(int)</code>。在全局命名空间未找到<code>f</code>。满足进行ADL的三个条件，因此将类<code>A::A</code>和类所在的命名空间<code>A</code>加入集合。<code>A::A</code>中无友元函数。<code>A</code>中存在一个函数<code>void f(A::A)</code>。重载决议选择<code>void f(A::A)</code></li>
+<li><strong>无限定名字查找</strong>在函数作用域未找到<code>g</code>。在<code>namespace B</code>中未找到<code>g</code>。在全局命名空间未找到<code>g</code>。满足ADL的三个条件，因此将类<code>A::A</code>和类所在的命名空间<code>A</code>加入集合。<code>A::A</code>中无友元函数。<code>A</code>中存在一个函数<code>void g(A::A)</code>。重载决议选择<code>void g(A::A)</code></li>
+<li><strong>无限定名字查找</strong>在<code>namespace B</code>找到lambda声明<code>h</code>。不进行ADL</li>
+<li><strong>无限定名字查找</strong>在<code>namespace B</code>找到alias声明<code>i</code>。不进行ADL</li>
+<li>错误：<strong>无限定名字查找</strong>在函数作用域找到变量声明<code>int j</code>。</li>
+</ol>
+<h1 id="ADL与友元函数"><a href="#ADL与友元函数" class="headerlink" title="ADL与友元函数"></a>ADL与友元函数</h1><p>注意到ADL维护了两个实参的关联集。一个是<strong>命名空间</strong>，另一个是<strong>类</strong>。注意到：</p>
+<blockquote>
+<p>在确定命名空间与类的关联集合后，忽略此集中所有于类中找到的声明，但不包括命名空间作用域的友元函数及函数模板。</p>
+</blockquote>
+<p>因此<strong>类</strong>的集合主要用来处理：</p>
+<blockquote>
+<p>声明于关联类中的命名空间作用域的友元函数（及函数模板）通过 ADL 可见，即使它们通过普通查找不可见。</p>
+</blockquote>
+<p><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1601r0.pdf" target="_blank" rel="noopener">P1601r0</a>中提到：</p>
+<blockquote>
+<p>When first declared via a friend declaration, the befriended entity’s name (if unqualified) is injected into the nearest enclosing namespace. This is reasonable, as the named entity is not a member of the class granting friendship and so must become a member of some namespace.<br>However, such name injection does not implicitly make that name visible to qualified or unqualified lookup; only argument-dependent lookup can find such an otherwise hidden name.</p>
+</blockquote>
+<p>因为友元关系意味着该名字不会是该类的一个成员，该友元必然需要处于某一个命名空间中。所以当我们第一次在类中声明一个<code>unqualified name</code>为<code>friend</code>时，其名字会被注入最临近的命名空间中。但是这种名字注入并不能使得<strong>无限定的名字查找</strong>和<strong>有限定的名字查找</strong>找到该名字。只有通过ADL才可以找到。</p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
       
     </div>
 
@@ -1468,12 +1496,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">124k</span>
+    <span title="Symbols count total">125k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:53</span>
+    <span title="Reading time total">1:54</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
