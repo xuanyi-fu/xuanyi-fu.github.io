@@ -340,10 +340,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-13 15:10:28 / Modified: 21:14:02" itemprop="dateCreated datePublished" datetime="2020-07-13T15:10:28+08:00">2020-07-13</time>
+              <time title="Created: 2020-07-13 15:10:28" itemprop="dateCreated datePublished" datetime="2020-07-13T15:10:28+08:00">2020-07-13</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-14 22:45:40" itemprop="dateModified" datetime="2020-07-14T22:45:40+08:00">2020-07-14</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -351,7 +357,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.8k</span>
+              <span>4.3k</span>
             </span>
 
         </div>
@@ -384,6 +390,19 @@
 </li>
 </ul>
 </li>
+</ul>
+<blockquote>
+<p>Each identifier that contains a double underscore __ or begins with an underscore followed by an uppercase letter is reserved to the implementation for any use.<br>Each identifier that begins with an underscore is reserved to the implementation for use as a name in the global namespace.</p>
+</blockquote>
+<p>libstdc++的实现中存在存在大量的带双下划线的uglified names。例如<code>__stable_sort</code>。libstdc++的实现中，成员变量一般都被写成<code>_M_xxxx</code>。编译器的实现也存在这样的双下划线开头的标识符，例如<code>namespace __gnu_cxx</code>。保留这些标识符，避免和库，编译器产生冲突。</p>
+<p>而<strong>全局命名空间中以一个下划线开头</strong>可能会导致该函数的名称和另一个函数的mangled name重复，链接器会报错</p>
+<iframe width="800px" height="500px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:1,endLineNumber:2,positionColumn:1,positionLineNumber:2,selectionStartColumn:1,selectionStartLineNumber:2,startColumn:1,startLineNumber:2),source:'%23include+%3Ccstdio%3E%0A%0Aextern+%22C%22%0A%7B%0A++++double+_ZN1NL1AE+%3D+99%3B%0A%7D%0A%0Anamespace+N%0A%7B%0A++++inline+static+int+A+%3D+1234%3B%0A%7D%0A%0Aint+main()%0A%7B%0A++++printf(%22%25d%22,+N::A)%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',n:'0',o:'',s:0,t:'0'),(g:!((g:!((h:compiler,i:(compiler:gsnapshot,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'1',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+gcc+(trunk)+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),k:50,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gsnapshot,compilerOutShown:'0',execArgs:'',execStdin:'',fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',source:1,stdinPanelShown:'1'),l:'5',n:'0',o:'x86-64+gcc+(trunk)+Executor+(Editor+%231)+C%2B%2B',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),k:50,l:'3',n:'0',o:'',t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+
+<p>下面的例子定义了一个和全局对象<code>std::cout</code>的mangled name重名的函数，导致SIGSEGV(errno: 139)</p>
+<iframe width="800px" height="500px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:18,endLineNumber:13,positionColumn:18,positionLineNumber:13,selectionStartColumn:18,selectionStartLineNumber:13,startColumn:18,startLineNumber:13),source:'%23include+%3Ciostream%3E%0A%0Aextern+%22C%22%0A%7B%0A++++void+_ZSt4cout()%0A++++%7B%0A++++++++int+i+%3D+8%3B%0A++++%7D%0A%7D%0A%0Aint+main()%0A%7B%0A++++std::cout%3C%3C1%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((g:!((h:compiler,i:(compiler:gsnapshot,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'1',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'-O3',selection:(endColumn:29,endLineNumber:19,positionColumn:29,positionLineNumber:19,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+gcc+(trunk)+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),k:50,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:g101,compilerOutShown:'0',execArgs:'',execStdin:'',fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',source:1,stdinPanelShown:'1'),l:'5',n:'0',o:'x86-64+gcc+10.1+Executor+(Editor+%231)+C%2B%2B',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),k:50,l:'3',n:'0',o:'',t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+
+<hr>
+<ul>
 <li><strong>operator-function-id</strong><br>  关键词<code>opreator</code>后跟随运算符的符号，例如<code>operator new</code>，<code>operator []</code></li>
 <li><strong>conversion-function-id</strong><br>  用于进行隐式类型转换的运算符。例如<code>operator int&amp;</code>。</li>
 <li><strong>literal-operator-id</strong><br>  用于用户自定义字面量，例如<code>operator &quot;&quot;_km</code>用于<code>100_km</code></li>
@@ -1501,7 +1520,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:54</span>
+    <span title="Reading time total">1:55</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
