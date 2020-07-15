@@ -315,6 +315,80 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/1ba55501/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/1ba55501/" class="post-title-link" itemprop="url">C++从源文件到可执行文件：编译</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-07-15 15:09:05 / Modified: 15:26:15" itemprop="dateCreated datePublished" datetime="2020-07-15T15:09:05+08:00">2020-07-15</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>147</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>编译的过程为编译原理所涉及的内容，不做展开。这里主要关注<strong>模板</strong>在阶段7和阶段8的处理。</p>
+<p><strong>模板具现化</strong>是通过正确地替换模板中的模板参数，来获得类型、函数或变量的过程。</p>
+<hr>
+<p>阶段7：编译</p>
+<p>将各个预处理记号转换成记号。将所有记号当作一个翻译单元进行语法和语义分析并进行翻译。这一段主要关注的是模板的具现化。</p>
+<hr>
+<p>阶段8：</p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/93539652/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -482,7 +556,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/posts/8f07748/" class="post-title-link" itemprop="url">实参依赖查找(ADL)</a>
+            <a href="/posts/8f07748/" class="post-title-link" itemprop="url">名字查找与实参依赖查找(ADL)</a>
         </h1>
 
         <div class="post-meta">
@@ -501,7 +575,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-14 22:45:40" itemprop="dateModified" datetime="2020-07-14T22:45:40+08:00">2020-07-14</time>
+                <time title="Modified: 2020-07-15 16:40:41" itemprop="dateModified" datetime="2020-07-15T16:40:41+08:00">2020-07-15</time>
               </span>
 
           <br>
@@ -510,7 +584,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.3k</span>
+              <span>5.3k</span>
             </span>
 
         </div>
@@ -523,7 +597,10 @@
 
       
           <ul>
-<li>标识符与名字查找</li>
+<li>标识符(identifier)</li>
+<li>名字查找(name lookup)</li>
+<li>注入类名(injected-class-name)</li>
+<li>实参依赖查找(ADL: argument dependent lookup)</li>
 <li>为什么需要ADL</li>
 <li>ADL的大致步骤</li>
 <li>ADL与hidden friend</li>
@@ -596,6 +673,43 @@
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="keyword">int</span> count;             <span class="comment">// #1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">lookup_example</span><span class="params">(<span class="keyword">int</span> count)</span> <span class="comment">// #2</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(count &lt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">int</span> count = <span class="number">1</span>;        <span class="comment">// #3</span></span><br><span class="line">		lookup_example(count);<span class="comment">// 查找结果为#3</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> count + ::count;   <span class="comment">// 第一个无限定的名字查找结果为#2</span></span><br><span class="line">                                  <span class="comment">// 第二个有限定的名字查找结果为#1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>关于<strong>无限定的名字查找</strong>的其他细节，参照<a href="https://zh.cppreference.com/w/cpp/language/qualified_lookup" target="_blank" rel="noopener">cppreference - 无限定的名字查找</a></p>
+<h1 id="注入类名-injected-class-name"><a href="#注入类名-injected-class-name" class="headerlink" title="注入类名(injected-class-name)"></a>注入类名(injected-class-name)</h1><ul>
+<li>一个类的名字会以<strong>unqualified-name</strong>的形式，被注入到该类的作用域内。与其他成员类似，注入类名可被继承。</li>
+</ul>
+<p>因此我们在类（类模板）的作用域内可以通过<strong>unqualified-name</strong>的形式来指代该类。然而，<strong>qualified-name</strong>的形式则不可以用来指代该类，因为这种形式被用来指代<em>构造函数</em>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdint&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstddef&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;type_traits&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int32_t</span> C;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">int64_t</span> i;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">static</span> size_t <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(C) == <span class="keyword">sizeof</span>(<span class="keyword">int64_t</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">sizeof</span>(C); <span class="comment">// C is injeceted as an `unqualified-name`</span></span><br><span class="line">		                  <span class="comment">// into the class scope</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">    	<span class="keyword">auto</span> p = &amp;::C;    <span class="comment">// '::C' refers to the global variable if it</span></span><br><span class="line">                          <span class="comment">// is qualified with '::'</span></span><br><span class="line">        <span class="keyword">static_assert</span>(<span class="built_in">std</span>::is_same_v&lt;<span class="keyword">decltype</span>(p), <span class="keyword">int32_t</span>*&gt;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">k</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// auto p = &amp;C::C;</span></span><br><span class="line">        <span class="comment">// error: taking address of constructor 'constexpr C::C(C&amp;&amp;)'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">auto f() -&gt; size_t</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(C) == <span class="keyword">sizeof</span>(<span class="keyword">int32_t</span>));</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">sizeof</span>(C);     <span class="comment">// f in not in the C class scope, thus 'C'  </span></span><br><span class="line">	                      <span class="comment">// refers to the global variable 'int32_t C'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的程序中，在C的类作用域中，<strong>unqualified-name</strong><code>C</code>被注入其中。</p>
+<ul>
+<li>函数<code>C::f()</code>返回的是类<code>C</code>的大小。</li>
+<li>函数<code>c::g()</code>中，使用被限定的标识符<code>::C</code>则只能进行有限定的名字查找，对应全局变量<code>::C</code>。</li>
+<li>函数<code>C::k()</code>中，编译错误说明表达式<code>&amp;C::C</code>是取<code>C</code>的构造函数的地址，那么<code>C::C</code>表示的是<code>C</code>的构造函数。</li>
+<li>函数<code>::f()</code>中，<code>C</code>进行不限定的名字查找，找到全局变量<code>::C</code>。</li>
+</ul>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">B</span> :</span> <span class="keyword">private</span> A &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">C</span> :</span> <span class="keyword">public</span> B &#123;</span><br><span class="line">    A* p; <span class="comment">// 错误：注入类名 A 不可访问</span></span><br><span class="line">    ::A* q; <span class="comment">// OK：不使用注入类名</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>与其他成员类似，注入类名可被继承。在私有或受保护继承的场合，可能导致某个间接基类的注入类名在派生类中最后变得不可访问。</p>
+<hr>
+<p>与其他类相似，类模板也拥有注入类名。其注入类名可被用作模板名或类型名。</p>
+<p>下列情况下，在作用域中，注入类名被当做类模板自身的模板名：</p>
+<ul>
+<li>它后面跟着 <code>&lt;</code></li>
+<li>它被用作对应某个模板模板形参的模板实参</li>
+<li>它是某个友元类模板声明的详述类型说明符中的最后标识符。</li>
+<li>否则，它被当做类型名，并等价于模板名后随环绕于 <code>&lt;&gt;</code> 中的该类模板的各个模板形参。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;type_traits&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">typename</span>, <span class="keyword">typename</span>&gt; <span class="keyword">typename</span>&gt; </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span>&#123;</span>&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T1</span>, <span class="title">class</span> <span class="title">T2</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">X</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    X *p1;         <span class="comment">// #1</span></span><br><span class="line">    X&lt;T1, T2&gt;* p2; <span class="comment">// #2</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">static_assert</span>(<span class="built_in">std</span>::is_same_v&lt;X, X&lt;T1, T2&gt; &gt;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> a = A&lt;X&gt;; <span class="comment">// #3</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">U1</span>, <span class="title">class</span> <span class="title">U2</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="title">friend</span> <span class="title">class</span> <span class="title">X</span>;</span> <span class="comment">// #4</span></span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>类模板<code>A</code>的模板参数为 接受两个类为模板参数的 模板模板参数。</p>
+<ol>
+<li><code>X</code>被当作<strong>类型名</strong>，等价于<code>X&lt;T1, T2&gt;</code></li>
+<li><code>X</code>后面跟随<code>&lt;</code>，<code>X</code>被当作<strong>模板名</strong>，可以接受两个类做模板参数。</li>
+<li><code>X</code>被用作类模板<code>A</code>的模板模板形参的实参，<code>X</code>此时被当作<strong>模板名</strong>。</li>
+<li><code>X</code>是某个友元类模板声明的详述类型说明符中的最后标识符，<code>X</code>此时被当作<strong>模板名</strong>。</li>
+</ol>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">crtp_base</span>&#123;</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="comment">// struct crtp_derived : public crtp_base&lt;crtp_derived&gt; // #1</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">crtp_derived</span> :</span> <span class="keyword">public</span> crtp_base&lt;crtp_derived&lt;T&gt;&gt; <span class="comment">// #2</span></span><br><span class="line">&#123;&#125;;</span><br></pre></td></tr></table></figure>
+<p>在CRTP实践中，描述继承的语句不在类的作用域内，因此我们需要在继承CRTP模板时，将本类的名字写全。如<code>#2</code>所示。<code>#1</code>不能通过编译。</p>
+<hr>
+<p>关于注入类名更详细的介绍，参考<a href="https://zh.cppreference.com/w/cpp/language/injected-class-name" target="_blank" rel="noopener">cppreference - 注入类名</a></p>
 <h1 id="为什么需要ADL"><a href="#为什么需要ADL" class="headerlink" title="为什么需要ADL"></a>为什么需要ADL</h1><p>假设<strong>名字查找</strong>只有<strong>有限定的名字查找</strong>和<strong>无限定的名字查找</strong>，考虑下面的例子：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">T <span class="title">max</span><span class="params">(T a, T b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> BigMath</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">BigNumber</span></span></span><br><span class="line"><span class="class">	&#123;</span></span><br><span class="line">		<span class="comment">// ...</span></span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">bool</span> opreator &lt; (<span class="keyword">const</span> BigNumber&amp;, <span class="keyword">const</span> BigNumber&amp;);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> BigMath::BigNumber;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(<span class="keyword">const</span> BigNumber&amp; a, <span class="keyword">const</span> BigNumber&amp; b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	<span class="keyword">auto</span> x = ::max(a, b); <span class="comment">// cannot find BigNumber::operator&lt; without ADL</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>函数模板<code>template&lt;typename T&gt; T max(T a, T b)</code>并不知道<code>namespace BigMath</code>的存在，如果仅进行<strong>无限定的名字查找</strong>，并不能在其函数作用域或者外部的全局命名空间找到<code>bool opreator &lt; (const BigNumber&amp;, const BigNumber&amp;)</code>。ADL则被用来解决这种状况。</p>
@@ -652,7 +766,8 @@
 <blockquote>
 <p>When first declared via a friend declaration, the befriended entity’s name (if unqualified) is injected into the nearest enclosing namespace. This is reasonable, as the named entity is not a member of the class granting friendship and so must become a member of some namespace.<br>However, such name injection does not implicitly make that name visible to qualified or unqualified lookup; only argument-dependent lookup can find such an otherwise hidden name.</p>
 </blockquote>
-<p>因为友元关系意味着该名字不会是该类的一个成员，该友元必然需要处于某一个命名空间中。所以当我们第一次在类中声明一个<code>unqualified name</code>为<code>friend</code>时，其名字会被注入最临近的命名空间中。但是这种名字注入并不能使得<strong>无限定的名字查找</strong>和<strong>有限定的名字查找</strong>找到该名字。只有通过ADL才可以找到。</p>
+<p>因为友元关系意味着该名字不会是该类的一个成员，该友元必然需要处于某一个命名空间中。所以当我们第一次在类中声明一个<code>unqualified name</code>为<code>friend</code>时，其名字会被<strong>注入</strong>最临近的命名空间中。但是这种名字注入并不能使得<strong>无限定的名字查找</strong>和<strong>有限定的名字查找</strong>找到该名字。只有通过ADL才可以找到。</p>
+<h1 id="待决名-dependent-name-的名字查找"><a href="#待决名-dependent-name-的名字查找" class="headerlink" title="待决名(dependent name)的名字查找"></a>待决名(dependent name)的名字查找</h1><p><strong>待决名</strong>(dependent name)是指</p>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
       
     </div>
@@ -1369,87 +1484,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/d3225986/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Xuanyi Fu">
-      <meta itemprop="description" content="Xuanyi Fu的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Xuanyi Fu Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/d3225986/" class="post-title-link" itemprop="url">Leetcode题目索引</a>
-        </h1>
-
-        <div class="post-meta">
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-29 16:27:46" itemprop="dateCreated datePublished" datetime="2020-02-29T16:27:46+08:00">2020-02-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-17 20:13:06" itemprop="dateModified" datetime="2020-06-17T20:13:06+08:00">2020-06-17</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.2k</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Leetcode题目解析速查表</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/d3225986/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1520,7 +1554,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1572,12 +1606,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">129k</span>
+    <span title="Symbols count total">130k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:57</span>
+    <span title="Reading time total">1:58</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
