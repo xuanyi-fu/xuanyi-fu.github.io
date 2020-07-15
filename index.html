@@ -315,6 +315,159 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/93539652/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/93539652/" class="post-title-link" itemprop="url">C++从源文件到可执行文件：预处理</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-07-15 12:42:05 / Modified: 14:22:13" itemprop="dateCreated datePublished" datetime="2020-07-15T12:42:05+08:00">2020-07-15</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.7k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>C++ 程序从源文件到可执行文件，要经历9个<a href="https://zh.cppreference.com/w/cpp/language/translation_phases/" target="_blank" rel="noopener" title="翻译阶段 - cppreference">翻译阶段</a>。可以将一般认为的C++源文件到可执行文件的4个阶段模糊地和这9个<a href="https://zh.cppreference.com/w/cpp/language/translation_phases/" target="_blank" rel="noopener" title="翻译阶段 - cppreference">翻译阶段</a>相对应：</p>
+<ul>
+<li>预处理(prepressing)：翻译阶段1-6</li>
+<li>编译(compile)、汇编(assembly)：翻译阶段7-8</li>
+<li>链接(Linking)：翻译阶段9</li>
+</ul>
+<hr>
+<p>阶段一：<strong>源文件字符集</strong>到基本<strong>源字符集</strong>的映射</p>
+<ul>
+<li>将源文件的各个单独字节，映射为基本源字符集的字符。基本源字符集由96个字符组成，包括5个空白字符，52大小写英文字母，10个数字和29个标点符号。</li>
+<li>任何无法被映射到基本源字符集中的字符的源文件字符，均被替换为Unicode形式（用 <code>\u</code> 或 <code>\U</code> 转义）。</li>
+</ul>
+<p>gcc和clang当中，可以使用<code>-finput-charset</code>来指定<strong>源文件字符集</strong>的编码。Visual Studio中可以使用<code>/source-charset</code>来指定<strong>源文件字符集</strong>的编码。</p>
+<p><a href="https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html" target="_blank" rel="noopener">gcc doc | 3.13 Options Controlling the Preprocessor</a>、<a href="https://gcc.gnu.org/onlinedocs/gcc-6.3.0/cpp/Character-sets.html" target="_blank" rel="noopener">gcc doc | 1.1 Character sets</a></p>
+<blockquote>
+<p>The files input to CPP might be in any character set at all. CPP’s very first action, before it even looks for line boundaries, is to convert the file into the character set it uses for internal processing. That set is what the C standard calls the source character set. It must be isomorphic with ISO 10646, also known as Unicode. CPP uses the UTF-8 encoding of Unicode.</p>
+<p>The character sets of the input files are specified using the <code>-finput-charset=charset</code></p>
+<p>Set the input character set, used for translation from the character set of the input file to the source character set used by GCC. If the locale does not specify, or GCC cannot get this information from the locale, the default is UTF-8. This can be overridden by either the locale or this command-line option. Currently the command-line option takes precedence if there’s a conflict. charset can be any encoding supported by the system’s iconv library routine.</p>
+</blockquote>
+<hr>
+<p>阶段二：处理续行符</p>
+<ul>
+<li>当反斜杠出现于行尾（其后紧跟换行符）时，删除该反斜杠和换行符并将两个物理源码行组合成一个逻辑源码行。</li>
+</ul>
+<p>宏定义为预处理指令，预处理指令要求在一行内完成，因此为了保证可读性，续行符<code>\</code>经常在宏的定义中被使用。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/kernel.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> container_of(ptr, type, member) (&#123;                          \</span></span><br><span class="line">	    <span class="function"><span class="keyword">const</span> <span class="title">typeof</span><span class="params">( ((type *)<span class="number">0</span>)-&gt;member )</span> *__mptr </span>= (ptr);    \</span><br><span class="line">	    (type *)( (<span class="keyword">char</span> *)__mptr - offsetof(type,member) );&#125;)</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>阶段三：分解源文件，恢复始字符串字面量，去掉注释。</p>
+<ul>
+<li>将源文件分解为注释，空白字符和下列各种预处理记号：<ul>
+<li>头文件名，如<code>&lt;iostream&gt;</code></li>
+<li><a href="https://zh.cppreference.com/w/cpp/language/identifiers" target="_blank" rel="noopener">标识符</a></li>
+<li>预处理数字</li>
+<li>字符与字符串字面量（包括用户定义的）</li>
+<li>运算符与标点</li>
+<li>不属于任何其他类别的单独非空白字符</li>
+</ul>
+</li>
+<li>恢复在任何<strong>原始字符串字面量</strong>（的首尾双引号之间在阶段 1 和 2 期间进行的所有变换。</li>
+<li>以一个空格字符替换每段注释。</li>
+</ul>
+<p><a href="https://abseil.io/tips/64" target="_blank" rel="noopener"><strong>原始字符串字面量</strong></a>是指以R开头，形如<code>R&quot;tag(content)tag&quot;</code>形式的字符串字面量。其中<code>tag</code>是一个最多由16个字符组成的序列，不可以包含<code>(</code>、<code>\</code>和<code>`。</code>tag`可以为空。<strong>原始字符串字面量</strong>常被用于正则表达式的书写，以减少转义字符，增加可读性：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">R"regexp((?:"(?:\\"|[^"])*"|'(?:\\'|[^'])*'))regexp"</span>;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>阶段四：递归执行预处理</p>
+<ul>
+<li>预处理指令控制预处理器的行为。每个指令<strong>占据一行</strong>并拥有下列格式：<ul>
+<li><code>#</code> 字符</li>
+<li>预处理指令（<code>define</code>、<code>undef</code>、<code>include</code>、<code>if</code>、<code>ifdef</code>、<code>ifndef</code>、<code>else</code>、<code>elif</code>、<code>endif</code>、<code>line</code>、<code>error</code>、<code>pragma</code> 之一）</li>
+<li>实参（取决于指令）</li>
+<li>换行符</li>
+</ul>
+</li>
+<li>预处理指令可以是空指令，不产生任何效果。</li>
+<li><p>预处理指令不得来自宏展开。</p>
+</li>
+<li><p>预处理的过程</p>
+<ul>
+<li>将所有<a href="https://zh.cppreference.com/w/cpp/preprocessor/replace" target="_blank" rel="noopener">文本替换宏</a>(<code>#define</code>)删除，并展开所有的宏定义</li>
+<li>处理所有<a href="https://zh.cppreference.com/w/cpp/preprocessor/conditional" target="_blank" rel="noopener">条件包含</a>，比如<code>#if</code>，<code>#ifdef</code></li>
+<li>递归处理<a href="https://zh.cppreference.com/w/cpp/preprocessor/include" target="_blank" rel="noopener">源文件包含</a><code>#include</code></li>
+<li>删除所有注释</li>
+<li>添加行号和文件名标识，以便于编译器在产生编译错误时能显示行号。</li>
+<li>保留<a href="https://zh.cppreference.com/w/cpp/preprocessor/impl" target="_blank" rel="noopener">实现定义的行为控制</a><code>#pragma</code>，因为编译器要用到他们。</li>
+</ul>
+</li>
+<li><p>此阶段结束时，所有预处理器指令都应从源（代码）移除。</p>
+</li>
+</ul>
+<hr>
+<p>阶段五：字面量从 基本源字符集 到 执行字符集 的转换</p>
+<ul>
+<li>将<em>字符字面量</em>及<em>字符串字面量</em>中的所有字符从<em>基本源字符集</em>转换到<em>执行字符集</em>(gcc默认为UTF-8)</li>
+<li>将<em>字符字面量</em>和<em>非原始字符串字面量</em>中的转义序列和通用字符名展开，并转换到<em>执行字符集</em>。</li>
+</ul>
+<p>gcc和clang当中，可以使用<code>-fexec-charset</code>和<code>-fwide-exec-charset</code>指定<strong>执行字符集</strong>的编码。Visual Studio中可以使用<code>/execution-charset</code>来指定<strong>执行字符集</strong>的编码。</p>
+<p><a href="https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html" target="_blank" rel="noopener">gcc doc | 3.13 Options Controlling the Preprocessor</a></p>
+<blockquote>
+<p><code>-fexec-charset=charset</code><br>   Set the execution character set, used for string and character constants. The default is UTF-8. charset can be any encoding supported by the system’s iconv library routine.</p>
+<p><code>-fwide-exec-charset=charset</code><br>   Set the wide execution character set, used for wide string and character constants. The default is UTF-32 or UTF-16, whichever corresponds to the width of wchar_t. As with -fexec-charset, charset can be any encoding supported by the system’s iconv library routine; however, you will have problems with encodings that do not fit exactly in wchar_t.</p>
+</blockquote>
+<hr>
+<p>阶段六：</p>
+<p>拼接相邻的字符串字面量。<br>即将<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> str = <span class="string">"this line might be too long, so that it has to be "</span></span><br><span class="line">                 <span class="string">"wrapped."</span></span><br></pre></td></tr></table></figure><br>合并为<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> <span class="built_in">string</span> = <span class="string">"this line might be too long, so that it has to be wrapped."</span></span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>参考</p>
+<p><a href="">《程序员的自我修养链接、装载与库》</a></p>
+<hr>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/8f07748/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1297,102 +1450,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/ee040603/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Xuanyi Fu">
-      <meta itemprop="description" content="Xuanyi Fu的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Xuanyi Fu Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/ee040603/" class="post-title-link" itemprop="url">图(施工中)</a>
-        </h1>
-
-        <div class="post-meta">
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-27 22:59:36" itemprop="dateCreated datePublished" datetime="2020-02-27T22:59:36+08:00">2020-02-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-01 08:10:42" itemprop="dateModified" datetime="2020-03-01T08:10:42+08:00">2020-03-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
-                    <span itemprop="name">LeetCode</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.8k</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>无权图最短路径<br><a href="https://xyfu.me/posts/ee040603/#%E6%97%A0%E6%9D%83%E5%9B%BE%E5%8D%95%E6%BA%90%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">LC127 单词接龙</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%97%A0%E6%9D%83%E5%9B%BE%E5%A4%9A%E6%BA%90%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">LC286 墙与门</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%97%A0%E6%9D%83%E5%9B%BE%E5%A4%9A%E6%BA%90%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">LC542 01矩阵</a></p>
-<p>DAG与拓扑排序<br><a href="https://xyfu.me/posts/ee040603/#%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F">LC207 课程表</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F">LC210 课程表II</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F">LC269 火星词典</a></p>
-<p>欧拉轨迹(Eulerian Path)<br><a href="https://xyfu.me/posts/ee040603/#Heirholzer%E7%AE%97%E6%B3%95">LC332 重新安排行程</a><br><a href="https://xyfu.me/posts/ee040603/#De_Bruijn_%E5%BA%8F%E5%88%97">LC753 破解保险箱</a></p>
-<p>无根树<br><a href="https://xyfu.me/posts/ee040603/#%E6%A0%91%E4%B8%AD%E8%B7%AF%E5%BE%84%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7">LC582 杀死进程</a><br><a href="https://xyfu.me/posts/ee040603/#%E5%88%A4%E6%96%AD%E6%97%A0%E5%90%91%E5%9B%BE%E6%98%AF%E5%90%A6%E4%B8%BA%E6%A0%91">LC261 以图判树</a><br><a href="https://xyfu.me/posts/ee040603/#%E5%88%A4%E6%96%AD%E6%97%A0%E5%90%91%E5%9B%BE%E6%98%AF%E5%90%A6%E4%B8%BA%E6%A0%91">LC1361 验证二叉树|周赛177</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%A0%91%E7%9A%84%E7%9B%B4%E5%BE%84">LC1245 树的直径</a><br><a href="https://xyfu.me/posts/ee040603/#%E6%A0%91%E7%9A%84%E7%9B%B4%E5%BE%84">LC310 最小高度树</a><br><a href="https://xyfu.me/posts/ee040603/#%E8%B7%9D%E7%A6%BB%E5%92%8C%E9%97%AE%E9%A2%98">LC834 树中距离之和</a></p>
-<p>其他<br><a href="https://xyfu.me/posts/ee040603/#%E5%85%B6%E4%BB%96">LC133 克隆图</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/ee040603/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1463,7 +1520,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1515,12 +1572,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">126k</span>
+    <span title="Symbols count total">129k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:55</span>
+    <span title="Reading time total">1:57</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
