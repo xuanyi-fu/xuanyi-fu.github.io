@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="编译的过程为编译原理所涉及的内容，不做展开。这里主要关注模板在阶段7和阶段8的处理。 模板具现化是通过正确地替换模板中的模板参数，来获得类型、函数或变量的过程。  阶段7：编译 将各个预处理记号转换成记号。将所有记号当作一个翻译单元进行语法和语义分析并进行翻译。这一段主要关注的是模板的具现化。  阶段8：">
+  <meta name="description" content="编译的过程为编译原理所涉及的内容，不做展开。 主要关注：  模板在阶段7,8进行的两阶段查找 模板为何要放到头文件中：包含编译模式(inclusion model) 最常见的编译器实现：贪婪具现化(greedy instantiation)">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++从源文件到可执行文件：编译">
 <meta property="og:url" content="http://xyfu.me/posts/1ba55501/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="编译的过程为编译原理所涉及的内容，不做展开。这里主要关注模板在阶段7和阶段8的处理。 模板具现化是通过正确地替换模板中的模板参数，来获得类型、函数或变量的过程。  阶段7：编译 将各个预处理记号转换成记号。将所有记号当作一个翻译单元进行语法和语义分析并进行翻译。这一段主要关注的是模板的具现化。  阶段8：">
+<meta property="og:description" content="编译的过程为编译原理所涉及的内容，不做展开。 主要关注：  模板在阶段7,8进行的两阶段查找 模板为何要放到头文件中：包含编译模式(inclusion model) 最常见的编译器实现：贪婪具现化(greedy instantiation)">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-15T07:09:05.000Z">
-<meta property="article:modified_time" content="2020-07-15T07:26:15.869Z">
+<meta property="article:modified_time" content="2020-07-16T10:47:14.978Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -194,10 +194,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-15 15:09:05 / Modified: 15:26:15" itemprop="dateCreated datePublished" datetime="2020-07-15T15:09:05+08:00">2020-07-15</time>
+              <time title="Created: 2020-07-15 15:09:05" itemprop="dateCreated datePublished" datetime="2020-07-15T15:09:05+08:00">2020-07-15</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-16 18:47:14" itemprop="dateModified" datetime="2020-07-16T18:47:14+08:00">2020-07-16</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -205,7 +211,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>147</span>
+              <span>1.6k</span>
             </span>
 
         </div>
@@ -217,13 +223,47 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>编译的过程为编译原理所涉及的内容，不做展开。这里主要关注<strong>模板</strong>在阶段7和阶段8的处理。</p>
-<p><strong>模板具现化</strong>是通过正确地替换模板中的模板参数，来获得类型、函数或变量的过程。</p>
+        <p>编译的过程为编译原理所涉及的内容，不做展开。</p>
+<p>主要关注：</p>
+<ul>
+<li><strong>模板</strong>在阶段7,8进行的<strong>两阶段查找</strong></li>
+<li>模板为何要放到头文件中：包含编译模式(inclusion model)</li>
+<li>最常见的编译器实现：贪婪具现化(greedy instantiation)</li>
+</ul>
+<a id="more"></a>
+<h1 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h1><h2 id="两阶段查找"><a href="#两阶段查找" class="headerlink" title="两阶段查找"></a>两阶段查找</h2><p><strong>模板具现化</strong>是通过正确地替换模板中的模板参数，来获得类型、函数或变量的过程。C++标准规定模板的具现化过程为<strong>两阶段查找</strong>(two-phase lookup)：</p>
+<ul>
+<li><p>第一阶段：解析模板</p>
+<ul>
+<li>在 非待决名 上使用 有限定的名字查找 或 无限定的名字查找。</li>
+<li>在 无限定的<a href="https://zh.cppreference.com/w/cpp/language/dependent_name" target="_blank" rel="noopener"><strong>待决名</strong></a> 上使用无限定的名字查找，确认其是否是一个模板。然而我们在第一阶段不进行ADL。ADL被推迟到第二阶段。我们认为此次查找的结果暂时是不完整的。</li>
+<li>此时无法处理有限定的待决名。</li>
+</ul>
+</li>
+<li><p>第二阶段：模板实例化</p>
+<ul>
+<li>在实例化点(POI: point of instantiation)对模板进行实例化。</li>
+<li>对 有限定的待决名 进行 有限定的名字查找</li>
+<li>对 无限定的待决名 进行 ADL 将结果与第一阶段进行的 无限定的名字查找 的结果合并。</li>
+</ul>
+</li>
+</ul>
 <hr>
-<p>阶段7：编译</p>
-<p>将各个预处理记号转换成记号。将所有记号当作一个翻译单元进行语法和语义分析并进行翻译。这一段主要关注的是模板的具现化。</p>
+<p>例子一：为什么需要两阶段查找？<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Trap</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="keyword">enum</span> &#123; x &#125;;           <span class="comment">// #1</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Victim</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="keyword">int</span> y;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">poof</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		Trap&lt;T&gt;::x * y;   <span class="comment">// #2</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Trap</span>&lt;void&gt;</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="keyword">using</span> x = <span class="keyword">int</span>;        <span class="comment">// #3</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">boom</span><span class="params">(Victim&lt;<span class="keyword">void</span>&gt;&amp; bomb)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	bomb.poof();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在主模板的<code>#1</code>处，<code>x</code>的类型为一个<code>enum</code>。在全特化模板的<code>#3</code>处，<code>x</code>是一个<code>int</code>的alias。因此在<code>#2</code>处的有限定的待决名<code>Trap&lt;T&gt;::X</code>在<code>Trap&lt;T&gt;</code>未实例化时无法被决议。如果<code>T</code>是一个<code>void</code>，则该语句生命了一个<code>int*</code>，如果<code>T</code>是其他类型，则该语句为一个乘法运算。在<code>#2</code>的只能确定该标识符是一个有限定的待决名，其他都不可知。只有等到<code>Trap&lt;T&gt;</code>实例化以后，我们才能对其进行决议。因此两阶段查找的必要的。第二阶段就发生在实例化以后。</p>
 <hr>
-<p>阶段8：</p>
+<p>例子二：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f1</span><span class="params">(T x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	g1(x);      <span class="comment">// #1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">g1</span><span class="params">(<span class="keyword">int</span>)</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	f1(<span class="number">7</span>);      <span class="comment">// 错误：g1 not found</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// #2 POI for f1&lt;int&gt;(int)</span></span><br></pre></td></tr></table></figure>
+<p>在第一阶段<code>#1</code>位置的<code>g1(x)</code>，因为依赖于<code>x</code>的类型，因此是一个无限定的待决名。此时我们对其进行 无限定的名字查找，由于<code>g1(int)</code>在其下方，因此 无限定的名字查找 查找结果为空。第二阶段在<code>#2</code>处，POI后进行ADL。由于参数类型为<code>int</code>，因此生成的类和命名空间的集合都为空，因此对<code>g1</code>的查找失败。</p>
+<hr>
+<h2 id="实例化点-point-of-instantiation"><a href="#实例化点-point-of-instantiation" class="headerlink" title="实例化点(point of instantiation)"></a>实例化点(point of instantiation)</h2><p>当代码中涉及到某一模板的特化时，该模板必须被具现化以产生该特化。因此编译器必须在该涉指附近安插代码以使得该特话被具现化。安插代码的位置就被称作<strong>实例化点</strong>。</p>
+<p>标准规定：<br>The POI for a reference to a function template specialization is immediately <strong>after</strong> the nearest <a href="https://en.cppreference.com/w/cpp/language/scope#Namespace_scope" target="_blank" rel="noopener">namespace scope</a>  declaration or definition that contains that reference.</p>
+<p>The POI for a reference to a class template specialization is immediately <strong>before</strong> the <a href="https://en.cppreference.com/w/cpp/language/scope#Namespace_scope" target="_blank" rel="noopener">nearest namespace</a> scope declaration or definition that contains that reference.</p>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyInt</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	MyInt(<span class="keyword">int</span> i);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">MyInt <span class="keyword">operator</span> - (<span class="keyword">const</span> MyInt&amp;);</span><br><span class="line"><span class="keyword">bool</span>  <span class="keyword">operator</span> &gt; (<span class="keyword">const</span> MyInt&amp;, <span class="keyword">const</span> MyInt&amp;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> Int = MyInt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T i)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(i &gt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		g(-i); <span class="comment">// call g</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// #1</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(Int)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// #2</span></span><br><span class="line">	f&lt;Int&gt;(<span class="number">42</span>); <span class="comment">// point of call</span></span><br><span class="line">	<span class="comment">// #3</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// #4</span></span><br></pre></td></tr></table></figure>
+<p>为了实例化<code>//point of call</code>位置的函数模板<code>f&lt;Int&gt;(int)</code>，我们需要在其附近插入<code>::f&lt;int&gt;(int);</code>作为实例化点。位置<code>#2</code>和<code>#3</code>在函数内部，C++中不可以在函数内部直接插入另一个函数的声明。位置<code>#1</code>和<code>#4</code>的区别在于在<code>#1</code>处，<code>void g(Int)</code>还不可见。如果在<code>#1</code>处插入POI，则无法解析<code>// call g</code>处对<code>g</code>调用。因此实例化点被安排在<code>#4</code>。<code>#4</code>作为实例化点也是符合标准的，因为包含<code>//point of call</code>的最近的命名空间作用域为函数<code>void g(int)</code>的命名空间作用域，其<code>immediately after</code>的位置刚好是<code>#4</code>。</p>
+<hr>
+<h2 id="Inclusion-Compilation-Model"><a href="#Inclusion-Compilation-Model" class="headerlink" title="Inclusion Compilation Model"></a>Inclusion Compilation Model</h2><h2 id="贪婪实例化-greedy-instantiation"><a href="#贪婪实例化-greedy-instantiation" class="headerlink" title="贪婪实例化(greedy instantiation)"></a>贪婪实例化(greedy instantiation)</h2><hr>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
     </div>
 
@@ -245,7 +285,10 @@
     <a href="/posts/93539652/" rel="prev" title="C++从源文件到可执行文件：预处理">
       <i class="fa fa-chevron-left"></i> C++从源文件到可执行文件：预处理
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/posts/44c91252/" rel="next" title="C++从源文件到可执行文件：目标文件">
+      C++从源文件到可执行文件：目标文件 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -305,6 +348,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#模板"><span class="nav-number">1.</span> <span class="nav-text">模板</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#两阶段查找"><span class="nav-number">1.1.</span> <span class="nav-text">两阶段查找</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例化点-point-of-instantiation"><span class="nav-number">1.2.</span> <span class="nav-text">实例化点(point of instantiation)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Inclusion-Compilation-Model"><span class="nav-number">1.3.</span> <span class="nav-text">Inclusion Compilation Model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#贪婪实例化-greedy-instantiation"><span class="nav-number">1.4.</span> <span class="nav-text">贪婪实例化(greedy instantiation)</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -318,7 +362,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -370,12 +414,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">131k</span>
+    <span title="Symbols count total">133k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:59</span>
+    <span title="Reading time total">2:01</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>

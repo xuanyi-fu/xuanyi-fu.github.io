@@ -204,7 +204,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-15 18:07:23" itemprop="dateModified" datetime="2020-07-15T18:07:23+08:00">2020-07-15</time>
+                <time title="Modified: 2020-07-15 18:20:55" itemprop="dateModified" datetime="2020-07-15T18:20:55+08:00">2020-07-15</time>
               </span>
 
           <br>
@@ -296,10 +296,10 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><a href="/posts/93539652/" title="翻译阶段1-6： 字符集转换、字面量处理与预处理">翻译阶段1-6： 字符集转换、字面量处理与预处理</a></td>
+<td style="text-align:left"><a href="/posts/93539652/" title="翻译阶段1 - 6：字符集转换、字面量处理与预处理">翻译阶段1 - 6：字符集转换、字面量处理与预处理</a></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="/posts/1ba55501/" title="翻译阶段7,8：模板具现化、两步查找(two phase lookup)、全局变量初始化与入口函数">翻译阶段7,8：模板具现化、两步查找(two phase lookup)、全局变量初始化与入口函数</a></td>
+<td style="text-align:left"><a href="/posts/1ba55501/" title="翻译阶段7 , 8：模板具现化、两步查找(two phase lookup)、全局变量初始化与入口函数">翻译阶段7 , 8：模板具现化、两步查找(two phase lookup)、全局变量初始化与入口函数</a></td>
 </tr>
 </tbody>
 </table>
@@ -346,6 +346,102 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/44c91252/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/44c91252/" class="post-title-link" itemprop="url">C++从源文件到可执行文件：目标文件</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-16 18:58:32" itemprop="dateCreated datePublished" datetime="2020-07-16T18:58:32+08:00">2020-07-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-17 07:44:03" itemprop="dateModified" datetime="2020-07-17T07:44:03+08:00">2020-07-17</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>731</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>编译器在完成阶段7和阶段8后，会生成<strong>目标文件</strong>。在Linux平台上，目标文件的格式为 ELF (executable linkable file)。ELF也是动态库、静态库、可执行文件和core dump文件的格式。</p>
+<hr>
+<h1 id="目标文件是-ELF-文件"><a href="#目标文件是-ELF-文件" class="headerlink" title="目标文件是 ELF 文件"></a>目标文件是 ELF 文件</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// elf.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> global_not_init = <span class="number">42</span>;</span><br><span class="line"><span class="keyword">int</span> global_init;</span><br><span class="line"><span class="keyword">int</span> global_init_as_zero = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">global_function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">"你好"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">global_function_template</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%lu"</span>, <span class="keyword">sizeof</span>(T));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">int</span> static_not_init;</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">int</span> static_init;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> local_init = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> local_not_init;</span><br><span class="line"></span><br><span class="line">	global_function();</span><br><span class="line">	global_function_template&lt;<span class="keyword">size_t</span>&gt;();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用<code>g++ -c elf.cpp</code>编译上面的文件之后，我们就可以得到<code>elf.o</code>这个目标文件。使用<code>file</code>来查看它的格式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ file elf.o</span><br><span class="line">elf.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li>ELF 64bit：表示其为64位的executable linkable file</li>
+<li>relocatable：表示该文件还未进行<em>重定位</em>，<em>重定位</em>将会在翻译阶段9进行。</li>
+<li>LSB：表示小端序，即least significant byte。大端序为MSB，即most significant byte</li>
+<li>x86-64：ELF头的<code>e_machine</code>字段</li>
+<li>version 1 (SYSV)：ELF头的<code>e_ident[EI_OSABI]</code>表示Operating System and ABI.</li>
+<li>not stripped: 使用strip之后可以去除ELF文件的某些section.</li>
+</ul>
+<hr>
+<p>用<code>file</code>来查看可执行文件<code>/bin/bash</code>、<code>g++-9</code>和OpenGL的动态库的格式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ file /bin/bash</span><br><span class="line"></span><br><span class="line"> /bin/bash: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), </span><br><span class="line"> dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]</span><br><span class="line"> =a43fec47192ff49c2d3fed671f2be8df7e83784a, <span class="keyword">for</span> GNU/Linux 3.2.0, stripped</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ file /usr/bin/x86_64-linux-gnu-g++-9</span><br><span class="line"></span><br><span class="line">/usr/bin/x86_64-linux-gnu-g++-9: ELF 64-bit LSB executable, x86-64, </span><br><span class="line">version 1 (SYSV), dynamically linked, </span><br><span class="line">interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]</span><br><span class="line">=5ad6c47bea7dfb6722269e2d89b5c2c5a63964d4, <span class="keyword">for</span> GNU/Linux 3.2.0, stripped</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ file /usr/lib/x86_64-linux-gnu/libGL.so.1.7.0</span><br><span class="line">/usr/lib/x86_64-linux-gnu/libGL.so.1.7.0: </span><br><span class="line">ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, stripped</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>同为可执行文件，为什么<code>/bin/bash</code>和OpenGL动态库都是<code>shared object</code>，而<code>gcc-9</code>是<code>executable</code>？<br><code>shared object</code>可以是一个动态库，也可以是一个可执行文件。当<code>shared object</code>是一个可执行文件时，其是一个PIE(positional independent executable)的可执行文件。因此操作系统可以对其进行<a href="https://en.wikipedia.org/wiki/Address_space_layout_randomization" target="_blank" rel="noopener">ASLR(address space layout randomization)</a>来提高程序的安全性，防范类似<a href="https://security.stackexchange.com/questions/162342/return-oriented-programming-rop-why-does-it-bypass-aslr-and-what-are-pop-pop" target="_blank" rel="noopener">ROP</a>这样的利用buffer溢出的攻击。</p>
+</blockquote>
+<h1 id="ELF-结构"><a href="#ELF-结构" class="headerlink" title="ELF 结构"></a>ELF 结构</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">a relocatable ELF        shared object or executable</span><br><span class="line">+---------------------+  +---------------------+</span><br><span class="line">|ELF Header           |  |ELF Header           |</span><br><span class="line">+---------------------+  +---------------------+</span><br><span class="line">|                     |  |Program header table |</span><br><span class="line">|Sections             |  +---------------------+</span><br><span class="line">|       .             |  |       .             |</span><br><span class="line">|       .             |  |       .             |</span><br><span class="line">|       .             |  |       .             |</span><br><span class="line">|                     |  |                     |</span><br><span class="line">|                     |  |                     |</span><br><span class="line">|                     |  |                     |</span><br><span class="line">+---------------------+  +---------------------+</span><br><span class="line">|Section header Table |  |Section header Table |</span><br><span class="line">+---------------------+  +---------------------+</span><br><span class="line">|String Table         |  |String Table         |</span><br><span class="line">+---------------------+  +---------------------+</span><br><span class="line">|Symbol Table         |  |Symbol Table         |</span><br><span class="line">+---------------------+  +---------------------+</span><br></pre></td></tr></table></figure>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/1ba55501/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -371,10 +467,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-15 15:09:05 / Modified: 15:26:15" itemprop="dateCreated datePublished" datetime="2020-07-15T15:09:05+08:00">2020-07-15</time>
+              <time title="Created: 2020-07-15 15:09:05" itemprop="dateCreated datePublished" datetime="2020-07-15T15:09:05+08:00">2020-07-15</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-16 18:47:14" itemprop="dateModified" datetime="2020-07-16T18:47:14+08:00">2020-07-16</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -382,7 +484,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>147</span>
+              <span>1.6k</span>
             </span>
 
         </div>
@@ -394,14 +496,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>编译的过程为编译原理所涉及的内容，不做展开。这里主要关注<strong>模板</strong>在阶段7和阶段8的处理。</p>
-<p><strong>模板具现化</strong>是通过正确地替换模板中的模板参数，来获得类型、函数或变量的过程。</p>
-<hr>
-<p>阶段7：编译</p>
-<p>将各个预处理记号转换成记号。将所有记号当作一个翻译单元进行语法和语义分析并进行翻译。这一段主要关注的是模板的具现化。</p>
-<hr>
-<p>阶段8：</p>
-<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+          <p>编译的过程为编译原理所涉及的内容，不做展开。</p>
+<p>主要关注：</p>
+<ul>
+<li><strong>模板</strong>在阶段7,8进行的<strong>两阶段查找</strong></li>
+<li>模板为何要放到头文件中：包含编译模式(inclusion model)</li>
+<li>最常见的编译器实现：贪婪具现化(greedy instantiation)</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/posts/1ba55501/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -447,7 +556,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-07-15 12:42:05 / Modified: 17:23:02" itemprop="dateCreated datePublished" datetime="2020-07-15T12:42:05+08:00">2020-07-15</time>
+              <time title="Created: 2020-07-15 12:42:05 / Modified: 21:48:04" itemprop="dateCreated datePublished" datetime="2020-07-15T12:42:05+08:00">2020-07-15</time>
             </span>
 
           <br>
@@ -485,106 +594,14 @@
 <li>拼接相邻的字符串字面量。</li>
 </ol>
 <p>可以看到大部分阶段都和<strong>字符集的转换</strong>，<strong>字面量</strong>的处理相关。<br>一个<em>非原始字符串字面量</em>的<em>字符串字面量</em>或一个<em>字符字面量</em>，先从<strong>源文件字符集</strong> 映射 <strong>源字符集</strong>，之后又从<strong>源字符集</strong> 映射到 <strong>执行字符集</strong>。</p>
-<hr>
-<p>阶段一：<strong>源文件字符集</strong>到基本<strong>源字符集</strong>的映射</p>
-<ul>
-<li>将源文件的各个单独字节，映射为基本源字符集的字符。基本源字符集由96个字符组成，包括5个空白字符，52大小写英文字母，10个数字和29个标点符号。</li>
-<li>任何无法被映射到基本源字符集中的字符的源文件字符，均被替换为Unicode形式（用 <code>\u</code> 或 <code>\U</code> 转义）。</li>
-</ul>
-<p>gcc和clang当中，可以使用<code>-finput-charset</code>来指定<strong>源文件字符集</strong>的编码。Visual Studio中可以使用<code>/source-charset</code>来指定<strong>源文件字符集</strong>的编码。</p>
-<p><a href="https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html" target="_blank" rel="noopener">gcc doc | 3.13 Options Controlling the Preprocessor</a>、<a href="https://gcc.gnu.org/onlinedocs/gcc-6.3.0/cpp/Character-sets.html" target="_blank" rel="noopener">gcc doc | 1.1 Character sets</a></p>
-<blockquote>
-<p>The files input to CPP might be in any character set at all. CPP’s very first action, before it even looks for line boundaries, is to convert the file into the character set it uses for internal processing. That set is what the C standard calls the source character set. It must be isomorphic with ISO 10646, also known as Unicode. CPP uses the UTF-8 encoding of Unicode.</p>
-<p>The character sets of the input files are specified using the <code>-finput-charset=charset</code></p>
-<p>Set the input character set, used for translation from the character set of the input file to the source character set used by GCC. If the locale does not specify, or GCC cannot get this information from the locale, the default is UTF-8. This can be overridden by either the locale or this command-line option. Currently the command-line option takes precedence if there’s a conflict. charset can be any encoding supported by the system’s iconv library routine.</p>
-</blockquote>
-<hr>
-<p>阶段二：处理续行符</p>
-<ul>
-<li>当反斜杠出现于行尾（其后紧跟换行符）时，删除该反斜杠和换行符并将两个物理源码行组合成一个逻辑源码行。</li>
-</ul>
-<p>宏定义为预处理指令，预处理指令要求在一行内完成，因此为了保证可读性，续行符<code>\</code>经常在宏的定义中被使用。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/kernel.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> container_of(ptr, type, member) (&#123;                          \</span></span><br><span class="line">	    <span class="function"><span class="keyword">const</span> <span class="title">typeof</span><span class="params">( ((type *)<span class="number">0</span>)-&gt;member )</span> *__mptr </span>= (ptr);    \</span><br><span class="line">	    (type *)( (<span class="keyword">char</span> *)__mptr - offsetof(type,member) );&#125;)</span><br></pre></td></tr></table></figure></p>
-<hr>
-<p>阶段三：分解源文件，恢复始字符串字面量，去掉注释。</p>
-<ul>
-<li>将源文件分解为注释，空白字符和下列各种预处理记号：<ul>
-<li>头文件名，如<code>&lt;iostream&gt;</code></li>
-<li><a href="https://zh.cppreference.com/w/cpp/language/identifiers" target="_blank" rel="noopener">标识符</a></li>
-<li>预处理数字</li>
-<li>字符与字符串字面量（包括用户定义的）</li>
-<li>运算符与标点</li>
-<li>不属于任何其他类别的单独非空白字符</li>
-</ul>
-</li>
-<li>恢复在任何<strong>原始字符串字面量</strong>（的首尾双引号之间在阶段 1 和 2 期间进行的所有变换。</li>
-<li>以一个空格字符替换每段注释。</li>
-</ul>
-<p><a href="https://abseil.io/tips/64" target="_blank" rel="noopener"><strong>原始字符串字面量</strong></a>是指以R开头，形如<code>R&quot;tag(content)tag&quot;</code>形式的字符串字面量。其中<code>tag</code>是一个最多由16个字符组成的序列，不可以包含<code>(</code>、<code>\</code>和<code>`。</code>tag`可以为空。<strong>原始字符串字面量</strong>常被用于正则表达式的书写，以减少转义字符，增加可读性：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">R"regexp((?:"(?:\\"|[^"])*"|'(?:\\'|[^'])*'))regexp"</span>;</span><br></pre></td></tr></table></figure></p>
-<hr>
-<p>阶段四：递归<strong>预处理</strong></p>
-<ul>
-<li>预处理指令控制预处理器的行为。每个指令<strong>占据一行</strong>并拥有下列格式：<ul>
-<li><code>#</code> 字符</li>
-<li>预处理指令（<code>define</code>、<code>undef</code>、<code>include</code>、<code>if</code>、<code>ifdef</code>、<code>ifndef</code>、<code>else</code>、<code>elif</code>、<code>endif</code>、<code>line</code>、<code>error</code>、<code>pragma</code> 之一）</li>
-<li>实参（取决于指令）</li>
-<li>换行符</li>
-</ul>
-</li>
-<li>预处理指令可以是空指令，不产生任何效果。</li>
-<li><p>预处理指令不得来自宏展开。</p>
-</li>
-<li><p>预处理的过程</p>
-<ul>
-<li>将所有<a href="https://zh.cppreference.com/w/cpp/preprocessor/replace" target="_blank" rel="noopener">文本替换宏</a>(<code>#define</code>)删除，并展开所有的宏定义</li>
-<li>处理所有<a href="https://zh.cppreference.com/w/cpp/preprocessor/conditional" target="_blank" rel="noopener">条件包含</a>，比如<code>#if</code>，<code>#ifdef</code></li>
-<li>递归处理<a href="https://zh.cppreference.com/w/cpp/preprocessor/include" target="_blank" rel="noopener">源文件包含</a><code>#include</code></li>
-<li>删除所有注释</li>
-<li>添加行号和文件名标识，以便于编译器在产生编译错误时能显示行号。</li>
-<li>保留<a href="https://zh.cppreference.com/w/cpp/preprocessor/impl" target="_blank" rel="noopener">实现定义的行为控制</a><code>#pragma</code>，因为编译器要用到他们。</li>
-</ul>
-</li>
-<li><p>此阶段结束时，所有预处理器指令都应从源（代码）移除。</p>
-</li>
-</ul>
-<hr>
-<p><code>#pragma once</code> vs <code>#ifndef</code> include guards</p>
-<p><code>#pragma once</code>：</p>
-<ul>
-<li>优点：<ul>
-<li><code>#pragma once</code>使得当前源文件在一次编译中只被<code>#include</code>一次。从原理来讲要比 include guards 更快，因为 include guards 还需要对重复的<code>#ifdef #endif</code>等等预处理指令进行预处理。不过在实践中几乎没有差别。</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>非标准</li>
-<li>gcc3.4以后才支持<code>#pragma once</code></li>
-</ul>
-</li>
-</ul>
-<p>include guards</p>
-<ul>
-<li>标准规定的</li>
-<li>gcc有对其的优化<a href="https://stackoverflow.com/questions/20704968/multiple-include-optimization#:~:text=The%20preprocessor%20notices%20such%20header,as%20the%20multiple%20include%20optimization." target="_blank" rel="noopener">Multiple Include Optimization</a></li>
-</ul>
-<hr>
-<p>阶段五：字面量从 基本源字符集 到 执行字符集 的转换</p>
-<ul>
-<li>将<em>字符字面量</em>及<em>字符串字面量</em>中的所有字符从<em>基本源字符集</em>转换到<em>执行字符集</em>(gcc默认为UTF-8)</li>
-<li>将<em>字符字面量</em>和<em>非原始字符串字面量</em>中的转义序列和通用字符名展开，并转换到<em>执行字符集</em>。</li>
-</ul>
-<p>gcc和clang当中，可以使用<code>-fexec-charset</code>和<code>-fwide-exec-charset</code>指定<strong>执行字符集</strong>的编码。Visual Studio中可以使用<code>/execution-charset</code>来指定<strong>执行字符集</strong>的编码。</p>
-<p><a href="https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html" target="_blank" rel="noopener">gcc doc | 3.13 Options Controlling the Preprocessor</a></p>
-<blockquote>
-<p><code>-fexec-charset=charset</code><br>   Set the execution character set, used for string and character constants. The default is UTF-8. charset can be any encoding supported by the system’s iconv library routine.</p>
-<p><code>-fwide-exec-charset=charset</code><br>   Set the wide execution character set, used for wide string and character constants. The default is UTF-32 or UTF-16, whichever corresponds to the width of wchar_t. As with -fexec-charset, charset can be any encoding supported by the system’s iconv library routine; however, you will have problems with encodings that do not fit exactly in wchar_t.</p>
-</blockquote>
-<hr>
-<p>阶段六：</p>
-<p>拼接相邻的字符串字面量。<br>即将<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> str = <span class="string">"this line might be too long, so that it has to be "</span></span><br><span class="line">                 <span class="string">"wrapped."</span></span><br></pre></td></tr></table></figure><br>合并为<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span> <span class="built_in">string</span> = <span class="string">"this line might be too long, so that it has to be wrapped."</span></span><br></pre></td></tr></table></figure></p>
-<hr>
-<p>参考</p>
-<p><a href="">《程序员的自我修养链接、装载与库》</a></p>
-<hr>
-<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/posts/93539652/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -617,7 +634,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/posts/8f07748/" class="post-title-link" itemprop="url">名字查找与实参依赖查找(ADL)</a>
+            <a href="/posts/8f07748/" class="post-title-link" itemprop="url">标识符、名字查找与实参依赖查找(ADL)</a>
         </h1>
 
         <div class="post-meta">
@@ -636,7 +653,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-15 16:40:41" itemprop="dateModified" datetime="2020-07-15T16:40:41+08:00">2020-07-15</time>
+                <time title="Modified: 2020-07-15 21:55:20" itemprop="dateModified" datetime="2020-07-15T21:55:20+08:00">2020-07-15</time>
               </span>
 
           <br>
@@ -645,7 +662,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.3k</span>
+              <span>5.2k</span>
             </span>
 
         </div>
@@ -667,169 +684,14 @@
 <li>ADL与hidden friend</li>
 </ul>
 <p>参考<br><a href="http://www.tmplbook.com/" target="_blank" rel="noopener">C++ Templates: The Complete Guide</a><br><a href="https://quuxplusone.github.io/blog/2019/04/26/what-is-adl/" target="_blank" rel="noopener">What is ADL? - Arthur O’Dwyer</a><br><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1601r0.pdf" target="_blank" rel="noopener">P1601r0</a></p>
-<h1 id="标识符分类"><a href="#标识符分类" class="headerlink" title="标识符分类"></a>标识符分类</h1><p>标准中关于标识符(<strong>identifier</strong>)的分类：</p>
-<ul>
-<li><p><strong>identifier</strong><br>  标识符是一个由数字，下划线，大小写拉丁字母和大多数 Unicode 字符组成的任意长度的序列。标识符不能以数字开头。</p>
-<ul>
-<li>关键词标识符不可用于其他目的，但可以用于attribute：<code>[[private]]</code></li>
-<li>作为特定运算符与标点符的代用表示不能用于其他目的：<code>xor</code></li>
-<li>一些标识符是被保留的：<ul>
-<li>任何位置带有双下划线的标识符：<code>__builtin_popcount</code></li>
-<li>以一个下划线跟着一个大写字母开头的标识符：<code>_M_storage</code></li>
-<li>全局命名空间中以一个下划线开头</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>Each identifier that contains a double underscore __ or begins with an underscore followed by an uppercase letter is reserved to the implementation for any use.<br>Each identifier that begins with an underscore is reserved to the implementation for use as a name in the global namespace.</p>
-</blockquote>
-<p>libstdc++的实现中存在存在大量的带双下划线的uglified names。例如<code>__stable_sort</code>。libstdc++的实现中，成员变量一般都被写成<code>_M_xxxx</code>。编译器的实现也存在这样的双下划线开头的标识符，例如<code>namespace __gnu_cxx</code>。保留这些标识符，避免和库，编译器产生冲突。</p>
-<p>而<strong>全局命名空间中以一个下划线开头</strong>可能会导致该函数的名称和另一个函数的mangled name重复，链接器会报错</p>
-<iframe width="800px" height="500px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:1,endLineNumber:2,positionColumn:1,positionLineNumber:2,selectionStartColumn:1,selectionStartLineNumber:2,startColumn:1,startLineNumber:2),source:'%23include+%3Ccstdio%3E%0A%0Aextern+%22C%22%0A%7B%0A++++double+_ZN1NL1AE+%3D+99%3B%0A%7D%0A%0Anamespace+N%0A%7B%0A++++inline+static+int+A+%3D+1234%3B%0A%7D%0A%0Aint+main()%0A%7B%0A++++printf(%22%25d%22,+N::A)%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',n:'0',o:'',s:0,t:'0'),(g:!((g:!((h:compiler,i:(compiler:gsnapshot,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'1',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+gcc+(trunk)+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),k:50,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gsnapshot,compilerOutShown:'0',execArgs:'',execStdin:'',fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',source:1,stdinPanelShown:'1'),l:'5',n:'0',o:'x86-64+gcc+(trunk)+Executor+(Editor+%231)+C%2B%2B',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),k:50,l:'3',n:'0',o:'',t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
-
-<p>下面的例子定义了一个和全局对象<code>std::cout</code>的mangled name重名的函数，导致SIGSEGV(errno: 139)</p>
-<iframe width="800px" height="500px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:18,endLineNumber:13,positionColumn:18,positionLineNumber:13,selectionStartColumn:18,selectionStartLineNumber:13,startColumn:18,startLineNumber:13),source:'%23include+%3Ciostream%3E%0A%0Aextern+%22C%22%0A%7B%0A++++void+_ZSt4cout()%0A++++%7B%0A++++++++int+i+%3D+8%3B%0A++++%7D%0A%7D%0A%0Aint+main()%0A%7B%0A++++std::cout%3C%3C1%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((g:!((h:compiler,i:(compiler:gsnapshot,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'1',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'-O3',selection:(endColumn:29,endLineNumber:19,positionColumn:29,positionLineNumber:19,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+gcc+(trunk)+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),k:50,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:g101,compilerOutShown:'0',execArgs:'',execStdin:'',fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',source:1,stdinPanelShown:'1'),l:'5',n:'0',o:'x86-64+gcc+10.1+Executor+(Editor+%231)+C%2B%2B',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),k:50,l:'3',n:'0',o:'',t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
-
-<hr>
-<ul>
-<li><strong>operator-function-id</strong><br>  关键词<code>opreator</code>后跟随运算符的符号，例如<code>operator new</code>，<code>operator []</code></li>
-<li><strong>conversion-function-id</strong><br>  用于进行隐式类型转换的运算符。例如<code>operator int&amp;</code>。</li>
-<li><strong>literal-operator-id</strong><br>  用于用户自定义字面量，例如<code>operator &quot;&quot;_km</code>用于<code>100_km</code></li>
-<li><strong>template-id</strong><br>  模板名后随包含模板实参的角括号，例如<code>tuple&lt;int, int, double&gt;</code>。一个<strong>template-id</strong>可能是一个<strong>operator-function-id</strong>或<strong>conversion-function-id</strong>，例如<code>operator+&lt;pair&lt;int, int&gt;&gt;</code>。</li>
-<li><strong>unqualified-id</strong><br>  包括以上的任何一种：<strong>operator-function-id</strong>、<strong>conversion-function-id</strong>、<strong>literal-operator-id</strong>、<strong>template-id</strong>和以<code>~</code>开头的析构函数名称，例如<code>~X</code></li>
-<li><strong>qualified-id</strong><br>  一个被作用域解析操作符<code>::</code>限定的标识符。例如<code>std::swap</code>、<code>::hton</code>、<code>::std::partition</code></li>
-</ul>
-<hr>
-<p>为叙述方便，我们定义：</p>
-<ul>
-<li><strong>qualified-name</strong><ul>
-<li>进行有限定的名字查找的标识符：<ul>
-<li><strong>qualified-id</strong>，例如<code>S::x</code></li>
-<li>显式成员访问运算符后的<strong>unqualified-id</strong>和<strong>qualified-id</strong>，例如<code>this-&gt;f</code>、<code>p-&gt;A::m</code>。<code>struct x{ int y; int f(){return y;}};</code>函数<code>x::f()</code>中的<code>y</code>不算是<strong>qualified-name</strong>，因为要求成员访问运算符必须为显式。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>unqualified-name</strong><br>  进行无限定的名字查找的标识符，即一个不是<strong>qualified-name</strong>的<strong>unqualified-id</strong>。</li>
-</ul>
-<h1 id="名字查找"><a href="#名字查找" class="headerlink" title="名字查找"></a>名字查找</h1><p>如果名字紧跟在作用域解析运算符 <code>::</code>，或可能跟在 <code>::</code> 之后的消歧义关键词 <code>template</code> 的右侧，进行<strong>有限定的名字查找</strong>，否则进行<strong>无限定的名字查找</strong>。</p>
-<ul>
-<li><strong>有限定的名字查找</strong>根据<code>::</code>左边的名字进行查找：<ul>
-<li>如果<code>::</code>左边的名字是命名空间，或左边为空，那么<code>::</code> 右边的名字就在这个命名空间的作用域中进行查找</li>
-<li>如果<code>::</code>左边的名字是某个类（或<code>struct</code>, <code>union</code>），则<code>::</code>右边的名字在该类、结构体或联合体的作用域中进行查找（因此可能找到该类或其基类的成员的声明）。注意，此时不搜索包含该类的命名空间。</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span> :</span> <span class="keyword">public</span> B&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(D* pd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	pd-&gt;i = <span class="number">3</span>; <span class="comment">// i的查找结果为B::i</span></span><br><span class="line">	D::x = <span class="number">2</span>;  <span class="comment">// 错误：在D和B中未找到x。x位于全局命名空间。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>关于<strong>有限定的名字查找</strong>的其他细节，参照<a href="https://zh.cppreference.com/w/cpp/language/qualified_lookup" target="_blank" rel="noopener">cppreference - 有限定的名字查找</a></p>
-<hr>
-<ul>
-<li><strong>无限定的名字查找</strong><ul>
-<li>先查找当前的作用域，再查找外层作用域，以此类推。</li>
-<li>在成员函数定义的作用域内，先查找该类，之后查找该类的父类，之后再查找外层命名空间。</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="keyword">int</span> count;             <span class="comment">// #1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">lookup_example</span><span class="params">(<span class="keyword">int</span> count)</span> <span class="comment">// #2</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(count &lt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">int</span> count = <span class="number">1</span>;        <span class="comment">// #3</span></span><br><span class="line">		lookup_example(count);<span class="comment">// 查找结果为#3</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> count + ::count;   <span class="comment">// 第一个无限定的名字查找结果为#2</span></span><br><span class="line">                                  <span class="comment">// 第二个有限定的名字查找结果为#1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>关于<strong>无限定的名字查找</strong>的其他细节，参照<a href="https://zh.cppreference.com/w/cpp/language/qualified_lookup" target="_blank" rel="noopener">cppreference - 无限定的名字查找</a></p>
-<h1 id="注入类名-injected-class-name"><a href="#注入类名-injected-class-name" class="headerlink" title="注入类名(injected-class-name)"></a>注入类名(injected-class-name)</h1><ul>
-<li>一个类的名字会以<strong>unqualified-name</strong>的形式，被注入到该类的作用域内。与其他成员类似，注入类名可被继承。</li>
-</ul>
-<p>因此我们在类（类模板）的作用域内可以通过<strong>unqualified-name</strong>的形式来指代该类。然而，<strong>qualified-name</strong>的形式则不可以用来指代该类，因为这种形式被用来指代<em>构造函数</em>。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdint&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstddef&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;type_traits&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int32_t</span> C;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">int64_t</span> i;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">static</span> size_t <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(C) == <span class="keyword">sizeof</span>(<span class="keyword">int64_t</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">sizeof</span>(C); <span class="comment">// C is injeceted as an `unqualified-name`</span></span><br><span class="line">		                  <span class="comment">// into the class scope</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">    	<span class="keyword">auto</span> p = &amp;::C;    <span class="comment">// '::C' refers to the global variable if it</span></span><br><span class="line">                          <span class="comment">// is qualified with '::'</span></span><br><span class="line">        <span class="keyword">static_assert</span>(<span class="built_in">std</span>::is_same_v&lt;<span class="keyword">decltype</span>(p), <span class="keyword">int32_t</span>*&gt;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">k</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// auto p = &amp;C::C;</span></span><br><span class="line">        <span class="comment">// error: taking address of constructor 'constexpr C::C(C&amp;&amp;)'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">auto f() -&gt; size_t</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(C) == <span class="keyword">sizeof</span>(<span class="keyword">int32_t</span>));</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">sizeof</span>(C);     <span class="comment">// f in not in the C class scope, thus 'C'  </span></span><br><span class="line">	                      <span class="comment">// refers to the global variable 'int32_t C'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在上面的程序中，在C的类作用域中，<strong>unqualified-name</strong><code>C</code>被注入其中。</p>
-<ul>
-<li>函数<code>C::f()</code>返回的是类<code>C</code>的大小。</li>
-<li>函数<code>c::g()</code>中，使用被限定的标识符<code>::C</code>则只能进行有限定的名字查找，对应全局变量<code>::C</code>。</li>
-<li>函数<code>C::k()</code>中，编译错误说明表达式<code>&amp;C::C</code>是取<code>C</code>的构造函数的地址，那么<code>C::C</code>表示的是<code>C</code>的构造函数。</li>
-<li>函数<code>::f()</code>中，<code>C</code>进行不限定的名字查找，找到全局变量<code>::C</code>。</li>
-</ul>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">B</span> :</span> <span class="keyword">private</span> A &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">C</span> :</span> <span class="keyword">public</span> B &#123;</span><br><span class="line">    A* p; <span class="comment">// 错误：注入类名 A 不可访问</span></span><br><span class="line">    ::A* q; <span class="comment">// OK：不使用注入类名</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>与其他成员类似，注入类名可被继承。在私有或受保护继承的场合，可能导致某个间接基类的注入类名在派生类中最后变得不可访问。</p>
-<hr>
-<p>与其他类相似，类模板也拥有注入类名。其注入类名可被用作模板名或类型名。</p>
-<p>下列情况下，在作用域中，注入类名被当做类模板自身的模板名：</p>
-<ul>
-<li>它后面跟着 <code>&lt;</code></li>
-<li>它被用作对应某个模板模板形参的模板实参</li>
-<li>它是某个友元类模板声明的详述类型说明符中的最后标识符。</li>
-<li>否则，它被当做类型名，并等价于模板名后随环绕于 <code>&lt;&gt;</code> 中的该类模板的各个模板形参。</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;type_traits&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">template</span> &lt;<span class="keyword">typename</span>, <span class="keyword">typename</span>&gt; <span class="keyword">typename</span>&gt; </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span>&#123;</span>&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T1</span>, <span class="title">class</span> <span class="title">T2</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">X</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    X *p1;         <span class="comment">// #1</span></span><br><span class="line">    X&lt;T1, T2&gt;* p2; <span class="comment">// #2</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">static_assert</span>(<span class="built_in">std</span>::is_same_v&lt;X, X&lt;T1, T2&gt; &gt;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> a = A&lt;X&gt;; <span class="comment">// #3</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">U1</span>, <span class="title">class</span> <span class="title">U2</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="title">friend</span> <span class="title">class</span> <span class="title">X</span>;</span> <span class="comment">// #4</span></span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>类模板<code>A</code>的模板参数为 接受两个类为模板参数的 模板模板参数。</p>
-<ol>
-<li><code>X</code>被当作<strong>类型名</strong>，等价于<code>X&lt;T1, T2&gt;</code></li>
-<li><code>X</code>后面跟随<code>&lt;</code>，<code>X</code>被当作<strong>模板名</strong>，可以接受两个类做模板参数。</li>
-<li><code>X</code>被用作类模板<code>A</code>的模板模板形参的实参，<code>X</code>此时被当作<strong>模板名</strong>。</li>
-<li><code>X</code>是某个友元类模板声明的详述类型说明符中的最后标识符，<code>X</code>此时被当作<strong>模板名</strong>。</li>
-</ol>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">crtp_base</span>&#123;</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="comment">// struct crtp_derived : public crtp_base&lt;crtp_derived&gt; // #1</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">crtp_derived</span> :</span> <span class="keyword">public</span> crtp_base&lt;crtp_derived&lt;T&gt;&gt; <span class="comment">// #2</span></span><br><span class="line">&#123;&#125;;</span><br></pre></td></tr></table></figure>
-<p>在CRTP实践中，描述继承的语句不在类的作用域内，因此我们需要在继承CRTP模板时，将本类的名字写全。如<code>#2</code>所示。<code>#1</code>不能通过编译。</p>
-<hr>
-<p>关于注入类名更详细的介绍，参考<a href="https://zh.cppreference.com/w/cpp/language/injected-class-name" target="_blank" rel="noopener">cppreference - 注入类名</a></p>
-<h1 id="为什么需要ADL"><a href="#为什么需要ADL" class="headerlink" title="为什么需要ADL"></a>为什么需要ADL</h1><p>假设<strong>名字查找</strong>只有<strong>有限定的名字查找</strong>和<strong>无限定的名字查找</strong>，考虑下面的例子：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">T <span class="title">max</span><span class="params">(T a, T b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> BigMath</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">BigNumber</span></span></span><br><span class="line"><span class="class">	&#123;</span></span><br><span class="line">		<span class="comment">// ...</span></span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">bool</span> opreator &lt; (<span class="keyword">const</span> BigNumber&amp;, <span class="keyword">const</span> BigNumber&amp;);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> BigMath::BigNumber;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(<span class="keyword">const</span> BigNumber&amp; a, <span class="keyword">const</span> BigNumber&amp; b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	<span class="keyword">auto</span> x = ::max(a, b); <span class="comment">// cannot find BigNumber::operator&lt; without ADL</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>函数模板<code>template&lt;typename T&gt; T max(T a, T b)</code>并不知道<code>namespace BigMath</code>的存在，如果仅进行<strong>无限定的名字查找</strong>，并不能在其函数作用域或者外部的全局命名空间找到<code>bool opreator &lt; (const BigNumber&amp;, const BigNumber&amp;)</code>。ADL则被用来解决这种状况。</p>
-<h1 id="ADL如何进行？"><a href="#ADL如何进行？" class="headerlink" title="ADL如何进行？"></a>ADL如何进行？</h1><p>ADL主要适用于对<strong>unqualified-name</strong>的<strong>函数</strong>进行的名字查找。查找对象是一个在进行函数调用或者运算符调用的<strong>非成员函数</strong>。<br>首先，若通常的<strong>无限定名字查找</strong>所生成的集合含有下列任何内容，则不考虑ADL:</p>
-<ol>
-<li>类成员的声明</li>
-<li>块作用域的（并非 <code>using</code> 声明的）函数声明</li>
-<li>任何非函数或函数模板之声明（例如函数对象或另一变量，其名字与正在查找的函数名冲突）</li>
-</ol>
-<hr>
-<p>否则，对于每个函数调用表达式中的实参，检验其类型，以确定它将向查找所添加的命名空间与类的关联集：</p>
-<ol>
-<li>对于基础类型的实参，命名空间与类的关联集为空集</li>
-<li>对于 T 的指针或指向 T 的数组的指针类型的实参，检验类型 T 并向集合中添加其类与命名空间的关联集合。</li>
-<li>对于任何枚举类型的实参，向集合中添加于其中定义了该枚举的命名空间。若该枚举类型是类成员，则向集合中添加该类。</li>
-<li>对于类类型（含联合体）的实参，集合由以下组成<ul>
-<li>该类自身</li>
-<li>其所有直接与间接基类</li>
-<li>若该类是另一类的成员，则为该外围类</li>
-<li>添加到集合的各个类的最内层外围命名空间</li>
-</ul>
-</li>
-<li>若实参是一组重载函数（或函数模板）的名字或取址表达式，则检验重载集合中的每个函数，并向集合添加其类与命名空间的关联集合。另外，若以 模板标识（带模板实参的模板名），比如<code>A&lt;B&gt;</code>指名重载集，则检验其所有类型模板实参与模板模板实参（但不包括非类型模板实参），并向集合添加其类与命名空间的关联集合。</li>
-<li>对于指向类 X 的数据成员 T 的指针类型的实参，检验该成员类型和类型 X，并向集合添加它们的类与命名空间的关联集合。</li>
-</ol>
-<p>在确定命名空间与类的关联集合后，忽略此集中所有于类中找到的声明，但不包括命名空间作用域的友元函数及函数模板。之后，ADL根据下列特殊规则，将通过常规无限定查找所找到的声明的集合，与通过 ADL 所生成的关联集合的所有元素中找到的声明集合进行合并：</p>
-<ol>
-<li>忽略关联命名空间中的 <code>using</code> 指令</li>
-<li>声明于关联类中的命名空间作用域的友元函数（及函数模板）通过 ADL 可见，即使它们通过普通查找不可见。</li>
-<li>忽略除函数与函数模板外的所有名字（不会与变量之间发生冲突）</li>
-</ol>
-<hr>
-<p>例子一：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> X</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> N</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">using</span> <span class="keyword">namespace</span> X; <span class="comment">//ADL will ignore this</span></span><br><span class="line">	<span class="keyword">enum</span> E &#123;e1,&#125;;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(E)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"N::f(N::E) called\n"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"::f(int) called\n"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	::f(N::e1); <span class="comment">// 有限定的名字查找，不进行ADL</span></span><br><span class="line">	f(N::e1);   <span class="comment">// 无限定的名字查找，找到 `::f(int)`</span></span><br><span class="line">	            <span class="comment">// 之后进行ADL，实参为枚举类型，向集合中添加声明该枚举的命名空间</span></span><br><span class="line">	            <span class="comment">// 之后根据规则合并时，忽略`using namespace X`指令</span></span><br><span class="line">	            <span class="comment">// 然后在 `namespace N` 中进行无限定查找</span></span><br><span class="line">	            <span class="comment">// 名字查找最终找到 `::f(int)` 和 `N::f(E)`</span></span><br><span class="line">	            <span class="comment">// 重载决议选择了后者`N::f(E)`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<hr>
-<p>例子二：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> A &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">A</span> &#123;</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> B &#123;</span><br><span class="line">    <span class="keyword">using</span> T = A::A;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> C &#123;</span><br><span class="line">    B::T c;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> C &#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        f(C::c);  <span class="comment">// HERE</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>在<code>// HERE</code>的位置，我们以<code>A::A</code>类型的参数调用了函数<code>f()</code>。即便对<code>C::c</code>进行<strong>有限定名字查找</strong>的过程中涉及到了<code>namespace C</code>、<code>namespace B</code>、<code>namespace A</code>和<code>struct A</code>。但这些都和ADL无关。ADL只关心“用<code>A::A</code>类型调用了一个未限定的函数名<code>f</code></p>
-<hr>
-<p>例子三：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> A &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">A</span> &#123;</span> <span class="function"><span class="keyword">operator</span> <span class="title">int</span><span class="params">()</span></span>; &#125;;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">h</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">i</span><span class="params">(A)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">j</span><span class="params">(A)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> B &#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line">    <span class="keyword">auto</span> h = [](<span class="keyword">int</span>) &#123;&#125;;</span><br><span class="line">    <span class="keyword">using</span> i = <span class="keyword">int</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        A::A a;</span><br><span class="line">        f(a);           <span class="comment">// #1</span></span><br><span class="line">        g(a);           <span class="comment">// #2</span></span><br><span class="line">        h(a);           <span class="comment">// #3</span></span><br><span class="line">        <span class="keyword">int</span> ia = i(a);  <span class="comment">// #4</span></span><br><span class="line">        <span class="keyword">int</span> j = j(a);   <span class="comment">// #5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<ol>
-<li><strong>无限定名字查找</strong> 在函数作用域未找到<code>f</code>。在<code>namespace B</code>中找到<code>void f(int)</code>。在全局命名空间未找到<code>f</code>。满足进行ADL的三个条件，因此将类<code>A::A</code>和类所在的命名空间<code>A</code>加入集合。<code>A::A</code>中无友元函数。<code>A</code>中存在一个函数<code>void f(A::A)</code>。重载决议选择<code>void f(A::A)</code></li>
-<li><strong>无限定名字查找</strong>在函数作用域未找到<code>g</code>。在<code>namespace B</code>中未找到<code>g</code>。在全局命名空间未找到<code>g</code>。满足ADL的三个条件，因此将类<code>A::A</code>和类所在的命名空间<code>A</code>加入集合。<code>A::A</code>中无友元函数。<code>A</code>中存在一个函数<code>void g(A::A)</code>。重载决议选择<code>void g(A::A)</code></li>
-<li><strong>无限定名字查找</strong>在<code>namespace B</code>找到lambda声明<code>h</code>。不进行ADL</li>
-<li><strong>无限定名字查找</strong>在<code>namespace B</code>找到alias声明<code>i</code>。不进行ADL</li>
-<li>错误：<strong>无限定名字查找</strong>在函数作用域找到变量声明<code>int j</code>。</li>
-</ol>
-<h1 id="ADL与友元函数"><a href="#ADL与友元函数" class="headerlink" title="ADL与友元函数"></a>ADL与友元函数</h1><p>注意到ADL维护了两个实参的关联集。一个是<strong>命名空间</strong>，另一个是<strong>类</strong>。注意到：</p>
-<blockquote>
-<p>在确定命名空间与类的关联集合后，忽略此集中所有于类中找到的声明，但不包括命名空间作用域的友元函数及函数模板。</p>
-</blockquote>
-<p>因此<strong>类</strong>的集合主要用来处理：</p>
-<blockquote>
-<p>声明于关联类中的命名空间作用域的友元函数（及函数模板）通过 ADL 可见，即使它们通过普通查找不可见。</p>
-</blockquote>
-<p><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1601r0.pdf" target="_blank" rel="noopener">P1601r0</a>中提到：</p>
-<blockquote>
-<p>When first declared via a friend declaration, the befriended entity’s name (if unqualified) is injected into the nearest enclosing namespace. This is reasonable, as the named entity is not a member of the class granting friendship and so must become a member of some namespace.<br>However, such name injection does not implicitly make that name visible to qualified or unqualified lookup; only argument-dependent lookup can find such an otherwise hidden name.</p>
-</blockquote>
-<p>因为友元关系意味着该名字不会是该类的一个成员，该友元必然需要处于某一个命名空间中。所以当我们第一次在类中声明一个<code>unqualified name</code>为<code>friend</code>时，其名字会被<strong>注入</strong>最临近的命名空间中。但是这种名字注入并不能使得<strong>无限定的名字查找</strong>和<strong>有限定的名字查找</strong>找到该名字。只有通过ADL才可以找到。</p>
-<h1 id="待决名-dependent-name-的名字查找"><a href="#待决名-dependent-name-的名字查找" class="headerlink" title="待决名(dependent name)的名字查找"></a>待决名(dependent name)的名字查找</h1><p><strong>待决名</strong>(dependent name)是指</p>
-<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/posts/8f07748/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -862,7 +724,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/posts/3ad196a7/" class="post-title-link" itemprop="url">就地构造</a>
+            <a href="/posts/3ad196a7/" class="post-title-link" itemprop="url">复制消除、初始化列表与就地构造</a>
         </h1>
 
         <div class="post-meta">
@@ -873,10 +735,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-09 16:15:32 / Modified: 22:05:26" itemprop="dateCreated datePublished" datetime="2020-07-09T16:15:32+08:00">2020-07-09</time>
+              <time title="Created: 2020-07-09 16:15:32" itemprop="dateCreated datePublished" datetime="2020-07-09T16:15:32+08:00">2020-07-09</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-15 21:48:38" itemprop="dateModified" datetime="2020-07-15T21:48:38+08:00">2020-07-15</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -884,7 +752,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3k</span>
+              <span>3.1k</span>
             </span>
 
         </div>
@@ -896,139 +764,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://www.youtube.com/watch?v=oTMSgI1XjF8" target="_blank" rel="noopener">CppCon 2019: Ben Deane “Everyday Efficiency: In-Place Construction (Back to Basics?)”</a></p>
+          <ul>
+<li>常见的复制消除(copy elision)、RVO 与 NRVO</li>
+<li>initializer_list是borrowed type</li>
+<li>emplace_back和push_back，选那个？</li>
+</ul>
+<p><a href="https://www.youtube.com/watch?v=oTMSgI1XjF8" target="_blank" rel="noopener">CppCon 2019: Ben Deane “Everyday Efficiency: In-Place Construction (Back to Basics?)”</a></p>
 <p>本文章适用于C++17（及后续）标准。</p>
-<h1 id="常见的复制消除-copy-elision"><a href="#常见的复制消除-copy-elision" class="headerlink" title="常见的复制消除(copy elision)"></a>常见的复制消除(copy elision)</h1><p><a href="https://zh.cppreference.com/w/cpp/language/copy_elision" target="_blank" rel="noopener">复制消除 - cppreference</a></p>
-<h2 id="强制的复制-移动消除"><a href="#强制的复制-移动消除" class="headerlink" title="强制的复制/移动消除"></a>强制的复制/移动消除</h2><ul>
-<li>在 return 语句中，当操作数为与函数返回类型为同一类类型的纯右值（忽略 cv 限定）时。要求返回类型的析构函数必须在 return 语句位置可访问且未被删除，即使无待销毁的 T 对象。</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">T <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> T();</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">f(); <span class="comment">// 仅调用一次 T 的默认构造函数</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>在对象的初始化中，当初始化器表达式为与变量类型为同一类类型的纯右值（忽略 cv 限定）时：</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T x = T(T(f())); <span class="comment">// 仅调用一次 T 的默认构造函数以初始化 x</span></span><br></pre></td></tr></table></figure>
-<h2 id="非强制的复制-移动消除（RVO-NRVO）"><a href="#非强制的复制-移动消除（RVO-NRVO）" class="headerlink" title="非强制的复制/移动消除（RVO, NRVO）"></a>非强制的复制/移动消除（RVO, NRVO）</h2><ul>
-<li><p><code>return</code> 语句中，当操作数是拥有自动存储期的非 <code>volatile</code>对象的名字，其并非函数形参或 <code>catch</code>子句形参，且其具有与函数返回类型相同的类类型（忽略 cv 限定）时。这种复制消除的变体被称为 NRVO，“具名返回值优化 (named return value optimization)”。</p>
-</li>
-<li><p>在协程中，可以消除将形参向协程状态内的复制/移动，只要除了对形参的构造函数与析构函数的调用被忽略以外，不改变程序的行为即可。若在暂停点后始终不使用形参，或者整个协程状态本就始终不在堆上分配，则可出现此情形。</p>
-</li>
-</ul>
-<h1 id="无法进行RVO的常见情况"><a href="#无法进行RVO的常见情况" class="headerlink" title="无法进行RVO的常见情况"></a>无法进行RVO的常见情况</h1><ul>
-<li><p>return 语句的操作数为函数的形参。因为s不是由该函数构造的，无法进行RVO。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">sad_function</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	s += <span class="string">"No RVO for you!"</span>;</span><br><span class="line">	<span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>return 语句的操作数和函数返回值类型不同。在下面的例子中，操作数类型为<code>std::string&amp;&amp;</code>，函数返回值类型为<code>std::string</code>。大部分情况下<code>return std::move(...)</code>是错误的。</p>
-</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">sad_function</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	s += <span class="string">"No RVO for you!"</span>;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">std</span>::move(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>因为分支语句，导致编译器获得的信息不足。在下面的例子中，因为不知道该就地构造<code>happy</code>还是<code>sad</code>，因此无法进行RVO</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">sad_function</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">auto</span> happy = <span class="string">"happy"</span>s;</span><br><span class="line">	<span class="keyword">auto</span> sad   = <span class="string">"sad"</span>s;</span><br><span class="line">	<span class="keyword">if</span>(get_happiness() &gt; <span class="number">0.5</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> happy;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> sad;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>constexpr</code>函数不可进行NRVO，但强制进行RVO</li>
-</ul>
-<hr>
-<p>以下情况是否能进行RVO？</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// example 1</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> S <span class="title">will_it_rvo_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//example 2</span></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//example 3</span></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo</span><span class="params">(<span class="keyword">bool</span> b, S s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		s = S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//example 4</span></span><br><span class="line"><span class="function">S <span class="title">get_S</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_4</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> get_S&#123;&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//example 5</span></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_5</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">		<span class="keyword">return</span> s;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_6</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	<span class="keyword">if</span>(b)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> s;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_7</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	<span class="keyword">return</span> b ? s : S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">get_S</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> S&#123;<span class="number">1</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">S <span class="title">will_it_rvo_8</span><span class="params">(<span class="keyword">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> b ? get_S() : S&#123;<span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_9</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	s = S&#123;<span class="number">2</span>&#125;;</span><br><span class="line">	<span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">S <span class="title">will_it_rvo_10</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">	<span class="keyword">return</span> (s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">P</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	constexpr P() : x&#123;0&#125;&#123;&#125;</span><br><span class="line">	constexpr P(P&amp;&amp;): x&#123;1&#125;&#123;&#125;</span><br><span class="line">	<span class="keyword">int</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <span class="title">will_this_rvo_11</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	P p;</span><br><span class="line">	<span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">auto</span> = will_this_rvo_11();</span><br><span class="line">	<span class="keyword">return</span> p.x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<div class='spoiler collapsed'>
-    <div class='spoiler-title'>
-        答案
-    </div>
-    <div class='spoiler-content'>
-        <ol>
-<li>return 操作数为纯右值，忽略cv限定后与函数返回值一致。C++17标准要求进行复制消除。</li>
-<li>return 操作数为纯右值，忽略cv限定后与函数返回值一致。C++17标准要求进行复制消除。即使在debug编译模式，仍然进行RVO。</li>
-<li>不能进行RVO，return 操作数为形参。</li>
-<li>函数返回值为纯右值。return 操作数为纯右值，忽略cv限定后与函数返回值一致。C++17标准要求进行复制消除。</li>
-<li>clang会进行RVO，MSVC和gcc不会RVO。(?)</li>
-<li>？</li>
-<li>涉及到三目运算符的value category。或许因为违反”the name of a stack variable”而不能RVO。</li>
-<li>该三目运算符的value category为prvalue。强制复制消除。</li>
-<li>NRVO</li>
-<li>NRVO 标准规定：The Standard, [class.copy.elision]/(3.1)<blockquote>
-<p>If the expression in a return or co_return statement is a <strong>(possibly parenthesized)</strong> idexpression that names an implicitly movable entity declared in the body or parameter-declaration-clause of the innermost enclosing function or lambda-expression, or …</p>
-</blockquote>
-</li>
-<li><code>constexpr</code>不可进行NRVO</li>
-</ol>
-<iframe width="800px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEJNJb0AGTy1MAOWMAjTMRABmTqQAOqBYXVaPUMTMx8/ALobO0cjFzdPRWVMVUCGAmZiAmDjU3MlFTU6dMyCaIdnVw8vBQysnND8urLbCriqzwBKRVQDYmQOAHIAemGAagAVAE9vTDGp3uIxtCwxhFdMUjGSMdZUZnQxkTHMAA9mI292ADpxAAYAQSl3W2RDVfF3HXVa4kwLz7Ye4PX4GVRjBjA8QAdlkjzGCLGtgIYwUnzhD0REIgyLGp06wKxMIxWKxCjGnwAIniKTIxpx0YTSQjaugQChegRPjpuWj3CTETDKYzHkKRU9HgwxgB3PCsVgAfUICuIADdUAqAKwQJyofRjJwE0WwqF3ACceCoOqNErNxNNdvNUrRsIZ0OF/Id9zNfwIfVoqPF3rFovNvv9EOJdzFnuNwtDDylsvlSoIKvVCoAbDq9awDTb7aGzc7iW6PRjvZbrV6TUXveHiAG%2BRXzSHbQ2A5DYdH3UH3YNuqwQINNYNSKZBncx6hhzyZHJUYsBrTPGOCMOp51ugBrECau5CYfcMcTqekGeDMcKEAH9eTgekOCwGCIDmXOWuciUNDv9huN4iMAnB3CBpBUHKBCuNeOobmOTi2JkUzDpwY4/kYWgEAA8rQrBIfepBYEYgHsLBBF4H8qSqpg174WcKQGJByFjsiyikaweBOMQiF6FgTGkAQxB4EYTHdDQ9BMGwHA8PwgjCKIKByHIQgcdekDdKg3hFLQNEALSYe4V7JKkGgQJYDSmF4ljlLE8SCL4/haeZdkRFp1mVG4NRGVpJT1PouSCAUKTec0bntB5ijNE5NQha0NlVJw3QKEuUmDsOo7jqRF6nAAHJmOmZtwyxycA9J3NcZV3GMEC4IQOzPF4Yx6L%2BrgrgljWKTIa6wVupC7vuh6DMepDCf1p7TsOV43vx3WPi%2BEBID%2B3gfmQFAQIty0gEBdxeOBrCQcQ0FOKR8G0IhfFoRh2G4aRhHEUMZ74BRahUTRZ50cgDFDCh5D0Kx%2BHsZx3EYF9a6CcJgwoaJdCMCwJHSQI5jFQp84yMpTiqRA6maYEun6YZhSBJo2hRRY2ihbZXj2ZEQR%2BaElMuYE5PxUkBPFJFtMWSzQVpDFMTuQF7MhJztSlEzHmJclXCpSOJ6ZcOOV5QVYzAMgyCldcnBVTVRBLPVWxNUtf4rpInTtSj0hdfePXrAcVSYwNQ0jQeY3nhNihTXem47nuB5DoMBkZfhF6W17A2SLLQdu57A7dFRB2E9wQA%3D"></iframe>
-    </div>
-</div>
-<h1 id="std-vector-push-back-or-emplace-back"><a href="#std-vector-push-back-or-emplace-back" class="headerlink" title="std::vector: push_back or emplace_back"></a>std::vector: push_back or emplace_back</h1><p>想要在<code>std::vector</code>最后放入一个元素，是选择<code>push_back</code>还是<code>emplace_back</code>？</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_back</span><span class="params">(<span class="keyword">const</span> T&amp; x)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_back</span><span class="params">(T&amp;&amp; x)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</span><br><span class="line"><span class="comment">// returns a reference since C++ 17</span></span><br><span class="line">reference </span><br><span class="line">emplace_back(Args&amp;&amp;... args);</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>push_back</code>提供对于rvalue的重载，对于rvalue，可以放心使用。</li>
-<li>何时使用<code>emplace_back</code>：<ul>
-<li><code>emplace_back</code>可以返回一个<code>reference</code></li>
-<li><code>emplace_back</code>可以默认构造，使用<code>explicit</code>构造函数，和针对<code>pair</code>的<code>piecewise_construct</code>。</li>
-</ul>
-</li>
-<li>避免在<code>emplace_back</code>中传入一个显示调用构造函数产生的临时对象。</li>
-</ul>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// example 1</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; v&#123;&#125;;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* s = <span class="string">"Hello"</span>;</span><br><span class="line"></span><br><span class="line">v.push_back(s); <span class="comment">// char* is first used in the construction of parameter</span></span><br><span class="line">v.emplace_back(s); <span class="comment">// char* is forwarded directly into the string.</span></span><br></pre></td></tr></table></figure>
-<p>在这个例子当中，使用<code>emplace_back</code>是更高效的。<code>s</code>被直接转发到该<code>vector</code>末尾元素的构造函数中。</p>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// S has an 'explicit' ctor from 'int'</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v&#123;&#125;;</span><br><span class="line"></span><br><span class="line">v.push_back(<span class="number">1</span>); <span class="comment">// cannot compile --&gt; push_back cannot be used in explicit construction</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span>&amp; s = v.emplace_back(<span class="number">1</span>); <span class="comment">// explicit is good for emplace_back</span></span><br></pre></td></tr></table></figure>
-<p>在这个例子中，<code>S</code>有一个限定为<code>explicit</code>的单参数构造函数。我们无法使用<code>push_back</code>来构造，必须使用<code>emplace_back</code>。</p>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// S has a ctor from Arg</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;Arg, 3&gt; = &#123;Arg&#123;&#125;, Arg&#123;&#125;, Arg&#123;&#125;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v&#123;&#125;;</span><br><span class="line">v.reserve(a.size());</span><br><span class="line"><span class="built_in">std</span>::copy(a.cbegin(), a.cend(), <span class="built_in">std</span>::back_inserter(v));</span><br></pre></td></tr></table></figure>
-<p>在这个例子中，<code>back_inserter</code>会不断调用<code>push_back</code>，不会被就地构造在<code>v</code>的末尾。我们用<code>Arg</code>去构造<code>S</code>，产生一个临时对象，该临时对象被<code>std::move</code>后调用<code>push_back</code>的针对右值的重载。</p>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;<span class="keyword">int</span>, 3&gt; = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v&#123;&#125;;</span><br><span class="line">v.reserve(a.size());</span><br><span class="line"><span class="built_in">std</span>::copy(a.cbegin(), a.cend(), <span class="built_in">std</span>::back_inserter(v));</span><br></pre></td></tr></table></figure>
-<p>无法编译，使用<code>int</code>的构造函数被限定为<code>explicit</code>。用transform修复。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;<span class="keyword">int</span>, 3&gt; = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v&#123;&#125;;</span><br><span class="line">v.reserve(a.size());</span><br><span class="line"><span class="built_in">std</span>::transform(a.cbegin(), a.cend(), <span class="built_in">std</span>::back_inserter(v), [](<span class="keyword">auto</span> i)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> S&#123;i&#125;;</span><br><span class="line">	&#125;);</span><br></pre></td></tr></table></figure>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// do not do this</span></span><br><span class="line">m_headers.emplace_back(<span class="built_in">std</span>::<span class="built_in">string</span>(headerData, numBytes));</span><br><span class="line"></span><br><span class="line"><span class="comment">// forward args directly into the ctor</span></span><br><span class="line">m_headers.emplace_back(headerData, numBytes);</span><br></pre></td></tr></table></figure>
-<p>不要在<code>emplace_back</code>中显式调用构造函数。</p>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Value</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	Value(<span class="keyword">int</span>， <span class="built_in">std</span>::<span class="built_in">string</span>, <span class="keyword">double</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// the second argument of pair needs a multi-args ctor</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::pair&lt;<span class="keyword">int</span>, Value&gt;&gt; v&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1 - this is vert common</span></span><br><span class="line">v.push_back(<span class="built_in">std</span>::make_pair(<span class="number">1</span>, Value&#123;<span class="number">42</span>, <span class="string">"hello"</span>s, <span class="number">3.14</span>&#125;));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2 - this is no better</span></span><br><span class="line">v.emplace_back(<span class="built_in">std</span>::make_pair(<span class="number">1</span>, Value&#123;<span class="number">42</span>, <span class="string">"hello"</span>s, <span class="number">3.14</span>&#125;));</span><br></pre></td></tr></table></figure>
-<p><code>std::pair</code>的第二个模板参数的构造需要一个多参数的构造函数。1和2都会导致产生额外的临时对象。我们可以使用<code>std::piecewise_construct_t</code>和<code>std::forward_as_tuple</code>来解决。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;utility&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;tuple&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="built_in">std</span>::<span class="keyword">piecewise_construct_t</span> piecewise_construct&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt; <span class="class"><span class="keyword">class</span>... <span class="title">Args1</span>, <span class="title">class</span>... <span class="title">Args2</span> &gt;</span></span><br><span class="line"><span class="class"><span class="title">pair</span>( <span class="title">std</span>:</span>:<span class="keyword">piecewise_construct_t</span>,</span><br><span class="line">      <span class="built_in">std</span>::tuple&lt;Args1...&gt; first_args,</span><br><span class="line">      <span class="built_in">std</span>::tuple&lt;Args2...&gt; second_args );</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt; <span class="class"><span class="keyword">class</span>... <span class="title">Types</span> &gt;</span></span><br><span class="line"><span class="class"><span class="title">constexpr</span> <span class="title">tuple</span>&lt;Types&amp;&amp;...&gt; <span class="title">forward_as_tuple</span>( <span class="title">Types</span>&amp;&amp;... <span class="title">args</span> ) <span class="title">noexcept</span>;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">v.emplace_back(</span><br><span class="line">	<span class="built_in">std</span>::piecewise_construct, </span><br><span class="line">	<span class="built_in">std</span>::forward_as_tuple(<span class="number">1</span>),</span><br><span class="line">	<span class="built_in">std</span>::forward_as_tuple(<span class="number">42</span>, <span class="string">"hello"</span>s, <span class="number">3.14</span>));</span><br></pre></td></tr></table></figure>
-<hr>
-<h1 id="std-initializer-list"><a href="#std-initializer-list" class="headerlink" title="std::initializer_list"></a>std::initializer_list</h1><p>不可以将move-only type放入<code>std::initializer_list</code>。因为你不能从<code>std::initializer_list</code>中将元素<code>move</code>出去。</p>
-<hr>
-<p>当你使用<code>std::initializer_list</code>时<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br></pre></td></tr></table></figure><br>相当与构造了一个<code>const</code>的array，然后以<code>std::initializer_list</code>作为该array的view。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> a[] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v = <span class="built_in">std</span>::<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt;(a, a + <span class="number">3</span>);</span><br></pre></td></tr></table></figure><br>下面这个例子可以证明这点：在函数<code>f()</code>直接返回了一个<code>initializer_list</code>，<code>initializer_list</code>作为一个borrowed type然而其对应的数组早已被销毁，造成了悬垂引用。</p>
-<iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:27,endLineNumber:22,positionColumn:27,positionLineNumber:22,selectionStartColumn:27,selectionStartLineNumber:22,startColumn:27,startLineNumber:22),source:'//+Type+your+code+here,+or+load+an+example.%0A%0A%23include+%3Ctype_traits%3E%0A%23include+%3Ciostream%3E%0A%0Atemplate+%3Cint...+Is%3E%0Aauto+f()%0A%7B%0A%09return+std::initializer_list%3Cint%3E%7BIs...%7D%3B%0A%7D%0A%0Avoid+fine()%0A%7B%0A%09for(int+i+:+%7B1,+2,+3%7D)%0A%09%7B%0A%09%09std::cout%3C%3C+i+%3C%3C+%22%5Cn%22%3B%0A%09%7D%0A%7D%0A%0Avoid+works_fine_until_it_explodes()%0A%7B%0A%09for(int+i+:+f%3C1,+2,+3%3E())%0A%09%7B%0A%09%09std::cout%3C%3C+i+%3C%3C+%22%5Cn%22%3B%0A%09%7D%0A%7D%0A%0A%0A'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50.91059602649006,l:'4',n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:g101,compilerOutShown:'0',execArgs:'',execStdin:'',fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',source:1,stdinPanelShown:'1'),l:'5',n:'0',o:'x86-64+gcc+10.1+Executor+(Editor+%231)+C%2B%2B',t:'0')),header:(),k:49.08940397350994,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
-
-<p>gcc甚至给出了<code>warning</code>而不允许通过编译。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">warning: returning temporary 'initializer_list' does not extend the lifetime of the underlying array [-Winit-list-lifetime]</span><br><span class="line"></span><br><span class="line">    <span class="number">9</span> |  <span class="keyword">return</span> <span class="built_in">std</span>::<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt;&#123;Is...&#125;;</span><br><span class="line">      |</span><br></pre></td></tr></table></figure>
-<hr>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v = &#123; S&#123;<span class="number">1</span>&#125;, S&#123;<span class="number">2</span>&#125;, S&#123;<span class="number">3</span>&#125;&#125;;</span><br></pre></td></tr></table></figure>
-<p>vs</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;S&gt; v;</span><br><span class="line">v.reserve(<span class="number">3</span>);</span><br><span class="line">v.emplace_back(<span class="number">1</span>);</span><br><span class="line">v.emplace_back(<span class="number">2</span>);</span><br><span class="line">v.emplace_back(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
-<p>如果<code>S</code>的构造代价较高，当使用<code>std::initializer_list</code>将会产生临时对象，导致<code>vector</code>的构造变得十分缓慢。下面的例子就是一个反面典型。每一个字符串常量都被用来构造一个临时的<code>std::string</code>。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unordered_set</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; keywords = </span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"asm"</span>,	<span class="string">"else"</span>,	<span class="string">"new"</span>,	<span class="string">"this"</span>,</span><br><span class="line"><span class="string">"auto"</span>,	<span class="string">"enum"</span>,	<span class="string">"operator"</span>,	<span class="string">"throw"</span>,</span><br><span class="line"><span class="string">"bool"</span>,	<span class="string">"explicit"</span>,	<span class="string">"private"</span>,	<span class="string">"true"</span>,</span><br><span class="line"><span class="string">"break"</span>,	<span class="string">"export"</span>,	<span class="string">"protected"</span>,	<span class="string">"try"</span>,</span><br><span class="line"><span class="string">"case"</span>,	<span class="string">"extern"</span>,	<span class="string">"public"</span>,	<span class="string">"typedef"</span>,</span><br><span class="line"><span class="string">"catch"</span>,	<span class="string">"false"</span>,	<span class="string">"register"</span>,	<span class="string">"typeid"</span>,</span><br><span class="line"><span class="string">"char"</span>,	<span class="string">"float"</span>,	<span class="string">"reinterpret_cast"</span>,	<span class="string">"typename"</span>,</span><br><span class="line"><span class="string">"class"</span>,	<span class="string">"for"</span>,	<span class="string">"return"</span>,	<span class="string">"union"</span>,</span><br><span class="line"><span class="string">"const"</span>,	<span class="string">"friend"</span>,	<span class="string">"short"</span>,	<span class="string">"unsigned"</span>,</span><br><span class="line"><span class="string">"const_cast"</span>,	<span class="string">"goto"</span>,	<span class="string">"signed"</span>,	<span class="string">"using"</span>,</span><br><span class="line"><span class="string">"continue"</span>,	<span class="string">"if"</span>,	<span class="string">"sizeof"</span>,	<span class="string">"virtual"</span>,</span><br><span class="line"><span class="string">"default"</span>,	<span class="string">"inline"</span>,	<span class="string">"static"</span>,	<span class="string">"void"</span>,</span><br><span class="line"><span class="string">"delete"</span>,	<span class="string">"int"</span>,	<span class="string">"static_cast"</span>,	<span class="string">"volatile"</span>,</span><br><span class="line"><span class="string">"do"</span>,	<span class="string">"long"</span>,	<span class="string">"struct"</span>,	<span class="string">"wchar_t"</span>,</span><br><span class="line"><span class="string">"double"</span>,	<span class="string">"mutable"</span>,	<span class="string">"switch"</span>,	<span class="string">"while"</span>,</span><br><span class="line"><span class="string">"dynamic_cast"</span>,	<span class="string">"namespace"</span>,	<span class="string">"template"</span>,</span><br><span class="line"><span class="string">"And"</span>,	<span class="string">"bitor"</span>,	<span class="string">"not_eq"</span>,	<span class="string">"xor"</span>,</span><br><span class="line"><span class="string">"and_eq"</span>,	<span class="string">"compl"</span>,	<span class="string">"or"</span>,	<span class="string">"xor_eq"</span>,</span><br><span class="line"><span class="string">"bitand"</span>,	<span class="string">"not"</span>,	<span class="string">"or_eq"</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h1 id="std-map"><a href="#std-map" class="headerlink" title="std::map"></a>std::map</h1><p>使用<code>std::initializer_list</code>构造<code>std::map</code>会导致多余的临时变量和复制构造。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> M = <span class="built_in">std</span>::<span class="built_in">map</span>&lt;<span class="keyword">int</span>, S&gt;;</span><br><span class="line"><span class="keyword">auto</span> m = M&#123; &#123;<span class="number">0</span>, Arg&#123;&#125; &#125; &#125;;</span><br></pre></td></tr></table></figure></p>
-<hr>
-<p>当<code>operator[]</code>所访问的元素已经存在时，这样做不会造成多余的临时变量和移动构造。然而当该元素不存在时，该元素会先被默认构造，再从Arg{}构造产生的临时对象移动复制。使用<code>insert</code>也不会让情况变得更好。</p>
-<blockquote>
-<p>若键不存在，则插入从 std::piecewise_construct, std::forward_as_tuple(std::move(key)), std::tuple&lt;&gt;() 原位构造的 value_type 对象。使用默认分配器时，这导致从 key 移动构造关键，并值初始化被映射值。</p>
-</blockquote>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> M = <span class="built_in">std</span>::<span class="built_in">map</span>&lt;<span class="keyword">int</span>, S&gt;;</span><br><span class="line">M m&#123;&#125;;</span><br><span class="line">m[<span class="number">0</span>] = S&#123;<span class="number">1</span>&#125;;  <span class="comment">// explicit construct from int</span></span><br><span class="line">m[<span class="number">1</span>] = Arg&#123;&#125;; <span class="comment">// implicit construct from Arg</span></span><br><span class="line"></span><br><span class="line">m.insert(<span class="built_in">std</span>::make_pair(<span class="number">1</span>, S&#123;<span class="number">1</span>&#125;));</span><br><span class="line">m.insert(<span class="built_in">std</span>::pair&lt;<span class="keyword">int</span>, S&amp;&amp;&gt;(<span class="number">0</span>, S&#123;<span class="number">1</span>&#125;)); <span class="comment">// save a move</span></span><br><span class="line">m.insert(<span class="built_in">std</span>::make_pair(<span class="number">0</span>, <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
-<p>正确的方法是使用<code>emplace</code>，避免<code>move</code><br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">m.emplace(<span class="number">0</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure></p>
-<hr>
-<p>但是如果我们想要使用<code>emplace</code>默认构造被映射值，却会产生编译错误。</p>
-<iframe width="1000px" height="500px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:18,endLineNumber:13,positionColumn:18,positionLineNumber:13,selectionStartColumn:18,selectionStartLineNumber:13,startColumn:18,startLineNumber:13),source:'%23include+%3Cmap%3E%0Astruct+S%0A%7B%0A++++int+s%3B%0A++++S(int+x)%7B%7D%0A%7D%3B%0A%0Aint+main()%0A%7B%0A++++using+M+%3D+std::map%3Cint,+S%3E%3B%0A++++M+m%7B%7D%3B%0A++++m.emplace(0,+0)%3B%0A++++m.emplace(0)%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((g:!((h:compiler,i:(compiler:g101,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'-O3+-std%3Dc%2B%2B17',selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+gcc+10.1+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),header:(),k:50,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:output,i:(compiler:1,editor:1,fontScale:14,wrap:'0'),l:'5',n:'0',o:'%231+with+x86-64+gcc+10.1',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),k:50,l:'3',n:'0',o:'',t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
-
-<p>正确的做法应该是使用<code>operator[]</code>来默认构造。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> M = <span class="built_in">std</span>::<span class="built_in">map</span>&lt;<span class="keyword">int</span>, S&gt;;</span><br><span class="line">M m&#123;&#125;;</span><br><span class="line">m[<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
-<p>或者如果你必须要用<code>emplace</code>，那就使用<code>piecewise_construct</code></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> M = <span class="built_in">std</span>::<span class="built_in">map</span>&lt;<span class="keyword">int</span>, S&gt;;</span><br><span class="line">M m&#123;&#125;;</span><br><span class="line">m.emplace(<span class="built_in">std</span>::piecewise_construct,</span><br><span class="line">		  <span class="built_in">std</span>::forward_as_tuple(<span class="number">0</span>),</span><br><span class="line">		  <span class="built_in">std</span>::forward_as_tuple());</span><br></pre></td></tr></table></figure>
-<hr>
-<p>一个生产中的例子：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// explicit ClientRecord(const string&amp; clientId,</span></span><br><span class="line"><span class="comment">//						 const ProcessId&amp; clientProcess,</span></span><br><span class="line"><span class="comment">//						 const MachineId&amp; clientMachine);</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> Storage = <span class="built_in">std</span>::<span class="built_in">unordered_set</span>&lt;ClientRecord&gt;;</span><br><span class="line">Storage m_storage;</span><br><span class="line">m_storage.emplace(clientId, processId, machineId);</span><br></pre></td></tr></table></figure><br>如果我们现在想把这个<code>set</code>升级成客户id做key对应value的<code>map</code><br>这样做会导致额外的临时对象和移动构造：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> Storage = <span class="built_in">std</span>::<span class="built_in">unordered_set</span>&lt;ClientRecord&gt;;</span><br><span class="line">Storage m_storage;</span><br><span class="line">m_storage.emplace(</span><br><span class="line">	<span class="built_in">std</span>::make_pair(clientId, ClientRecord(clientId, processId, machineId))</span><br><span class="line">	);</span><br></pre></td></tr></table></figure><br>使用<code>std::piecewise_construct</code>来避免：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> Storage = <span class="built_in">std</span>::<span class="built_in">unordered_set</span>&lt;ClientRecord&gt;;</span><br><span class="line">Storage m_storage;</span><br><span class="line">m_storage.emplace(<span class="built_in">std</span>::piecewise_construct,</span><br><span class="line">				  <span class="built_in">std</span>::forward_as_tuple(clientId),</span><br><span class="line">				  <span class="built_in">std</span>::forward_as_tuple(clientId, processId, machineId));</span><br></pre></td></tr></table></figure></p>
-<hr>
-<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/posts/3ad196a7/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1173,7 +923,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-13 11:43:48" itemprop="dateModified" datetime="2020-07-13T11:43:48+08:00">2020-07-13</time>
+                <time title="Modified: 2020-07-15 21:50:46" itemprop="dateModified" datetime="2020-07-15T21:50:46+08:00">2020-07-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1193,7 +943,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>6.1k</span>
+              <span>6.2k</span>
             </span>
 
         </div>
@@ -1206,75 +956,7 @@
 
       
           <p>N数之和问题：给定一个对于所有自变量$x_1, x_2, \cdots, x_n$都在一个有限的整数区间中，且严格单调递增的函数$f(x_1, x_2, \cdots, x_n)$。如何找到该函数的零点？</p>
-<p>为了解决N数之和问题，我们首先考虑两数之和问题：</p>
-<p>问题一：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。找到$f(x,y)$的零点。<br>通过暴力搜索所有可能的状态空间找到答案。搜索空间的大小即$|S|^2$。通过遍历所有的$(x, y)$，找到所有使得$f(x, y)=0$的解。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  y 0   ...   N</span><br><span class="line">x  +-----------+</span><br><span class="line">0  |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">.  +-----------+</span><br><span class="line">.  |X|X|X|X|X|X|</span><br><span class="line">.  +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">   |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br><span class="line">N  |X|X|X|X|X|X|</span><br><span class="line">   +-----------+</span><br></pre></td></tr></table></figure>
-<hr>
-<p>问题二：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$的函数$f(x, y)$。对于方程$f(x, y) = 0$，有隐函数$y = h(x)$。找到$f(x,y)$的零点。</p>
-<p>由于函数$y = h(x)$存在，在给定$x$的时候，我们可以找到对应的$y$。因此当我们在遍历$x$的所有可能取值时，可以用$h(x)$计算出其对应的$y$，并放在一个hashset中。每次到下一个$s$的可能取值时，因为$x$和$y$的取值范围是完全相同的，所以可以先在hashset中查看是否有该值，如果有，则找到了一个解。</p>
-<p>或者当函数$y = h(x)$计算代价不大时，我们不必在<code>hashset</code>中记录$x$对应的$y$，而是直接记录$x$。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">x 0   ...   N</span><br><span class="line"> +-----------+</span><br><span class="line"> |X|X|X|X|X|X|</span><br><span class="line"> ++-+-+-+-+-++</span><br><span class="line">  ^ ^ ^ ^ ^ ^</span><br><span class="line">  | | | | | | y &#x3D; h(x)</span><br><span class="line">  v v v v v v</span><br><span class="line"> +++++++++++++</span><br><span class="line"> | | | | | | |</span><br><span class="line"> +-+-+-+-+-+-+</span><br></pre></td></tr></table></figure>
-<hr>
-<p>问题三：<br>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$，且严格单调递增的函数$f(x, y)$，找到$f(x,y)$的零点。</p>
-<p>考虑函数的单调性：<br>因为$f(x, y)$严格单调递增，所以我们有</p>
-<ul>
-<li>$\forall t &gt; x, f(t, y) &gt; f(x, y)$</li>
-<li>$\forall t &lt; y, f(x, t) &lt; f(x, y)$</li>
-</ul>
-<p>为了利用上述两条性质，我们将有限区间$S$所有可能的取值进行排序。之后让$x$等于区间中的最小值$i$。让$y$等于区间中的最大值$j$。判断$f(i, j)$和0的大小关系：</p>
-<ul>
-<li>如果$f(i, j) &lt; 0$，则$\forall t &lt; j, f(i, t) &lt; f(i, j) &lt; 0$。因此当$x = i$时，$\forall y \in S, f(i, y) &lt; 0$。我们可以在搜索空间中划除$i$对应的这一行。</li>
-<li>如果$f(i, j) &gt; 0$，则$\forall t &gt; i, f(t, j) &gt; f(i, j) &gt; 0$。因此当$y = j$时，$\forall x \in S, f(x, j) &gt; 0$。我们可以在搜索空间中划去$j$对应的这一列。</li>
-<li>如果$f(i, j) = 0$，我们找到了一个结果。但根据严格单调递增性，我们不会在$i$,$j$所在的行列再找到任何其他一对数字使得$f(x, y) = 0$。我们可以在搜索空间划去$i$对应的这一行和$j$对应的这一列。</li>
-</ul>
-<p>之后我们得到了一个新的搜索空间。我们继续从这个搜索空间的右上角（即$i$取最小值，$j$取最大值）重复上面的算法，直到搜索空间为空。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">                start                 start</span><br><span class="line">  y i   ...   j   +     y i   ...   j   +</span><br><span class="line">x  +-----------+  |   x  +-----------+  |</span><br><span class="line">i  |X|X|X|X|X|X+&lt;-+   i  | | | | | |X+&lt;-+</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">   | | | | | | |         | | | | | |X|</span><br><span class="line">.  +-----------+      .  +-----------+</span><br><span class="line">.  | | | | | | |      .  | | | | | |X|</span><br><span class="line">.  +-----------+      .  +-----------+</span><br><span class="line">   | | | | | | |         | | | | | |X|</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">   | | | | | | |         | | | | | |X|</span><br><span class="line">   +-----------+         +-----------+</span><br><span class="line">j  | | | | | | |      j  | | | | | |X|</span><br><span class="line">   +-----------+         +-----------+</span><br></pre></td></tr></table></figure>
-<p>问题三的一个典型例题，未给出函数表达式，仅强调了单调性：<a href="https://leetcode-cn.com/problems/find-positive-integer-solution-for-a-given-equation/" target="_blank" rel="noopener">LC1237 找出给定方程的正整数解</a></p>
-<p>给定函数严格单调递增<br>$f(x, y) &lt; f(x + 1, y)$<br>$f(x, y) &lt; f(x, y + 1)$<br>在$0 \leq x \leq 1000$ 和 $0 \leq y \leq 1000$的条件下，找到使得$f(x, y) - z = 0$的所有可能的解。<br>思路：<br>搜索空间为$\{(x,y)| 0 \leq x \leq 1000, 0 \leq y \leq 1000, x \in \mathbb{Z}, y \in \mathbb{Z}\}$，如下图所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">                     (a, b)</span><br><span class="line">                      ^</span><br><span class="line">                      |</span><br><span class="line">    j 0   ...  1000   |    j 0   ...  1000        j 0   ...  1000</span><br><span class="line">  i  +-+-+-+-+---+    |  i  +-+-+-+-+---+       i  +-----------+</span><br><span class="line">  0  | | | | | |S+----+  0  | | | | | |X|       0  |X|X|X|X|X|X|</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">  .  +-----------+       .  +-----------+       .  +-----------+</span><br><span class="line">  .  | | | | | | |       .  | | | | | |X|       .  | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">     | | | | | | |          | | | | | |X|          | | | | | | |</span><br><span class="line">     +-----------+          +-----------+          +-----------+</span><br><span class="line">1000 | | | | | | |     1000 | | | | | |X|     1000 | | | | | | |</span><br><span class="line">     +-+---+-+-+-+          +-+-+---+---+          +-+-+-+---+-+</span><br><span class="line">         |                        ^                        ^</span><br><span class="line">         |    f(a, b) - z &gt; 0     |                        |</span><br><span class="line">         +------------------------+                        |</span><br><span class="line">         |                                                 |</span><br><span class="line">         |    f(a, b) - z &lt; 0                              |</span><br><span class="line">         +-------------------------------------------------+</span><br></pre></td></tr></table></figure><br>根据函数严格单调递增的性质，我们知道<br>$f(a, b) - z &lt; 0$，且$b$一定时，$\Rightarrow \forall x \in [a, 1000], f(x, b) &lt; 0$<br>$f(a, b) - z &gt; 0$，且$a$一定时，$\Rightarrow \forall x \in [b, 1000], f(a, x) &gt; 0$<br>$f(a, b) - z = 0$，当$a$一定时，$\Rightarrow \forall x \in (b, 1000], f(a, x) \neq 0$<br>$f(a, b) - z = 0$，当$b$一定时，$\Rightarrow \forall x \in (a, 1000], f(x, b) \neq 0$<br>从右上角$(0, 1000)$的位置开始搜索。根据$f(a, b) - z$和$0$的大小关系，可以划去一行和（或）者一列。</p>
-<ul>
-<li>即当$f(a, b) - z &gt; 0$时，我们可以划去当前$a$在搜索空间中对应的这一行数字，因为函数单调递增，增加$a$只会使得$f(a, b) - z$变得更大。</li>
-<li>当$f(a, b) - z &lt; 0$时，我们可以划去$b$在搜索空间中对应的这一列数字。</li>
-<li>当$f(a, b) - z = 0$时，我们同时划去$(a, b)$在搜索空间对应这一行和这一列。</li>
-</ul>
-<div class='spoiler collapsed'>
-    <div class='spoiler-title'>
-        code
-    </div>
-    <div class='spoiler-content'>
-        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; findSolution(CustomFunction&amp; customfunction, <span class="keyword">int</span> z) &#123;</span><br><span class="line">        <span class="keyword">auto</span> res = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&#123;&#125;;</span><br><span class="line">        <span class="keyword">auto</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">auto</span> b = <span class="number">1000</span>;</span><br><span class="line">        <span class="keyword">while</span>(a &lt;= <span class="number">1000</span> &amp;&amp; b &gt;= <span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(customfunction.f(a, b) - z &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ++a;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(customfunction.f(a, b) - z &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                --b;</span><br><span class="line">            &#125; </span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                res.emplace_back&lt;<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt;&gt;(&#123;a, b&#125;);</span><br><span class="line">                ++a;</span><br><span class="line">                --b;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-    </div>
-</div>
-<hr>
-<p>问题4：</p>
-<p>给定一个关于在相同有限区间$S$内的整数变量$x$和$y$，且严格单调递增的函数$f(x, y)$，找到$f(x,y) &lt; 0$的所有解。</p>
-<p>当我们找到一个点使得$f(a, b) &lt; 0$时，因为单调性，所有在该点同一列，且该点上方的点$(t, b), t &lt; a$都有$f(t, b) &lt; 0$。所有在该点同一行，且在该点左侧的点$(a, t), t &lt; b$都有$f(a, t) &lt; 0$<br>同理，当我们找到一个点使得$f(a, b) \geq 0$时，其下方和右侧所有的点$(m, n)$也都满足$f(m, n) \geq 0$。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">          ^</span><br><span class="line">          |</span><br><span class="line">  j 0     |   N      j 0         N</span><br><span class="line">i  +-+-+--|--+-+   i  +-+-+-+-+-+-+</span><br><span class="line">0  | | | ||| | |   0  | | | | | | |</span><br><span class="line">   +------|----+      +-----------+</span><br><span class="line">   | | | ||| | |      | | | | | | |</span><br><span class="line">   +------|----+      +-----------+</span><br><span class="line">&lt;---------X| | |      | | | |X---------&gt;</span><br><span class="line">   +-----------+      +------|----+</span><br><span class="line">   | | | | | | |      | | | ||| | |</span><br><span class="line">   +-----------+      +------|----+</span><br><span class="line">   | | | | | | |      | | | ||| | |</span><br><span class="line">   +-----------+      +------|----+</span><br><span class="line">N  | | | | | | |   N  | | | ||| | |</span><br><span class="line">   +-+-+-+-+-+-+      +-+-+--|--+-+</span><br><span class="line">                             |</span><br><span class="line">                             |</span><br><span class="line">                             v</span><br></pre></td></tr></table></figure></p>
-<p>我们仍然选择从右上角（或者左下角）开始进行搜索。 我们不断地移动$x$，初始化$y$为0。<br>我们通过判断$f(x, y) \geq 0$来找到这一列的第一个有效解的$y$。我们记录下这个$y$的位置，在下一次循环开始后，因为$x$增加，$y$必不可能减少。我们无需从$N$开始重新搜索，只需要从上一次的$y$位置开始搜索，找到第一个有效位置即可。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> cnt = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> y   = N;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> x = <span class="number">0</span>; x &lt;= N; ++x)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// update y to its first valid position in this row</span></span><br><span class="line">    <span class="keyword">while</span>(f(x, y) &gt;= <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        --y;</span><br><span class="line">    &#125;</span><br><span class="line">    cnt += y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  j 0         N</span><br><span class="line">i  +-----------+</span><br><span class="line">0  |O|O|O|O|X|X|&lt;--- 第一次在 --y 两次后找到了第一个可行解，其左侧就都是可行解</span><br><span class="line">   +-----------+</span><br><span class="line">   |O|O|O|X| | |&lt;--- ++j后，第二次接着第一次结束的位置开始搜索。</span><br><span class="line">   +-----------+</span><br><span class="line">   |O|O|O| | | |</span><br><span class="line">   +-----------+</span><br><span class="line">N  |O|X|X| | | |</span><br><span class="line">   +-+-+-+-+-+-+</span><br></pre></td></tr></table></figure>
-<hr>
-<p>问题4的典型例题为<a href="https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance/" target="_blank" rel="noopener">LC719 找出第 k 小的距离对</a></p>
-<blockquote>
-<p>给定一个整数数组，返回所有数对之间的第 k 个最小距离。一对$(A, B)$的距离被定义为 A 和 B 之间的绝对差值。</p>
-</blockquote>
-<p>我们可以用二分搜索找到第k个最小距离。注意到该整数数组中距离的最大值为数组的最大值减去数组的最小值。最小值可能为0。为们在距离上进行二分搜索：</p>
-<ul>
-<li>设$g(d)$为在该数组上，小于$d$的距离对的数目。</li>
-<li>维护二分搜索区间，使得<ul>
-<li>对于[begin, first)所在区间的任意值$t$，$g(t) &lt; k$</li>
-<li>对于[last, end)所在区间的任意值$t$，$g(t) &gt;= k$</li>
-<li>first &lt; last<br>最后<code>first == last</code>所停在的位置即为结果。</li>
-</ul>
-</li>
-</ul>
-<p>该题目的关键点在于函数$g$的实现。注意到如果我们将该数组排序，并总是用较大的数减去较小的数，就不用考虑绝对值的问题。对于一对点$(x, y)$，他们之间的距离与$t$的差$f(x, y)$是关于x递减，关于y递增的函数。参照问题四，如果一点$f(x, y) &lt; 0$，那么他左侧和他下方的点都满足$f(x, y) &lt; 0$。如果一点$f(x, y) &gt; 0$，那么他上方和他右侧的点也都满足$f(x, y) &gt; 0$。我们考虑从左上角开始搜索。移动<code>j</code>并不断通过$f(x,y)$和0的关系判断移动<code>i</code>。这里和问题4不同的地方在于，数组中的每个数只能选取一次，且距离函数是对称的。有一半的搜索空间是无效的，因此我们每次累加<code>cnt += j - i</code>个。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">auto dist_cnt(vector&lt;int&gt;&amp; nums, int k) -&gt; size_t</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> cnt = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">auto</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> j = i + <span class="number">1</span>; j &lt; nums.size(); ++j)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">while</span>(nums[j] - nums[i] &gt; k)</span><br><span class="line">        &#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        cnt += j - i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> cnt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<div class='spoiler collapsed'>
-    <div class='spoiler-title'>
-        code
-    </div>
-    <div class='spoiler-content'>
-        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">auto dist_cnt(vector&lt;int&gt;&amp; nums, int k) -&gt; size_t</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">auto</span> cnt = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">auto</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> j = i + <span class="number">1</span>; j &lt; nums.size(); ++j)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">while</span>(nums[j] - nums[i] &gt; k)</span><br><span class="line">        &#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        cnt += j - i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> cnt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">smallestDistancePair</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        sort(nums.begin(), nums.end());</span><br><span class="line">        <span class="keyword">auto</span> first = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">auto</span> last  = nums.back() - nums.front();</span><br><span class="line">        <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> mid = first + (last - first) / <span class="number">2</span>;</span><br><span class="line">            <span class="comment">//cout&lt;&lt;first&lt;&lt;" "&lt;&lt;mid&lt;&lt;" "&lt;&lt;last&lt;&lt;" "&lt;&lt;dist_cnt(nums, mid);</span></span><br><span class="line">            <span class="keyword">if</span>(dist_cnt(nums, mid) &lt; k)</span><br><span class="line">            &#123;</span><br><span class="line">                first = mid + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                last = mid;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-    </div>
-</div>
+<p>为了解决N数之和问题，我们首先考虑两数之和问题，我们从一个无任何附加信息的两和之和问题开始，通过不断添加新的信息，利用新的信息，来降低算法的复杂度。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/posts/cfca6522/#more" rel="contents">
@@ -1401,7 +1083,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/posts/d9138479/" class="post-title-link" itemprop="url">is_transparent</a>
+            <a href="/posts/d9138479/" class="post-title-link" itemprop="url">关联容器使用非Key类型查找：is_transparent</a>
         </h1>
 
         <div class="post-meta">
@@ -1420,7 +1102,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-06 15:46:07" itemprop="dateModified" datetime="2020-07-06T15:46:07+08:00">2020-07-06</time>
+                <time title="Modified: 2020-07-15 21:51:30" itemprop="dateModified" datetime="2020-07-15T21:51:30+08:00">2020-07-15</time>
               </span>
 
           <br>
@@ -1445,87 +1127,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/posts/d9138479/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/70aceb61/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Xuanyi Fu">
-      <meta itemprop="description" content="Xuanyi Fu的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Xuanyi Fu Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/70aceb61/" class="post-title-link" itemprop="url">日期问题</a>
-        </h1>
-
-        <div class="post-meta">
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-29 21:19:00" itemprop="dateCreated datePublished" datetime="2020-02-29T21:19:00+08:00">2020-02-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-01 10:20:15" itemprop="dateModified" datetime="2020-03-01T10:20:15+08:00">2020-03-01</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>964</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://leetcode-cn.com/problems/number-of-days-in-a-month/" target="_blank" rel="noopener">LC1118 一月有多少天</a><br><a href="https://leetcode-cn.com/problems/day-of-the-year/" target="_blank" rel="noopener">LC1154 一年中的第几天</a><br><a href="https://leetcode-cn.com/problems/number-of-days-between-two-dates/" target="_blank" rel="noopener">LC1360 日期之间间隔几天</a><br><a href="https://leetcode-cn.com/problems/day-of-the-week/" target="_blank" rel="noopener">LC1185 一周中的第几天</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/70aceb61/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -1615,7 +1216,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1667,12 +1268,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">131k</span>
+    <span title="Symbols count total">133k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:59</span>
+    <span title="Reading time total">2:01</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
