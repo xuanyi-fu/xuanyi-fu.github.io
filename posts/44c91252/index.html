@@ -54,8 +54,9 @@
 <meta property="og:description" content="编译器在完成阶段7和阶段8后，会生成目标文件。在Linux平台上，目标文件的格式为 ELF (executable linkable file)。ELF也是动态库、静态库、可执行文件和core dump文件的格式。  目标文件是 ELF 文件12345678910111213141516171819202122232425262728293031&#x2F;&#x2F; elf.cpp#include &lt;cst">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-16T10:58:32.000Z">
-<meta property="article:modified_time" content="2020-07-17T09:00:38.585Z">
+<meta property="article:modified_time" content="2020-07-18T02:57:03.358Z">
 <meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://xyfu.me/posts/44c91252/">
@@ -201,7 +202,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-17 17:00:38" itemprop="dateModified" datetime="2020-07-17T17:00:38+08:00">2020-07-17</time>
+                <time title="Modified: 2020-07-18 10:57:03" itemprop="dateModified" datetime="2020-07-18T10:57:03+08:00">2020-07-18</time>
               </span>
 
           <br>
@@ -210,7 +211,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.9k</span>
+              <span>5.1k</span>
             </span>
 
         </div>
@@ -328,7 +329,7 @@
 <ul>
 <li><code>STB_LOCAL</code> <strong>局部符号</strong>。局部符号包含其定义的目标文件外部不可见。多个文件可以存在同名但不相互指涉的局部符号。</li>
 <li><code>STB_GLOBAL</code> <strong>全局符号</strong> <strong>全局符号</strong>对所有链接过程中合并的目标文件都可见。一个文件对<strong>全局符号</strong>的定义，应满足另一个文件对同一符号的未定义引用。</li>
-<li><code>STB_WEAK</code> <a href="#弱符号与强符号"><strong>弱引用</strong></a></li>
+<li><code>STB_WEAK</code> <a href="#弱符号与强符号"><strong>**</strong>弱全局符号**</a></li>
 </ul>
 <p>其低四位的可以通过下面的宏来提取<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF64_ST_TYPE(info)          ((info) &amp; 0xf)</span></span><br></pre></td></tr></table></figure></p>
 <p>其低四位可能的取值为：</p>
@@ -364,14 +365,20 @@
 </ul>
 <hr>
 <p>注意到模板函数<code>void global_function_temp&lt;size_t&gt;</code>和<code>void global_function</code>的名字<code>_Z24global_function_templ</code>和<code>_Z15global_functionv</code>都是经过C++的name mangling的名字。C不允许函数重载而C++可以进行函数重载，因此C和C++有不同name mangling规则，为了让C++兼容C的修饰机制，我们需要使用<code>extern &quot;C&quot;</code>。单独声明某个函数或变量，可以直接将<code>extern &quot;C&quot;</code>放在声明之前<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> <span class="keyword">int</span> global_function_c;</span><br><span class="line"><span class="comment">// or use braces </span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// ... </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<hr>
-<h2 id="弱符号"><a href="#弱符号" class="headerlink" title="弱符号"></a>弱符号</h2><p>ELF 文件中的符号，若其BIND为<code>STB_WEAK</code>，则是一个弱符号。弱符号和<code>STB_GLOBAL</code>的符号的区别主要体现在两方面：</p>
+<h2 id="全局符号与弱全局符号"><a href="#全局符号与弱全局符号" class="headerlink" title="全局符号与弱全局符号"></a>全局符号与弱全局符号</h2><p>ELF中的符号BIND主要有三种:</p>
+<pre><code>- `ST_GLOBAL` 全局符号
+- `ST_WEAK`   弱全局符号
+- `ST_LOCAL`  局部符号
+</code></pre><p><code>ST_WEAK</code>仍然是全局可见的符号，然而<code>ST_WEAK</code>相比<code>ST_GLOBAL</code>有以下区别:</p>
 <ul>
 <li>当链接器将几个需要重定位的目标文件组合在一起时，不允许出现多个具有相同名字的<code>STB_GLOBAL</code>符号。然而，如果存在一个有定义的<code>STB_GLOBAL</code>符号，其他具有相同名字的<code>STB_WEAK</code>符号并不会导致链接错误。链接器将会选择拥有<code>STB_GLOBAL</code>BIND的符号，而忽略<code>STB_WEAK</code>BIND的符号。</li>
 <li>类似地，如果存在一个有<code>SHN_COMMON</code>作为<code>st_shndx</code>的符号和多个<code>STB_WEAK</code>的符号，链接器会选择<code>SHN_COMMON</code>的那一个。</li>
-<li>如果一个符号在所有的目标文件中都是<code>STB_WEAK</code>，则选择占用空间最大的那个。</li>
+<li><p>如果一个符号在所有的目标文件中都是<code>STB_WEAK</code>，则选择占用空间最大的那个。<br>而在上面的例子中，我们看到函数模板的实例化<code>_Z24global_function_templ</code>是一个<strong>弱符号</strong>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Num:    Value          Size Type    Bind   Vis      Ndx Name</span><br><span class="line">20: 0000000000000000    33 FUNC    WEAK   DEFAULT    7 _Z24global_function_templ</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
-<p>然而在上面的例子中，我们看到函数模板的实例化<code>_Z24global_function_templ</code>是一个弱符号。因为C++的inclusion model和greedy instantiation。</p>
+<p>因为C++的inclusion model和greedy instantiation会导致同一个模板在多个编译单元被生成多份，因此该模板的BIND不可以是<code>ST_GLOBAL</code>。当多个编译单元拥有相同符号名的多个该模板的实例化时，链接器会选择其中一个。</p>
+<p>同样地，C++中对<code>inline</code>函数的处理也和模板相同。</p>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
     </div>
 
@@ -380,6 +387,9 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+          </div>
 
         
 
@@ -390,7 +400,10 @@
     <a href="/posts/1ba55501/" rel="prev" title="C++从源文件到可执行文件：编译">
       <i class="fa fa-chevron-left"></i> C++从源文件到可执行文件：编译
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/posts/c45a18aa/" rel="next" title="C++从源文件到可执行文件：静态链接">
+      C++从源文件到可执行文件：静态链接 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -450,7 +463,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目标文件是-ELF-文件"><span class="nav-number">1.</span> <span class="nav-text">目标文件是 ELF 文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELF-文件的结构"><span class="nav-number">2.</span> <span class="nav-text">ELF 文件的结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ELF-Header"><span class="nav-number">2.1.</span> <span class="nav-text">ELF Header</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Section-Header-Table"><span class="nav-number">2.2.</span> <span class="nav-text">Section Header Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relocation-Table"><span class="nav-number">2.3.</span> <span class="nav-text">Relocation Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String-Table"><span class="nav-number">2.4.</span> <span class="nav-text">String Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Symbol-Table"><span class="nav-number">2.5.</span> <span class="nav-text">Symbol Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#弱符号"><span class="nav-number">2.6.</span> <span class="nav-text">弱符号</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目标文件是-ELF-文件"><span class="nav-number">1.</span> <span class="nav-text">目标文件是 ELF 文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELF-文件的结构"><span class="nav-number">2.</span> <span class="nav-text">ELF 文件的结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ELF-Header"><span class="nav-number">2.1.</span> <span class="nav-text">ELF Header</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Section-Header-Table"><span class="nav-number">2.2.</span> <span class="nav-text">Section Header Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relocation-Table"><span class="nav-number">2.3.</span> <span class="nav-text">Relocation Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String-Table"><span class="nav-number">2.4.</span> <span class="nav-text">String Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Symbol-Table"><span class="nav-number">2.5.</span> <span class="nav-text">Symbol Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全局符号与弱全局符号"><span class="nav-number">2.6.</span> <span class="nav-text">全局符号与弱全局符号</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -464,7 +477,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">31</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -516,7 +529,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">137k</span>
+    <span title="Symbols count total">138k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
