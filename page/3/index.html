@@ -167,6 +167,108 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/280d76fd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/280d76fd/" class="post-title-link" itemprop="url">四元数扩展卡尔曼滤波器</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-07 14:53:19" itemprop="dateCreated datePublished" datetime="2020-02-07T14:53:19+08:00">2020-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-21 12:35:43" itemprop="dateModified" datetime="2020-02-21T12:35:43+08:00">2020-02-21</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.9k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Bayesian-滤波器"><a href="#Bayesian-滤波器" class="headerlink" title="Bayesian 滤波器"></a>Bayesian 滤波器</h1><h2 id="Bayesian滤波器"><a href="#Bayesian滤波器" class="headerlink" title="Bayesian滤波器"></a>Bayesian滤波器</h2><h3 id="基础公式"><a href="#基础公式" class="headerlink" title="基础公式"></a>基础公式</h3><p>Bayesian公式：$p(x,y) = p(x | y)p(y) = p(y | x)p(x) \Rightarrow p(x|y) = \frac{p(y|x)p(x)}{p(y)}$</p>
+<p>Bayesian公式的推论：<br>$p(x,y,z) = p(x|y,z)p(y|z)p(z) = p(y|x,z)p(x|z)p(z) \Rightarrow p(x|y,z) = \frac{p(y|x,z)p(x|z)}{p(y|z)}$</p>
+<p>条件独立公式：$p(x,y|z) = p(x|z)p(y|z) \Rightarrow p(x|z) = p(x|z,y), p(y|z) = p(y|z,x)$ </p>
+<h3 id="推导Bayesian滤波器"><a href="#推导Bayesian滤波器" class="headerlink" title="推导Bayesian滤波器"></a>推导Bayesian滤波器</h3><ul>
+<li>假设：马尔可夫假设，即给定当前状态$x_t$，过去和未来的数据都是独立的（关于当前状态条件独立）。</li>
+<li><p>目标：通过前一状态的后验概率分布$p(x_{t-1} | z_{1:t-1}, u_{1:t-1})$ 和当前状态的观测$p(z_t | x_{1:t}, u_{1:t})$ 组装出当前状态的后验概率分布$p(x_t | z_{1:t}, u{1:t})$</p>
+</li>
+<li><p>用贝叶斯公式展开当前状态的后验概率分布<br>  已知<br>  $p(x_t | z_{t}, u{t}) = \frac{p(z_t | x_t, u_t)p(x_t | u_t)}{p(z_t | u_t)} = \eta p(z_t | x_t, u_t)p(x_t | u_t) $<br>  加上所有条件$z_{1:t-1}$和$u{1:t-1}$，推出<br>  $p(x_t | z_{1:t}, u{1:t}) = \eta p(z_t | x_{t}, u_{1:t}, z{1:t-1})p(x_t | z_{1:t-1}, u_{1:t})$<br>  根据马尔可夫假设，给定当前状态$z_t$，过去和未来的数据都是独立的，因此</p>
+<script type="math/tex; mode=display">p(z_t | x_{t}, u_{1:t}, z{1:t-1}) = p(z_t | x_{t}, u_{t})</script><p>  注意这里$u_t$是过去时间的控制，不提供附加信息，因此</p>
+<script type="math/tex; mode=display">p(z_t | x_{t}, u_{1:t}, z{1:t-1}) = p(z_t | x_{t})</script><p>  根据全概率公式，引入隐藏变量$x_{t-1}$，并用积分将其边缘化<br>  $\int p(x_t, z_{1:t-1}, u_{1:t}, x_{t-1})\mathrm{d}x_{t-1} = p(x_t, z_{1:t-1}, u_{1:t})$<br>  整理该式，得：<br>  $\int p(x_t | z_{1:t-1}, u_{1:t}, x_{t-1})p(x_{t-1}|z_{1:t-1}, u_{1:t})p(z_{1:t-1}|u_{1:t})p(u_{1:t})\mathrm{d}x_{t-1} = p(x_t |z_{1:t-1}, u_{1:t})p(z_{1:t-1}|u_{1:t})p(u_{1:t})$<br>  化简<br>  $\int p(x_t | z_{1:t-1}, u_{1:t}, x_{t-1})p(x_{t-1}|z_{1:t-1}, u_{1:t})\mathrm{d}x_{t-1} = p(x_t | z_{1:t-1}, u_{1:t})$<br>  根据马尔可夫性<br>  $p(x_t | z_{1:t-1}, u_{1:t}) = p(x_t | u_{t}) = \int p(x_t | u_{t}, x_{t-1})p(x_{t-1}|z_{t-1}, u_{1:t})\mathrm{d}x_{t-1}$<br>  因此得到<br>  $p(x_t | z_{1:t}, u{1:t}) = p(z_{t} | x_t)\int p(x_t | u_{t}, x_{t-1})p(x_{t-1}|z_{t-1}, u_{1:t})\mathrm{d}x_{t-1}$</p>
+</li>
+</ul>
+<h1 id="Kalman-Filter"><a href="#Kalman-Filter" class="headerlink" title="Kalman Filter"></a>Kalman Filter</h1><ul>
+<li>两个概率密度函数的和也归一化后也是一个概率密度函数，可以通过这两个概率密度函数的卷积计算<ul>
+<li>可以证明：两个高斯分布$X_1 ~ N(\mu_1, \Sigma_1)$, $X_2 ~ N(\mu_2, \Sigma_2)$的和也是一个高斯分布$X_1 + X_2 = N(\mu_1 + \mu_2, \Sigma_1 + \Sigma_2)$</li>
+<li>$X_1 ~ N(\mu_1, \Sigma_1)$，那么有$AX_1 ~ N(A\mu_1, A\Sigma_1A^T)$</li>
+</ul>
+</li>
+<li>假设：<ul>
+<li>状态转移方程必须是包含白噪声的线性函数</li>
+<li>观测方程必须是包含白噪声的状态的线性函数</li>
+</ul>
+</li>
+</ul>
+<h1 id="Extended-Kalman-Filter"><a href="#Extended-Kalman-Filter" class="headerlink" title="Extended Kalman Filter"></a>Extended Kalman Filter</h1><h1 id="Error-State-Kalman-Filter"><a href="#Error-State-Kalman-Filter" class="headerlink" title="Error State Kalman Filter"></a>Error State Kalman Filter</h1><h2 id="为什么要用Error-State"><a href="#为什么要用Error-State" class="headerlink" title="为什么要用Error State"></a>为什么要用Error State</h2><ul>
+<li>error state一般总是工作在远点附近，可以实现保证extened Kalman Filter的线性近似有效</li>
+<li>error state总是很小，使得我们可以忽略大量二阶量，简化Jacobian计算</li>
+<li></li>
+</ul>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/38a918c7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1041,104 +1143,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/e8eb0481/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Xuanyi Fu">
-      <meta itemprop="description" content="Xuanyi Fu的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Xuanyi Fu Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/e8eb0481/" class="post-title-link" itemprop="url">二分查找</a>
-        </h1>
-
-        <div class="post-meta">
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2019-08-20 22:47:57" itemprop="dateCreated datePublished" datetime="2019-08-20T22:47:57+08:00">2019-08-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-05 13:57:10" itemprop="dateModified" datetime="2020-07-05T13:57:10+08:00">2020-07-05</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LeetCode/" itemprop="url" rel="index">
-                    <span itemprop="name">LeetCode</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>9.1k</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>begin到first的区间[begin, first)是否对于一个特性是单调的？last到end的区间[last,end)是否针对一个特性是单调的？</li>
-<li>是否已知区间的范围？如果不知道，是否可以用单边二分查找来先确定范围？</li>
-</ul>
-<p>二分查找三基础：<br><a href="https://xyfu.me/posts/e8eb0481/#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">LC35 Search Insert Position</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">LC704 Binary Seach</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">LC34 Find First and Last Position of Element in Sorted Array</a><br>[equal_range —&gt; 将 lower_bound中的<code>!(*mid &lt; target)</code>分解为 小于：<code>target &lt; *mid</code> 和 等价：<code>!(*mid &lt; target) &amp;&amp; !(*mid &gt; target)</code>，将等价的区间分为[first, mid)和[mid, last)，再在前面做lower_bound后面做upper_bound。<br>简单二分查找：<br><a href="https://xyfu.me/posts/e8eb0481/#%E5%8D%95%E4%BE%A7%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE">LC278 第一个错误的版本</a> 单边二分。注意下标溢出。记录上一次badVersion的位置，缩小二分区间。<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%8A%E7%BC%BA%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97">剑指53 - II 0到n-1中缺失的数字</a><br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%8A%E7%BC%BA%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97">LC1060 有序数组上缺失的数字</a> [设计一个函数计算到目前为止缺失的元素个数，记得要找lower_bound前一个元素（最后一个不大于）]<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%80%BC%E5%92%8C%E4%B8%8B%E6%A0%87%E7%9B%B8%E7%AD%89%E7%9A%84%E5%85%83%E7%B4%A0">剑指53 - III 数组中数值和下标相等的元素</a>[小心size_t和int的大小比较]</p>
-<p>峰值数组：<br><a href="https://xyfu.me/posts/e8eb0481/#%E5%B3%B0%E5%80%BC%E6%95%B0%E7%BB%84">LC1095 山脉数组中查找目标值</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%B3%B0%E5%80%BC%E6%95%B0%E7%BB%84">LC162 寻找峰值</a></p>
-<p>旋转数组：<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84">LC153 Find Minimum in Rotated Sorted Array</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84">LC154 Find Minimum in Rotated Sorted Array II</a> [有重复数字，遇到重复直接线性查找]<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84">LC33  Search in Rotated Sorted Array</a> [想要在旋转数组上找某个数字]<br>矩阵查询：<br><a href="https://xyfu.me/posts/e8eb0481/#%E7%9F%A9%E9%98%B5%E6%9F%A5%E6%89%BE">LC74 Search a 2D Matrix</a> [展开为一维/两次二分/线性]<br><a href="https://xyfu.me/posts/e8eb0481/#%E7%9F%A9%E9%98%B5%E6%9F%A5%E6%89%BE">LC240 Search a 2D Matrix II</a> [线性/对角线二分]<br>困难二分查找：<br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0">LC4 排序数组的中位数</a><br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E5%88%86%E5%89%B2%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%A4%A7%E5%80%BC">LC410 分割数组的最大值</a><br>⚠️<a href="https://xyfu.me/posts/e8eb0481/#%E5%AF%BB%E6%89%BE%E5%B3%B0%E5%80%BC">LC162 寻找峰值</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E5%AE%8C%E5%85%A8%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9%E4%B8%AA%E6%95%B0">LC222 完全二叉树的节点个数</a><br>数学二分：<br><a href="https://xyfu.me/posts/e8eb0481/#%E6%B1%82%E6%95%B4%E6%95%B0%E7%9A%84%E5%B9%B3%E6%96%B9%E6%A0%B9">LC96 Sqrt(x)</a><br><a href="https://xyfu.me/posts/e8eb0481/#%E6%95%B0%E5%AD%A6%E4%B8%8A%E7%9A%84%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE">LC878 第N个神奇数字</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/e8eb0481/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1209,7 +1213,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1261,12 +1265,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">140k</span>
+    <span title="Symbols count total">142k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:07</span>
+    <span title="Reading time total">2:09</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
