@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="CppCon 2018: Nir Friedman “Understanding Optimizers: Helping the Compiler Help You” inline inline 可以减少函数调用的开销 inline 将函数中的代码放入相同的basic block中，使编译器能看清更多的代码，进行更多可能的优化。  几乎可以肯定编译器会进行 inline 的情形：  函数只被调用过">
+  <meta name="description" content="CppCon 2018: Nir Friedman “Understanding Optimizers: Helping the Compiler Help You”  inline 是最重要的优化手段，inline 是许多其他优化得以进行的前提 const 和 reference 对 const propogation 和其他优化的影响 利用模板移除循环中的分支">
 <meta property="og:type" content="article">
 <meta property="og:title" content="帮助编译器优化：inline与const propogation">
 <meta property="og:url" content="http://xyfu.me/posts/68197d16/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="CppCon 2018: Nir Friedman “Understanding Optimizers: Helping the Compiler Help You” inline inline 可以减少函数调用的开销 inline 将函数中的代码放入相同的basic block中，使编译器能看清更多的代码，进行更多可能的优化。  几乎可以肯定编译器会进行 inline 的情形：  函数只被调用过">
+<meta property="og:description" content="CppCon 2018: Nir Friedman “Understanding Optimizers: Helping the Compiler Help You”  inline 是最重要的优化手段，inline 是许多其他优化得以进行的前提 const 和 reference 对 const propogation 和其他优化的影响 利用模板移除循环中的分支">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-24T05:50:45.000Z">
-<meta property="article:modified_time" content="2020-07-24T09:15:38.125Z">
+<meta property="article:modified_time" content="2020-07-25T03:25:59.521Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -194,10 +194,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-24 13:50:45 / Modified: 17:15:38" itemprop="dateCreated datePublished" datetime="2020-07-24T13:50:45+08:00">2020-07-24</time>
+              <time title="Created: 2020-07-24 13:50:45" itemprop="dateCreated datePublished" datetime="2020-07-24T13:50:45+08:00">2020-07-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-25 11:25:59" itemprop="dateModified" datetime="2020-07-25T11:25:59+08:00">2020-07-25</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -205,7 +211,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.5k</span>
+              <span>161</span>
             </span>
 
         </div>
@@ -218,48 +224,73 @@
 
       
         <p><a href="https://www.youtube.com/watch?v=8nyq8SNUTSc&amp;t=651s" target="_blank" rel="noopener">CppCon 2018: Nir Friedman “Understanding Optimizers: Helping the Compiler Help You”</a></p>
-<h1 id="inline"><a href="#inline" class="headerlink" title="inline"></a>inline</h1><ul>
-<li>inline 可以减少函数调用的开销</li>
-<li>inline 将函数中的代码放入相同的basic block中，使编译器能看清更多的代码，进行更多可能的优化。</li>
-</ul>
-<p>几乎可以肯定编译器会进行 inline 的情形：</p>
 <ul>
-<li>函数只被调用过一次（非 static，且在符号表中的 visibility 可见)</li>
-<li>空函数</li>
+<li>inline 是最重要的优化手段，inline 是许多其他优化得以进行的前提</li>
+<li>const 和 reference 对 const propogation 和其他优化的影响</li>
+<li>利用模板移除循环中的分支</li>
 </ul>
-<hr>
-<p>例子1：</p>
+<!-- more -- >
+# inline
+
+- inline 可以减少函数调用的开销
+- inline 将函数中的代码放入相同的basic block中，使编译器能看清更多的代码，进行更多可能的优化。
+
+几乎可以肯定编译器会进行 inline 的情形：
+  - 函数只被调用过一次（非 static，且在符号表中的 visibility 可见)
+  - 空函数
+
+---
+
+例子1：
 <iframe width="1000px" height="200px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:2,endLineNumber:8,positionColumn:2,positionLineNumber:8,selectionStartColumn:2,selectionStartLineNumber:8,startColumn:2,startLineNumber:8),source:'int+A(int+a,+int+b)%7B%0A++++return+a+%2B+b%3B%0A%7D%0A%0Aint+B(int+a)%0A%7B%0A++++return+A(a,+a)%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:56.88678798295073,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:gsnapshot,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'1',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'-O3+-std%3Dc%2B%2B17',selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+gcc+(trunk)+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),k:43.11321201704927,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
 
-<p>B函数的并没有调用A函数，而是将A函数的函数体内联了进来。</p>
-<hr>
-<p>例子2：</p>
+B函数的并没有调用A函数，而是将A函数的函数体内联了进来。
+
+---
+
+例子2：
 <iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEJIAcpLegAyeWpgByxgEaZiISwAdUCwuto9QxMzb19/OjsHZyM3D0slFTU6BgJmYgIg41MLRWVMVQDU9IIop1d3T0U0jKyQ3IUa0vty2MrzAEpFVANiZA4AcikAZntkQywAanFhnQA3AqJiGexxAAYAQXWNgkwjL2FdmZ0CAE8vLWYjTEmAFRXtudQ8dEnaVC8INFpGu6kANkmBA64gA7LJQQARbbbXb7Q6YY5nC60K43e7DVabJ4vSbMLwHU4AfXen0a6BAIAWqhIxwxq0kgLmIPB20m7MmNGIEGYBiIk0I02GkMmcwAdG5gPYICDhtIBQRJmAwDMReLrDKZvK5HJCCzZJsOUa3h8IAAqPVatkcsHQza2mHY56vUkKTWsw0c3n8uZCkXkynUpbHewEFYQThrUiTTiyg0bI34wkk03Mq32qEDLqsEADACsA1IpgGa0LqFzOh1MkmCh6fRuI04hYIudLHS6AGsQHmozmBtxC0YuGso8XS6RywNCwoQFGWyWs6Q4LAYIgUKh9nh2GQKF8N14t5VgJHJKQqFvdsQZxAXK3Cy57OlTrmm6Q0EZrvQAPK0VjPhekFgRgiMA7B3oBeDEIseALDOAGYAAHgUfKDK%2BobKOBrB4C4xBPnoWAvs2xB4EOAxNl0ND0EwbAcDw/CCMIogoFW8hYS4M6QF0HzJD8uYALRfpI075IUGgQNYdSmJwVjaGUMRxIIPh%2BDxkmKeEPFyRUHjSYk0EpE0qk6SJPHFBkmltNp1QlIZVlmS08mVLG3S9P0XDZrmBZFuBk4IeY/x8f83CTMAyDIDGaxipIkwQLghAkNMkjDNJkx6Ju24JUlHQpSxzZ3u2pAIJgzBYB4MqkF2PZCLmA6kEOlVjmWubTrOpDzm2S6rhASDvge27kJQPWHh4wAKKiXgKAgqAEGeF7uNet4AQ%2BqLEP%2Br7vp%2BBA/n%2B4FASBYEAfgUGFLB4GIchuyEeQ9AYQBbG4St%2BGoURJGERRdCMCwYF0QIp6MWILFCNhHFldxARwQJwzCUkASaNoNnWOZCnSUpESBPo2RqcpASI45eTQ/p1noyERn47QpnNNEWmCI0hPBFJtkU60SNdLWLm0e5%2BaFg1E65r5/mBcFoXRQQxAGLQHZZTF%2BBLBlyWpb17gZZIWWVjIci5Qu%2BWFcVlRlX2NV1aO3lNYoLVtVmnbdr2uaQ15AGThrbYc0Jdvjg7rV5V0CxXjD3BAA"></iframe>
 
-<p>对一个<code>vector</code>的内部中每一个元素进行一个空操作。在O2优化下，编译器将该空操作的函数调用 inline ，但仍然保留了for循环体（注意到<code>jne .L2</code>）。但在O3优化下，编译器更激进地将整个循环都清除掉了。</p>
-<hr>
-<h1 id="Const-Propagation"><a href="#Const-Propagation" class="headerlink" title="Const Propagation"></a>Const Propagation</h1><p>如果一个数值在编译期已知，其值会影响编译器的结果。</p>
-<hr>
-<p>例子3：</p>
+对一个`vector`的内部中每一个元素进行一个空操作。在O2优化下，编译器将该空操作的函数调用 inline ，但仍然保留了for循环体（注意到`jne .L2`）。但在O3优化下，编译器更激进地将整个循环都清除掉了。
+
+
+---
+
+# Const Propagation
+
+如果一个数值在编译期已知，其值会影响编译器的结果。
+
+---
+
+例子3：
 <iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEJNJb0AGTy1MAOWMAjTMS4AGUgAdUCwuto9QxMzb19/Ohs7RyMXN05PJRU1OgYCZmICIONTcyTMVQC0jIIoh2dXD0V0zOyQvJrS23LYyoSASkVUA2JkDgByWwIAagVjCCHhvHbxAHZZdwBBYZWpqgnh8QBmABFtneH3ds2l1bPh4kwCHtpD7YXF8VPVy%2BviW7xNmVHxz4BaYacGZbB5zPZLJ6LSY0VAQGbzSFnV43H5GCAAVmBoNmO36nVYIH66P6pFM/XcJNQhJ0cjko26vUwXy2nBJBEJFPanQA1iB0Z4Cf1uCSjB5PGSKaQqf0SQoQJ52eS8aQ4LAYIgUKgjF48OwyBQIGhtbrKsAEuYqLqCK45RAnBySU5bBkAJ6E1mkI1GLQEADytFYbqVpCwRhEwHYDpDeEuhQAbpg5cHMAAPAoGa3uklDZRR1h4JzEV16LBZ0gEYh4UX9VmdGj0JhsDg8fiCYSiFC0mRCAtyyCdVBeFK0JN/X2SWXKArDzTaOqmTgWbRlGJxQQ%2BPzD%2Bfr8LDlcVeKKKeFVKNbeL/In2jFTL71qHhRn/Q5QSPkp3tdAro9PpcfGE4lSSjaUUwADgANj%2BcDuGGYBkGQQF3AAOkkYYIFwQgSGZRdhj0Y09Ww44aRkOQ2QdLlSAQTBmCwNw4VIXl%2BSEQlhVIUUmIlSlCVleVy3IlV1QgJAjR1PVyEoESTTcYAAE4tlIS1WGtYhbXtYMnVoV0yy9H1/UDKNQ3DSNg3wWM1ATJNJVTdNMxrbN6FzYN80LYsMAGD0KyrLM6zoRgWEjFsBHMdsxC7eRnL7ejB2HUdfS2SdkgCWddGfEJF0sD82jCTcAnPbKIloTKH2PYcbyyVKFyPRLT3fZpVyyt9agq19GiKv9v0ZdrBUAzipUJMDIOg2D4OGGSkK2NCMKIYhsNIXCtVE1xmUkIiwrIpUKKomjKnowVWPY8VgO4xReMVTkeT5AVCXioDg2ldbzuY/oJ1uyV7r4jbOgTFSku4IA%3D%3D"></iframe>
 
-<p>在这个使用递归求前N项和的程序中，无论是O2还是O3，<code>foo()</code>函数的返回值<code>15</code>都已经在编译期计算完毕。</p>
-<h2 id="reference-对-const-propogation-的影响"><a href="#reference-对-const-propogation-的影响" class="headerlink" title="reference 对 const propogation 的影响"></a>reference 对 const propogation 的影响</h2><iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEJNJb0AGTy1MAOWMAjTMTO8ADqgWF1tPYYmgl4%2BanQ2do5GLm6cisqYqn4MBMzEBAHGpuZKKmG0KWkEEQ7Oru6KqemZQXEKVcW2pdHlnACUiqgGxMgcAORSAMy2yIZYANTigzoAbolExFPY4gAMAIKrazOoeOjjaxBtU7Lr27vj0ofHm5tne1ScEGi09eP16CAgc6okUzq2BCWUgAbONaMYFKRxs9Xk5UPoQeMnEcAOwnNbjTHjGjECDMAxEMHjEBgiFHdZYyZozaUykHI6DdG0rF4KgQZHiakU5m0y4Mpk8zkAERpWOFNxRIvWtx290kTzor3en2%2BCz%2BAKBklB4KMkKR8NYSNRAsxOLxBNQRJJOoU5IxYq59uZ9Ou3OZrPZxtFPKxfNdTtp4rdVKlG0lfQ6rBAfQArH1SKY%2Bit46hozo5HI3l0ephJpJBpx4wRo8m2h0ANYgGMrITR7jxoxcFY1xPJ0ipvrxhQgGvFpMR0hwWBINBGDx4dhkCgKscT8rAACcg1IVAnBFc3fZJfjTlsaQAntHC6RR0YtAQAPK0ViH/ukLBGETAdjb%2B94YjzPBzbt3zAAD0SAl%2BmPAFlFfVg8CcYgDz0LAjyLYg8EbPpCw6Gh6CYNgOB4fgzCEJ8UAzGQhEg7tIA6VAPHyH8AFoL0kLsEiSDQIEsGpTDiSwSiiGJgm8Xw6HYvjQj8biylieI8mSBohLqJj8kKdIxJaCT6iKWTKiKZTePaTpul6LhI2jOME1fDs/wADmBGjgW4cZgGQZBxgXAA6QZxggXBCBIPMCyhPRZ0nXzJDacZ0xkOQi23MtSAQTBmCwNxDlIStq1rPp61IRtOGbUy7w7Lse1IPtSyMvoGLytsCuK6KOjmYgfA0bggA%3D%3D%3D"></iframe>
+在这个使用递归求前N项和的程序中，无论是O2还是O3，`foo()`函数的返回值`15`都已经在编译期计算完毕。
 
-<p><code>f1</code>和<code>f2</code>两个函数传递参数<code>b</code>的类型不同。</p>
-<ul>
-<li><code>f1</code>使用reference-to-const-bool</li>
-<li><code>f2</code>按值传递。</li>
-</ul>
-<p>在产生的汇编中，编译器对循环中的<code>if(b)</code>的条件判断采用的方法也不同：</p>
-<ul>
-<li><code>f1</code>使用<code>cmp     BYTE PTR [rbp+0], 0</code>从内存中读出b的值后再和0比较。</li>
-<li><code>f2</code>使用<code>test    bpl, bpl</code>直接进行寄存器的比较。<br>因为编译的优化要保证代码在优化后的正确性。在<code>f1()</code>中，编译器不确定函数<code>A()</code>和<code>B()</code>是否对变量<code>b</code>进行了修改，因此必须将其从内存中取出后再进行比较。而当B是函数的局部变量时，就可以直接将其放入寄存器中操作了。</li>
-</ul>
-<h2 id="const-对-const-propogation-的影响"><a href="#const-对-const-propogation-的影响" class="headerlink" title="const 对 const propogation 的影响"></a>const 对 const propogation 的影响</h2><iframe width="1000px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:14,endLineNumber:18,positionColumn:14,positionLineNumber:18,selectionStartColumn:14,selectionStartLineNumber:18,startColumn:14,startLineNumber:18),source:'void+A(const+int%26)%3B%0Avoid+B(int)%3B%0A%0Abool+C(int+x)%0A%7B%0A++++int+y+%3D+x+%2B+1%3B%0A++++A(y)%3B%0A++++return+y+%3E+x%3B%0A%7D%0A%0Abool+D(int+x)%0A%7B%0A++++const+int+y+%3D+x+%2B+1%3B%0A++++A(y)%3B%0A++++return+y+%3E+x%3B%0A%7D%0A%0Abool+E(int+x)%0A%7B%0A++++const+int+y+%3D+x+%2B+1%3B%0A++++B(y)%3B%0A++++return+y+%3E+x%3B%0A%7D%0A'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:clang_trunk,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:2,lang:c%2B%2B,libs:!(),options:'-O3',selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+clang+(trunk)+(Editor+%231,+Compiler+%232)+C%2B%2B',t:'0')),header:(),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+## reference 对 const propogation 的影响
 
-<p>本例子中的<code>A(const int&amp;)</code>虽然使用reference-to-const-int进行参数传递，但是其参数的<code>const</code>属性却可以被<code>const_cast</code>消除。在函数<code>C</code>调用<code>A</code>的情况下使用<code>const_cast</code>是可行的，但在函数<code>D</code>调用<code>A</code>的情况下，因为<code>D</code>中的<code>y</code>的确是<code>const</code>的，此时在<code>A</code>中进行修改会导致undefined-behaviour. 因此对于函数<code>D</code>来说，编译器是了解<code>y</code>不会在调用<code>A</code>的过程中被修改的。但即便如此，编译器对与<code>C</code>和<code>D</code>生成了相同的代码，仍然在最后进行了比较。但对于调用以值传参的<code>B</code>，编译器则进行了const propogation，直接返回了true。</p>
-<h1 id="branch"><a href="#branch" class="headerlink" title="branch"></a>branch</h1><p>libstdc++中对<code>std::optional</code>的隐式类型转换和<code>value()</code>函数的实现如下</p>
+<iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEJNJb0AGTy1MAOWMAjTMTO8ADqgWF1tPYYmgl4%2BanQ2do5GLm6cisqYqn4MBMzEBAHGpuZKKmG0KWkEEQ7Oru6KqemZQXEKVcW2pdHlnACUiqgGxMgcAORSAMy2yIZYANTigzoAbolExFPY4gAMAIKrazOoeOjjaxBtU7Lr27vj0ofHm5tne1ScEGi09eP16CAgc6okUzq2BCWUgAbONaMYFKRxs9Xk5UPoQeMnEcAOwnNbjTHjGjECDMAxEMHjEBgiFHdZYyZozaUykHI6DdG0rF4KgQZHiakU5m0y4Mpk8zkAERpWOFNxRIvWtx290kTzor3en2%2BCz%2BAKBklB4KMkKR8NYSNRAsxOLxBNQRJJOoU5IxYq59uZ9Ou3OZrPZxtFPKxfNdTtp4rdVKlG0lfQ6rBAfQArH1SKY%2Bit46hozo5HI3l0ephJpJBpx4wRo8m2h0ANYgGMrITR7jxoxcFY1xPJ0ipvrxhQgGvFpMR0hwWBINBGDx4dhkCgKscT8rAACcg1IVAnBFc3fZJfjTlsaQAntHC6RR0YtAQAPK0ViH/ukLBGETAdjb%2B94YjzPBzbt3zAAD0SAl%2BmPAFlFfVg8CcYgDz0LAjyLYg8EbPpCw6Gh6CYNgOB4fgzCEJ8UAzGQhEg7tIA6VAPHyH8AFoL0kLsEiSDQIEsGpTDiSwSiiGJgm8Xw6HYvjQj8biylieI8mSBohLqJj8kKdIxJaCT6iKWTKiKZTePaTpul6LhI2jOME1fDs/wADmBGjgW4cZgGQZBxgXAA6QZxggXBCBIPMCyhPRZ0nXzJDacZ0xkOQi23MtSAQTBmCwNxDlIStq1rPp61IRtOGbUy7w7Lse1IPtSyMvoGLytsCuK6KOjmYgfA0bggA%3D%3D%3D"></iframe>
+
+`f1`和`f2`两个函数传递参数`b`的类型不同。
+- `f1`使用reference-to-const-bool
+- `f2`按值传递。
+
+在产生的汇编中，编译器对循环中的`if(b)`的条件判断采用的方法也不同：
+
+- `f1`使用`cmp     BYTE PTR [rbp+0], 0`从内存中读出b的值后再和0比较。
+- `f2`使用`test    bpl, bpl`直接进行寄存器的比较。
+因为编译的优化要保证代码在优化后的正确性。在`f1()`中，编译器不确定函数`A()`和`B()`是否对变量`b`进行了修改，因此必须将其从内存中取出后再进行比较。而当B是函数的局部变量时，就可以直接将其放入寄存器中操作了。
+
+## const 对 const propogation 的影响
+
+<iframe width="1000px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:14,endLineNumber:18,positionColumn:14,positionLineNumber:18,selectionStartColumn:14,selectionStartLineNumber:18,startColumn:14,startLineNumber:18),source:'void+A(const+int%26)%3B%0Avoid+B(int)%3B%0A%0Abool+C(int+x)%0A%7B%0A++++int+y+%3D+x+%2B+1%3B%0A++++A(y)%3B%0A++++return+y+%3E+x%3B%0A%7D%0A%0Abool+D(int+x)%0A%7B%0A++++const+int+y+%3D+x+%2B+1%3B%0A++++A(y)%3B%0A++++return+y+%3E+x%3B%0A%7D%0A%0Abool+E(int+x)%0A%7B%0A++++const+int+y+%3D+x+%2B+1%3B%0A++++B(y)%3B%0A++++return+y+%3E+x%3B%0A%7D%0A'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:clang_trunk,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:2,lang:c%2B%2B,libs:!(),options:'-O3',selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+clang+(trunk)+(Editor+%231,+Compiler+%232)+C%2B%2B',t:'0')),header:(),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+
+本例子中的`A(const int&)`虽然使用reference-to-const-int进行参数传递，但是其参数的`const`属性却可以被`const_cast`消除。在函数`C`调用`A`的情况下使用`const_cast`是可行的，但在函数`D`调用`A`的情况下，因为`D`中的`y`的确是`const`的，此时在`A`中进行修改会导致undefined-behaviour. 因此对于函数`D`来说，编译器是了解`y`不会在调用`A`的过程中被修改的。但即便如此，编译器对与`C`和`D`生成了相同的代码，仍然在最后进行了比较。但对于调用以值传参的`B`，编译器则进行了const propogation，直接返回了true。
+
+# branch
+
+libstdc++中对`std::optional`的隐式类型转换和`value()`函数的实现如下
+
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// value</span></span><br><span class="line"><span class="keyword">constexpr</span> _Tp&amp;</span><br><span class="line">value()&amp;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>-&gt;_M_is_engaged()</span><br><span class="line">  ? <span class="keyword">this</span>-&gt;_M_get()</span><br><span class="line">  : (__throw_bad_optional_access(), <span class="keyword">this</span>-&gt;_M_get());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// operator bool</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="keyword">explicit</span> <span class="keyword">operator</span> <span class="title">bool</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function"></span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;_M_is_engaged(); &#125;</span><br></pre></td></tr></table></figure>
 <p>考虑下面的这段代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">foo</span><span class="params">(<span class="built_in">std</span>::optional&lt;<span class="keyword">int</span>&gt;&amp; x)</span></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> y = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span>(x) &#123;</span><br><span class="line">     y = x.value();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>将其 inline 展开后：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">foo</span><span class="params">(<span class="built_in">std</span>::optional&lt;<span class="keyword">int</span>&gt;&amp; x)</span></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> y = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span>( x-&gt;_M_is_engaged ) &#123;</span><br><span class="line">    <span class="keyword">if</span>( x-&gt;_M_is_engaged )&#123;</span><br><span class="line">      y = _M_get();</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      (__throw_bad_optional_access(), x-&gt;_M_get());</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>注意到第二个逻辑分支必然进入<code>y = _M_get()</code>这个分支当中，因此编译器可以进行将另一条分支去掉：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">foo</span><span class="params">(<span class="built_in">std</span>::optional&lt;<span class="keyword">int</span>&gt;&amp; x)</span></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> y = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span>( x-&gt;_M_is_engaged )&#123;</span><br><span class="line">    y = _M_get();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>查看编译器生成的代码，的确进行了这样的优化：</p>
 <iframe width="1000px" height="200px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:14,endLineNumber:8,positionColumn:14,positionLineNumber:8,selectionStartColumn:14,selectionStartLineNumber:8,startColumn:14,startLineNumber:8),source:'%23include+%3Coptional%3E%0A%0Aint+foo(std::optional%3Cint%3E%26+x)+%7B%0A++++int+y+%3D+1%3B%0A++++if(x)+%7B%0A++++++++y+%3D+x.value()%3B%0A++++%7D%0A++++return+y%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:g102,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:2,lang:c%2B%2B,libs:!(),options:'-O3+-std%3Dc%2B%2B17',selection:(endColumn:12,endLineNumber:7,positionColumn:12,positionLineNumber:7,selectionStartColumn:12,selectionStartLineNumber:7,startColumn:12,startLineNumber:7),source:1),l:'5',n:'0',o:'x86-64+gcc+10.2+(Editor+%231,+Compiler+%232)+C%2B%2B',t:'0')),header:(),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
@@ -353,7 +384,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#inline"><span class="nav-number">1.</span> <span class="nav-text">inline</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Const-Propagation"><span class="nav-number">2.</span> <span class="nav-text">Const Propagation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#reference-对-const-propogation-的影响"><span class="nav-number">2.1.</span> <span class="nav-text">reference 对 const propogation 的影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#const-对-const-propogation-的影响"><span class="nav-number">2.2.</span> <span class="nav-text">const 对 const propogation 的影响</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#branch"><span class="nav-number">3.</span> <span class="nav-text">branch</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bool"><span class="nav-number">4.</span> <span class="nav-text">bool</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#function-object-vs-function-pointer"><span class="nav-number">5.</span> <span class="nav-text">function-object vs function-pointer</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -419,12 +449,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">142k</span>
+    <span title="Symbols count total">141k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:09</span>
+    <span title="Reading time total">2:08</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
