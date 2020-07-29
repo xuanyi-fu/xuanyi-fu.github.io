@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Linux 的等待队列(wait queue)是实现 阻塞 I&#x2F;O 和 I&#x2F;O复用 (select, poll, epoll 等)的关键同步原语。 本文基于Linux 5.7本文主要介绍：  wait queue 的数据结构 和 创建方式 wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task) 结合eventfd的实现来分析 wait queue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 等待队列 (wait queue)">
+<meta property="og:url" content="http://xyfu.me/posts/236f51d8/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="Linux 的等待队列(wait queue)是实现 阻塞 I&#x2F;O 和 I&#x2F;O复用 (select, poll, epoll 等)的关键同步原语。 本文基于Linux 5.7本文主要介绍：  wait queue 的数据结构 和 创建方式 wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task) 结合eventfd的实现来分析 wait queue">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-29T10:32:00.000Z">
+<meta property="article:modified_time" content="2020-07-29T13:52:48.828Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="wait queue">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/236f51d8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Linux 等待队列 (wait queue) | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/236f51d8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux 等待队列 (wait queue)
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-07-29 18:32:00 / Modified: 21:52:48" itemprop="dateCreated datePublished" datetime="2020-07-29T18:32:00+08:00">2020-07-29</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.2k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Linux 的等待队列(wait queue)是实现 阻塞 I/O 和 I/O复用 (select, poll, epoll 等)的关键同步原语。</p>
+<p>本文基于<a href="https://github.com/torvalds/linux/tree/v5.7" target="_blank" rel="noopener">Linux 5.7</a><br>本文主要介绍：</p>
+<ul>
+<li>wait queue 的数据结构 和 创建方式</li>
+<li>wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task)</li>
+<li>结合eventfd的实现来分析 wait queue 的使用</li>
+</ul>
+<a id="more"></a>
+<h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><h2 id="wait-queue-head-t"><a href="#wait-queue-head-t" class="headerlink" title="wait_queue_head_t"></a>wait_queue_head_t</h2><p>等待队列是一个双向链表。<strong>等待队列头</strong>是一个<code>wait_queue_head_t</code>由自旋锁<code>lock</code>和一个侵入式链表<code>head</code>组成。<code>lock</code>用来保护等待队列。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/wait.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">wait_queue_head</span> &#123;</span></span><br><span class="line">    <span class="keyword">spinlock_t</span>      lock;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">head</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">wait_queue_head</span> <span class="title">wait_queue_head_t</span>;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong>等待队列头</strong>可以通过两种方式初始化：</p>
+<ul>
+<li>对于全局变量或者栈上的变量，可以使用宏进行静态初始化</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/wait.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DECLARE_WAIT_QUEUE_HEAD(name) \</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">wait_queue_head</span> <span class="title">name</span> = __<span class="title">WAIT_QUEUE_HEAD_INITIALIZER</span>(<span class="title">name</span>)</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class">#<span class="title">define</span> __<span class="title">WAIT_QUEUE_HEAD_INITIALIZER</span>(<span class="title">name</span>) &#123;</span>                   \</span><br><span class="line">    .lock       = __SPIN_LOCK_UNLOCKED(name.lock),          \</span><br><span class="line">    .head       = &#123; &amp;(name).head, &amp;(name).head &#125; &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>也提供动态初始化的方法</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/wait.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> init_waitqueue_head(wq_head)                        \</span></span><br><span class="line">    <span class="keyword">do</span> &#123;                                    \</span><br><span class="line">        <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> __<span class="title">key</span>;</span>             \</span><br><span class="line">                                        \</span><br><span class="line">        __init_waitqueue_head((wq_head), #wq_head, &amp;__key);     \</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// kernel/sched/wait.c</span></span><br><span class="line"><span class="keyword">void</span> __init_waitqueue_head(struct wait_queue_head *wq_head, <span class="keyword">const</span> <span class="keyword">char</span> *name, struct lock_class_key *key)</span><br><span class="line">&#123;</span><br><span class="line">    spin_lock_init(&amp;wq_head-&gt;lock);</span><br><span class="line">    lockdep_set_class_and_name(&amp;wq_head-&gt;lock, key, name);</span><br><span class="line">    INIT_LIST_HEAD(&amp;wq_head-&gt;head);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>//TODO 补充lockdep</p>
+<h2 id="wait-queue-entry"><a href="#wait-queue-entry" class="headerlink" title="wait_queue_entry"></a>wait_queue_entry</h2><p>连接在等待队列上的数据结构是<code>wait_queue_entry</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">wait_queue_entry</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span>        flags;</span><br><span class="line">    <span class="keyword">void</span>            *<span class="keyword">private</span>;</span><br><span class="line">    <span class="keyword">wait_queue_func_t</span>   func;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">entry</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*<span class="keyword">wait_queue_func_t</span>)</span><span class="params">(struct wait_queue_entry *wq_entry, <span class="keyword">unsigned</span> mode, <span class="keyword">int</span> flags, <span class="keyword">void</span> *key)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>类似地，<code>wait_queue_entry</code>也可以进行静态初始化。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /include/linux/wait.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __WAITQUEUE_INITIALIZER(name, tsk) &#123;                    \</span></span><br><span class="line">    .<span class="keyword">private</span>    = tsk,                          \</span><br><span class="line">    .func       = default_wake_function,                \</span><br><span class="line">    .entry      = &#123; <span class="literal">NULL</span>, <span class="literal">NULL</span> &#125; &#125;</span><br><span class="line"></span><br><span class="line">#define DECLARE_WAITQUEUE(name, tsk)                        \</span><br><span class="line">    struct wait_queue_entry name = __WAITQUEUE_INITIALIZER(name, tsk)</span><br></pre></td></tr></table></figure>
+<p>该静态初始化宏<code>DECLARE_WAITQUEUE</code>用来初始化一个回调函数为<code>default_wake_function</code>，<code>private</code>为<code>tsk</code>(就像名字暗示的一样，<code>tsk</code>一般为一个<code>task_struct</code>)，且<code>flag</code>为空的<code>struct wait_queue_entry</code></p>
+<p>对<code>wait_queue_entry</code>的动态初始化函数则提供了可以自行设置其回调函数的<code>init_waitqueue_func_entry</code>和默认回调函数为<code>default_wake_function</code>的<code>init_waitqueue_entry</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /include/linux/wait.h</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">init_waitqueue_entry</span><span class="params">(struct wait_queue_entry *wq_entry, struct task_struct *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    wq_entry-&gt;flags     = <span class="number">0</span>;</span><br><span class="line">    wq_entry-&gt;<span class="keyword">private</span>   = p;</span><br><span class="line">    wq_entry-&gt;func      = default_wake_function;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span></span><br><span class="line">init_waitqueue_func_entry(struct wait_queue_entry *wq_entry, <span class="keyword">wait_queue_func_t</span> func)</span><br><span class="line">&#123;</span><br><span class="line">    wq_entry-&gt;flags     = <span class="number">0</span>;</span><br><span class="line">    wq_entry-&gt;<span class="keyword">private</span>   = <span class="literal">NULL</span>;</span><br><span class="line">    wq_entry-&gt;func      = func;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关于默认回调函数<code>default_wake_function</code>，我们将在分析等待队列的原理时讲解。</p>
+<hr>
+<ul>
+<li><code>flags</code>的可选值为<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_EXCLUSIVE   0x01</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_WOKEN       0x02</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_BOOKMARK    0x04</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_CUSTOM      0x08</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>// TODO: 1⃣️ 各个flag加入内核的时间 2⃣️ 每个flag的作用</p>
+<ul>
+<li><p><code>private</code>用来存放和回调函数<code>func</code>功能相关的数据结构。</p>
+<ul>
+<li>如果该entry被用来唤醒某个等待在该队列上的task，则此处一般为一个<code>task_struct</code>的指针，这种entry在进程阻塞在I/O上时常见，它一般来自宏<code>DECLARE_WAITQUEUE</code>或者默认回调函数的初始化函数<code>init_waitqueue_entry</code></li>
+</ul>
+</li>
+<li><p><code>func</code>是在等待的事件发生时，队列上的该entry会被调用的函数。他一般用来唤醒一个task(<code>default_wake_function</code>)。在epoll的实现中，当该entry所在的等待队列等待的事件发生时，一个独特的回调函数回会将该entry关联的<code>epitem</code>放入<code>rdllist</code>（也可能是<code>ovflist</code>）中，以待<code>epoll_wait</code>对该列表中的内容进行收割。</p>
+</li>
+<li><p><code>entry</code>：用来和<code>wait_queue_head_t</code>或者其他<code>struct wait_queue_entry</code>相连的侵入式链表项。</p>
+</li>
+</ul>
+<h1 id="wait-queue-API"><a href="#wait-queue-API" class="headerlink" title="wait_queue API"></a>wait_queue API</h1><h2 id="队列中entry的增加与移除"><a href="#队列中entry的增加与移除" class="headerlink" title="队列中entry的增加与移除"></a>队列中entry的增加与移除</h2><p>使用队列头中的自旋锁保证队列操作的原子性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">add_wait_queue</span><span class="params">(struct wait_queue_head *wq_head, </span></span></span><br><span class="line"><span class="function"><span class="params">        struct wait_queue_entry *wq_entry)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">remove_wait_queue</span><span class="params">(struct wait_queue_head *wq_head, </span></span></span><br><span class="line"><span class="function"><span class="params">        struct wait_queue_entry *wq_entry)</span></span>;</span><br></pre></td></tr></table></figure>
+<hr>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// include/linux/wait.h</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> __add_wait_queue(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)</span><br><span class="line">&#123;</span><br><span class="line">    list_add(&amp;wq_entry-&gt;entry, &amp;wq_head-&gt;head);      <span class="comment">// #3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// kernel/sched/wati.c</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">add_wait_queue</span><span class="params">(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line"></span><br><span class="line">    wq_entry-&gt;flags &amp;= ~WQ_FLAG_EXCLUSIVE;           <span class="comment">// #1</span></span><br><span class="line">    spin_lock_irqsave(&amp;wq_head-&gt;lock, flags);        <span class="comment">// #2</span></span><br><span class="line">    __add_wait_queue(wq_head, wq_entry);</span><br><span class="line">    spin_unlock_irqrestore(&amp;wq_head-&gt;lock, flags);</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(add_wait_queue);</span><br></pre></td></tr></table></figure>
+<p>将一个<code>wait_queue_entry</code>加入到<code>wait_queue_head</code>所代表的等待队列中</p>
+<ul>
+<li><code>#1</code> 使用<code>add_wait_queue</code>时不允许该entry的flag为<code>WQ_FLAG_EXCLUSICE</code>，关于<code>WQ_FLAG_EXCLUSICE</code>，见<a href="#Exclusive waits">Exclusive waits</a></li>
+<li><code>#2</code> 使用关闭中断并记录之前关闭中断状态的自旋锁加锁方式<code>spin_lock_irqsave</code></li>
+<li><code>#3</code> 将entry中的侵入式链表项与原等待队列相连</li>
+</ul>
+<p>类似地，移除 entry 时也要加锁：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/wait.h</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span></span><br><span class="line">__remove_wait_queue(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)</span><br><span class="line">&#123;</span><br><span class="line">    list_del(&amp;wq_entry-&gt;entry);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// kernel/sched/wati.c</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">remove_wait_queue</span><span class="params">(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line"></span><br><span class="line">    spin_lock_irqsave(&amp;wq_head-&gt;lock, flags);</span><br><span class="line">    __remove_wait_queue(wq_head, wq_entry);</span><br><span class="line">    spin_unlock_irqrestore(&amp;wq_head-&gt;lock, flags);</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(remove_wait_queue);</span><br></pre></td></tr></table></figure>
+<h2 id="wait-event和wait-event-interruptible"><a href="#wait-event和wait-event-interruptible" class="headerlink" title="wait_event和wait_event_interruptible"></a>wait_event和wait_event_interruptible</h2><p>在<code>/include/linux/wait.h</code>中提供一系列的<code>wait_event</code> macro以供某一task等待在某一条件上。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wait_event_interruptible(wq_head, condition)</span><br><span class="line">wait_event(wq_head, condition)</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<p>wait_event系列macro会将当前进程置于阻塞状态，直到condition为true。因为condition可能被运算多次，因此condition的计算一般不应有副作用。</p>
+<p>一般来讲不会使用<code>wait_event</code>，因为其会将task置于uninterruptible sleep状态（也就是使用<code>ps</code>命令中列出的那些处于恶心的”D”状态的task）。uninterruptible sleep状态的task不被SIGNAL从睡眠中唤醒，这也就意味着不可以使用<code>SIGKILL</code>将其终止。</p>
+<p>uninterruptible sleep的一个臭名昭著的例子是在Linux NFS上使用<code>mkdir(2)</code>系统调用而导致的阻塞。<code>mkdir(2)</code>是一个不可中断的系统调用，其返回值没有<code>EINTR</code>。我们可以通过观察<a href="https://man7.org/linux/man-pages/man2/mkdir.2.html" target="_blank" rel="noopener"><code>mkdir(2)</code>的man手册</a>来确认这一点。在一个正常的本地文件系统上，<code>mkdir(2)</code>最差的情况也仅仅是进行几次硬盘寻道。但是在一个像NFS这样的网络文件系统上，<code>mkdir(2)</code>需要进行多个RPC调用，这些RPC调用又可能阻塞在其网络I/O上。因此，这种<code>mkdir(2)</code>可能会阻塞很久很久。但其uninterruptible sleep的状态使得task变成了“不死僵尸”，消灭它的唯一办法只有<strong>重启</strong>（或者不理他😊）。</p>
+<p>为了避免产生上面所说的“不死僵尸”，我们一般采用可以被信号中断的<code>wait_event_intterruptible</code>。如果其返回一个非零值，则证明该task在等待过程中被某个信号中断。</p>
+<h2 id="wait-event的实现"><a href="#wait-event的实现" class="headerlink" title="wait_event的实现"></a>wait_event的实现</h2><p>wait_event系列macro都是对<code>___wait_event</code> macro的封装，我们以<code>wait_event_interruptible</code>为例来分析其实现，为了方便分析，我们将该macro展开：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /include/linux/wait.h</span></span><br><span class="line"></span><br><span class="line">(&#123;</span><br><span class="line">    <span class="keyword">int</span> __ret = <span class="number">0</span>;</span><br><span class="line">    might_sleep(); <span class="comment">// #1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!(condition)) <span class="comment">// #2</span></span><br><span class="line">    &#123;</span><br><span class="line">    __ret = (&#123;                                      </span><br><span class="line">                __label__ __out; <span class="comment">// #3                  </span></span><br><span class="line">                struct wait_queue_entry __wq_entry;                 </span><br><span class="line">                <span class="keyword">long</span> __ret = ret;   <span class="comment">/* explicit shadow */</span>               </span><br><span class="line">                                                    </span><br><span class="line">                init_wait_entry(&amp;__wq_entry, exclusive ? WQ_FLAG_EXCLUSIVE : <span class="number">0</span>); <span class="comment">// #4</span></span><br><span class="line">                <span class="keyword">for</span> (;;) &#123;                              </span><br><span class="line">                    <span class="keyword">long</span> __int = prepare_to_wait_event(&amp;wq_head, &amp;__wq_entry, state); <span class="comment">// #5</span></span><br><span class="line">                                                    </span><br><span class="line">                    <span class="keyword">if</span> (condition)        <span class="comment">// #6                    </span></span><br><span class="line">                        <span class="keyword">break</span>;                          </span><br><span class="line">                                                    </span><br><span class="line">                    <span class="keyword">if</span> (___wait_is_interruptible(state) &amp;&amp; __int) &#123;         </span><br><span class="line">                        __ret = __int;                      </span><br><span class="line">                        <span class="keyword">goto</span> __out;                     </span><br><span class="line">                    &#125;                    <span class="comment">// #7           </span></span><br><span class="line">                                                    </span><br><span class="line">                    schedule();          <span class="comment">// #8                     </span></span><br><span class="line">                &#125;                                   </span><br><span class="line">                finish_wait(&amp;wq_head, &amp;__wq_entry);<span class="comment">// #9                </span></span><br><span class="line">                __out:  __ret;                                  </span><br><span class="line">            &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    _ret;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        init_wait_entry
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init_wait_entry</span><span class="params">(struct wait_queue_entry *wq_entry, <span class="keyword">int</span> flags)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    wq_entry-&gt;flags = flags;</span><br><span class="line">    wq_entry-&gt;<span class="keyword">private</span> = current;</span><br><span class="line">    wq_entry-&gt;func = autoremove_wake_function;</span><br><span class="line">    INIT_LIST_HEAD(&amp;wq_entry-&gt;entry);</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(init_wait_entry);</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        autoremove_wake_function
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">autoremove_wake_function</span><span class="params">(struct wait_queue_entry *wq_entry, <span class="keyword">unsigned</span> mode, <span class="keyword">int</span> sync, <span class="keyword">void</span> *key)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ret = default_wake_function(wq_entry, mode, sync, key);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ret)</span><br><span class="line">        list_del_init(&amp;wq_entry-&gt;entry);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(autoremove_wake_function);</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        prepare_to_wait_event
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/sched/wait.c</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">prepare_to_wait_event</span><span class="params">(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, <span class="keyword">int</span> state)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line">    <span class="keyword">long</span> ret = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    spin_lock_irqsave(&amp;wq_head-&gt;lock, flags);</span><br><span class="line">    <span class="keyword">if</span> (signal_pending_state(state, current)) &#123; <span class="comment">//#5.1</span></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Exclusive waiter must not fail if it was selected by wakeup,</span></span><br><span class="line"><span class="comment">         * it should "consume" the condition we were waiting for.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * The caller will recheck the condition and return success if</span></span><br><span class="line"><span class="comment">         * we were already woken up, we can not miss the event because</span></span><br><span class="line"><span class="comment">         * wakeup locks/unlocks the same wq_head-&gt;lock.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * But we need to ensure that set-condition + wakeup after that</span></span><br><span class="line"><span class="comment">         * can't see us, it should wake up another exclusive waiter if</span></span><br><span class="line"><span class="comment">         * we fail.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        list_del_init(&amp;wq_entry-&gt;entry);</span><br><span class="line">        ret = -ERESTARTSYS;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (list_empty(&amp;wq_entry-&gt;entry)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (wq_entry-&gt;flags &amp; WQ_FLAG_EXCLUSIVE)</span><br><span class="line">                __add_wait_queue_entry_tail(wq_head, wq_entry); <span class="comment">// #5.2</span></span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                __add_wait_queue(wq_head, wq_entry);  <span class="comment">// #5.3</span></span><br><span class="line">        &#125;</span><br><span class="line">        set_current_state(state); <span class="comment">// #5.4</span></span><br><span class="line">    &#125;</span><br><span class="line">    spin_unlock_irqrestore(&amp;wq_head-&gt;lock, flags);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(prepare_to_wait_event);</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        finish_wait
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/sched/wait.c</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">finish_wait</span><span class="params">(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line"></span><br><span class="line">  __set_current_state(TASK_RUNNING);</span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   * We can check for list emptiness outside the lock</span></span><br><span class="line"><span class="comment">   * IFF:</span></span><br><span class="line"><span class="comment">   *  - we use the "careful" check that verifies both</span></span><br><span class="line"><span class="comment">   *    the next and prev pointers, so that there cannot</span></span><br><span class="line"><span class="comment">   *    be any half-pending updates in progress on other</span></span><br><span class="line"><span class="comment">   *    CPU's that we haven't seen yet (and that might</span></span><br><span class="line"><span class="comment">   *    still change the stack area.</span></span><br><span class="line"><span class="comment">   * and</span></span><br><span class="line"><span class="comment">   *  - all other users take the lock (ie we can only</span></span><br><span class="line"><span class="comment">   *    have _one_ other CPU that looks at or modifies</span></span><br><span class="line"><span class="comment">   *    the list).</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">if</span> (!list_empty_careful(&amp;wq_entry-&gt;entry)) &#123;</span><br><span class="line">    spin_lock_irqsave(&amp;wq_head-&gt;lock, flags);</span><br><span class="line">    list_del_init(&amp;wq_entry-&gt;entry);</span><br><span class="line">    spin_unlock_irqrestore(&amp;wq_head-&gt;lock, flags);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(finish_wait);</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<ul>
+<li><code>#1</code> <code>might_sleep()</code>是一个用来帮助debug的函数，用来标注那些可能会sleep的函数。当这些被标注的函数在<strong>不允许sleep</strong>的条件下（例如持有一个自旋锁时）进行了sleep，该函数就会发出警告。</li>
+<li><code>#2</code> 首先判断该条件是否满足，如果满足，整个表达式的值就是为0的<code>_ret</code>。</li>
+<li><code>#3</code> <code>__label__ __out</code>是一个<a href="https://gcc.gnu.org/onlinedocs/gcc-5.2.0/gcc/Local-Labels.html" target="_blank" rel="noopener">局部label</a>该label只能在其作用域内被引用。局部label被用做在含有循环的复杂macro中跳出循环。</li>
+<li><code>#4</code> 根据是否进行Exclusive wait来初始化<code>__wq_entry</code>。不同与之前介绍的<code>init_waitqueue_entry</code>，这里绑定的回调函数<code>func</code>是<code>autoremove_wake_function</code></li>
+<li><code>#5</code> 调用<code>prepare_to_wait_event</code>，因为涉及队列的操作，所以全程带自旋锁<ul>
+<li><code>#5.1</code>，检查此时是否有未处理的信号，如果有，则停止加入等待队列并返回<code>-ERESTARTSYS</code></li>
+<li><code>#5.1</code> 如果要进行exclusive waits，则将该entry放在队尾</li>
+<li><code>#5.2</code> 否则，放在队首。</li>
+<li><code>#5.4</code> 将当前进程的状态设置为<code>TASK_INTERRUPTIBLE</code>，以后scheduler将不会再schedule它。</li>
+</ul>
+</li>
+<li><code>#6</code> 检查条件是否满足</li>
+<li><code>#7</code> 检查在可中断的条件下，是否有中断产生</li>
+<li><code>#8</code> 让出CPU。当它被再次唤醒时，将会从schedule函数返回。在<code>#5</code>处被重新添加到队列，并进行<code>#6</code>，<code>#7</code>的检查。</li>
+<li><code>#9</code> 从循环跳出后，恢复<code>TASK_RUNNING</code>状态，并释放<code>wq_entry-&gt;entry</code>的资源。</li>
+</ul>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="https://github.com/lancetw/ebook-1/blob/master/03_operating_system/Linux%20Device%20Drivers.3rd.Edition.pdf" target="_blank" rel="noopener">Linux Device Drivers 3rd Edition - Chapter 6 - Blocking I/O</a></li>
+<li><a href="https://www.cnblogs.com/gctech/p/6872301.html" target="_blank" rel="noopener">Linux Wait Queue 等待队列 - RobotKarel</a></li>
+<li><a href="https://my.oschina.net/kaedehao/blog/621963" target="_blank" rel="noopener">等待队列wait queue - kaedehao</a></li>
+<li><a href="http://gityuan.com/2018/12/02/linux-wait-queue/" target="_blank" rel="noopener">源码解读Linux等待队列 - Gityuan</a></li>
+<li><a href="https://eklitzke.org/uninterruptible-sleep" target="_blank" rel="noopener">Uninterruptible Sleep - eklitzke.org</a></li>
+<li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.2.0/gcc/Local-Labels.html" target="_blank" rel="noopener">Locally Decalred Labels - gcc online documents</a></li>
+</ul>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/wait-queue/" rel="tag"># wait queue</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/68197d16/" rel="prev" title="帮助编译器优化：inline与const propogation">
+      <i class="fa fa-chevron-left"></i> 帮助编译器优化：inline与const propogation
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-head-t"><span class="nav-number">1.1.</span> <span class="nav-text">wait_queue_head_t</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-entry"><span class="nav-number">1.2.</span> <span class="nav-text">wait_queue_entry</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wait-queue-API"><span class="nav-number">2.</span> <span class="nav-text">wait_queue API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#队列中entry的增加与移除"><span class="nav-number">2.1.</span> <span class="nav-text">队列中entry的增加与移除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event和wait-event-interruptible"><span class="nav-number">2.2.</span> <span class="nav-text">wait_event和wait_event_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event的实现"><span class="nav-number">2.3.</span> <span class="nav-text">wait_event的实现</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">144k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">2:11</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
