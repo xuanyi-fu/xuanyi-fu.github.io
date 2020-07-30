@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="Linux 的等待队列(wait queue)是实现 阻塞 I&#x2F;O 和 I&#x2F;O复用 (select, poll, epoll 等)的关键同步原语。 本文基于Linux 5.7本文主要介绍：  wait queue 的数据结构 和 创建方式 wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task) 结合eventfd的实现来分析 wait queue">
+  <meta name="description" content="Linux 的等待队列(wait queue)是实现 阻塞 I&#x2F;O 和 I&#x2F;O复用 (select, poll, epoll 等)的关键同步原语。 本文基于Linux 5.7，主要介绍：  wait queue 的数据结构 和 创建方式 wait_queue_head : DECLARE_WAIT_QUEUE_HEAD, init_wait_queue_head wait_queue_entry:">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 等待队列 (wait queue)">
 <meta property="og:url" content="http://xyfu.me/posts/236f51d8/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="Linux 的等待队列(wait queue)是实现 阻塞 I&#x2F;O 和 I&#x2F;O复用 (select, poll, epoll 等)的关键同步原语。 本文基于Linux 5.7本文主要介绍：  wait queue 的数据结构 和 创建方式 wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task) 结合eventfd的实现来分析 wait queue">
+<meta property="og:description" content="Linux 的等待队列(wait queue)是实现 阻塞 I&#x2F;O 和 I&#x2F;O复用 (select, poll, epoll 等)的关键同步原语。 本文基于Linux 5.7，主要介绍：  wait queue 的数据结构 和 创建方式 wait_queue_head : DECLARE_WAIT_QUEUE_HEAD, init_wait_queue_head wait_queue_entry:">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-29T10:32:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T08:49:25.905Z">
+<meta property="article:modified_time" content="2020-07-30T10:59:54.656Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="wait queue">
@@ -203,7 +203,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 16:49:25" itemprop="dateModified" datetime="2020-07-30T16:49:25+08:00">2020-07-30</time>
+                <time title="Modified: 2020-07-30 18:59:54" itemprop="dateModified" datetime="2020-07-30T18:59:54+08:00">2020-07-30</time>
               </span>
 
           <br>
@@ -212,7 +212,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.1k</span>
+              <span>6.7k</span>
             </span>
 
         </div>
@@ -225,11 +225,31 @@
 
       
         <p>Linux 的等待队列(wait queue)是实现 阻塞 I/O 和 I/O复用 (select, poll, epoll 等)的关键同步原语。</p>
-<p>本文基于<a href="https://github.com/torvalds/linux/tree/v5.7" target="_blank" rel="noopener">Linux 5.7</a><br>本文主要介绍：</p>
+<p>本文基于<a href="https://github.com/torvalds/linux/tree/v5.7" target="_blank" rel="noopener">Linux 5.7</a>，主要介绍：</p>
 <ul>
-<li>wait queue 的数据结构 和 创建方式</li>
-<li>wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task)</li>
-<li>结合eventfd的实现来分析 wait queue 的使用</li>
+<li>wait queue 的数据结构 和 创建方式<ul>
+<li><code>wait_queue_head</code> : <code>DECLARE_WAIT_QUEUE_HEAD</code>, <code>init_wait_queue_head</code></li>
+<li><code>wait_queue_entry</code>: <code>DECLARE_WAIT_QUEUE</code>, <code>init_wait_queue_entry</code>, <code>init_waitqueue_func_entry</code></li>
+</ul>
+</li>
+<li><p>wait queue 的手动添加和删除的API</p>
+<ul>
+<li><code>add_wait_queue</code> 和 <code>add_wait_queue_exclusive</code></li>
+<li><code>remove_wait_queue</code></li>
+</ul>
+</li>
+<li><p>wait queue 的基本API</p>
+<ul>
+<li><code>wait_event</code>系列macro</li>
+<li><code>wake_up</code>系列macro<ul>
+<li>使用<code>WQ_FLAG_BOOKMARK</code>来分段遍历，减少单次对自旋锁的占用时间。</li>
+<li>使用<code>WQ_FLAG_EXCLUSIVE</code>来实现单独唤醒，避免“惊群”。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>结合eventfd的实现来分析 wait queue 的使用</p>
+</li>
 </ul>
 <a id="more"></a>
 <h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><h2 id="wait-queue-head-t"><a href="#wait-queue-head-t" class="headerlink" title="wait_queue_head_t"></a>wait_queue_head_t</h2><p>等待队列是一个双向链表。<strong>等待队列头</strong>是一个<code>wait_queue_head_t</code>由自旋锁<code>lock</code>和一个侵入式链表<code>head</code>组成。<code>lock</code>用来保护等待队列。</p>
@@ -244,7 +264,6 @@
 <li>也提供动态初始化的方法</li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/wait.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> init_waitqueue_head(wq_head)                        \</span></span><br><span class="line">    <span class="keyword">do</span> &#123;                                    \</span><br><span class="line">        <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> __<span class="title">key</span>;</span>             \</span><br><span class="line">                                        \</span><br><span class="line">        __init_waitqueue_head((wq_head), #wq_head, &amp;__key);     \</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// kernel/sched/wait.c</span></span><br><span class="line"><span class="keyword">void</span> __init_waitqueue_head(struct wait_queue_head *wq_head, <span class="keyword">const</span> <span class="keyword">char</span> *name, struct lock_class_key *key)</span><br><span class="line">&#123;</span><br><span class="line">    spin_lock_init(&amp;wq_head-&gt;lock);</span><br><span class="line">    lockdep_set_class_and_name(&amp;wq_head-&gt;lock, key, name);</span><br><span class="line">    INIT_LIST_HEAD(&amp;wq_head-&gt;head);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>//TODO 补充lockdep</p>
 <h2 id="wait-queue-entry"><a href="#wait-queue-entry" class="headerlink" title="wait_queue_entry"></a>wait_queue_entry</h2><p>连接在等待队列上的数据结构是<code>wait_queue_entry</code></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">wait_queue_entry</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span>        flags;</span><br><span class="line">    <span class="keyword">void</span>            *<span class="keyword">private</span>;</span><br><span class="line">    <span class="keyword">wait_queue_func_t</span>   func;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">entry</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*<span class="keyword">wait_queue_func_t</span>)</span><span class="params">(struct wait_queue_entry *wq_entry, <span class="keyword">unsigned</span> mode, <span class="keyword">int</span> flags, <span class="keyword">void</span> *key)</span></span>;</span><br></pre></td></tr></table></figure>
 <p>类似地，<code>wait_queue_entry</code>也可以进行静态初始化。</p>
@@ -258,7 +277,7 @@
 <li><code>flags</code>的可选值为<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_EXCLUSIVE   0x01</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_WOKEN       0x02</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_BOOKMARK    0x04</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WQ_FLAG_CUSTOM      0x08</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>// TODO: 1⃣️ 各个flag加入内核的时间 2⃣️ 每个flag的作用</p>
+<p>关于<code>WQ_FLAG_BOOKMARK</code>和<code>WQ_FLAG_EXCLUSIVE</code>的介绍，见<a href="#wake_up的实现">wake_up的实现</a></p>
 <ul>
 <li><p><code>private</code>用来存放和回调函数<code>func</code>功能相关的数据结构。</p>
 <ul>
@@ -345,8 +364,7 @@
 <ul>
 <li><code>#1.1</code> 处使用macro <code>lockdep_assert_held</code> 来assert已经持有等待队列头的自旋锁。因此该函数只能在持有锁的情况下被调用。<code>__wake_up_common_lock</code>中的<code>#2.2</code>使用<code>spin_lock_irqsave</code>验证了这一点。</li>
 </ul>
-<hr>
-<p>优化：分批次遍历较长的等待队列，以免持有自旋锁时间过长，影响性能。</p>
+<h3 id="分批次唤醒"><a href="#分批次唤醒" class="headerlink" title="分批次唤醒"></a>分批次唤醒</h3><p>优化：分批次遍历较长的等待队列，以免持有自旋锁时间过长，影响性能。</p>
 <ul>
 <li><code>#1.2</code> 用来处理<code>bookmark</code>逻辑的代码。<ul>
 <li>首次进入函数<code>__wake_up_common</code>时， <code>#1.2</code>处，<code>bookmark</code>的<code>WQ_FLAG_BOOKMARK</code>还没有设置(见<code>#2.1</code>)，因此将<code>curr</code>置为等待队列的第一个entry(<code>#1.3</code>)。</li>
@@ -357,8 +375,7 @@
 <li>之后循环继续进行，重新进入<code>__wake_up_common</code>函数后，在<code>#1.2</code>位置，因为<code>WQ_FLAG_BOOKMARK</code>已经被设置，因此<code>curr</code>会被置为<code>bookmark</code>的后继节点，也就是继续之前的循环。</li>
 </ul>
 <p>关于<code>bookmark</code>，详见<a href="https://lore.kernel.org/patchwork/patch/821188" target="_blank" rel="noopener">sched/wait: Break up long wake list walk</a></p>
-<hr>
-<p>优化：防止惊群的Exclusive waits</p>
+<h3 id="避免惊群"><a href="#避免惊群" class="headerlink" title="避免惊群"></a>避免惊群</h3><p>优化：防止惊群的Exclusive waits</p>
 <p>由上面关于<code>wake_up</code>的行为分析可知，<code>wake_up</code>会一段一段地调用等待队列中的entry的回调函数<code>func</code>。由前面关于<code>wait_event</code>的实现分析可知，使用<code>wait_event</code>系列macro添加到队列中的entry的回调函数<code>autoremove_wake_function</code>。其作用为将当前entry从等待队列中移除，并将对应的task唤醒。</p>
 <p>当有许多任务等待在等待队列上等待某一资源，而该资源却只能由被唤醒的task中的其中一个得到时，被唤醒的，未得到该资源的其他task就会重新进入sleep。这导致了不必要的context switch，从而降低了内核性能。我们把这种状况称为”惊群“(thundering herd)。</p>
 <p>为了避免惊群，<code>wait_queue</code>提供了一个<code>WQ_FLAG_EXCLUSIVE</code>。当一个entry被标记为exclusive时，在<code>prepare_to_wait_event</code>函数中，其会被添加到等待队列的末尾。</p>
@@ -377,6 +394,59 @@
         <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/sched/wait.c</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> __wake_up(struct wait_queue_head *wq_head, <span class="keyword">unsigned</span> <span class="keyword">int</span> mode,</span><br><span class="line">      <span class="keyword">int</span> nr_exclusive, <span class="keyword">void</span> *key)</span><br><span class="line">&#123;</span><br><span class="line">  __wake_up_common_lock(wq_head, mode, nr_exclusive, <span class="number">0</span>, key);</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(__wake_up);</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __wake_up_common_lock(struct wait_queue_head *wq_head, <span class="keyword">unsigned</span> <span class="keyword">int</span> mode,</span><br><span class="line">      <span class="keyword">int</span> nr_exclusive, <span class="keyword">int</span> wake_flags, <span class="keyword">void</span> *key)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line">  <span class="keyword">wait_queue_entry_t</span> bookmark; <span class="comment">// #2.1</span></span><br><span class="line"></span><br><span class="line">  bookmark.flags = <span class="number">0</span>;</span><br><span class="line">  bookmark.<span class="keyword">private</span> = <span class="literal">NULL</span>;</span><br><span class="line">  bookmark.func = <span class="literal">NULL</span>;</span><br><span class="line">  INIT_LIST_HEAD(&amp;bookmark.entry);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    spin_lock_irqsave(&amp;wq_head-&gt;lock, flags); <span class="comment">// #2.2</span></span><br><span class="line">    nr_exclusive = __wake_up_common(wq_head, mode, nr_exclusive,</span><br><span class="line">            wake_flags, key, &amp;bookmark); <span class="comment">// #2.3</span></span><br><span class="line">    spin_unlock_irqrestore(&amp;wq_head-&gt;lock, flags); <span class="comment">// #2.4</span></span><br><span class="line">  &#125; <span class="keyword">while</span> (bookmark.flags &amp; WQ_FLAG_BOOKMARK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
     </div>
 </div>
+<h1 id="eventfd"><a href="#eventfd" class="headerlink" title="eventfd"></a>eventfd</h1><p>eventfd是Linux一种轻量化的线程间通信方式。<code>eventfd(2)</code>会产生一个”eventfd object”，该对象包含一个<code>uint64_t</code>的计数器。使用<code>eventfd(2)</code>成功后会返回一个fd。在使用阻塞I/O时，eventfd的逻辑如下：</p>
+<ul>
+<li>对eventfd进行<code>read</code><ul>
+<li>如果计数器的值为0，则该次<code>read</code>调用阻塞，直到计数器的值不为零。</li>
+<li>如果计数器的值不为0，则将计数器的值置0，并返回原来原来计数器的值。</li>
+</ul>
+</li>
+<li>对eventfd进行<code>write</code><ul>
+<li>将buffer中的数值加到计数器上，如果相加后计数器的值超过的<code>UINT64_MAX</code>，则<code>write</code>阻塞直到有其他进程调用<code>read</code></li>
+</ul>
+</li>
+</ul>
+<p>eventfd的“阻塞”功能，是通过<code>wait_queue</code>来实现的，下面我们来分析eventfd的一部分的代码。</p>
+<h2 id="eventfd的数据结构与初始化"><a href="#eventfd的数据结构与初始化" class="headerlink" title="eventfd的数据结构与初始化"></a>eventfd的数据结构与初始化</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eventfd_ctx</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">kref</span> <span class="title">kref</span>;</span></span><br><span class="line">  <span class="keyword">wait_queue_head_t</span> wqh;</span><br><span class="line">  __u64 count;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> flags;</span><br><span class="line">  <span class="keyword">int</span> id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>wqh</code>是一个等待队列头<code>wait_queue_head_t</code>，而计数器就是<code>count</code>。</p>
+<hr>
+<p><code>eventfd(2)</code>系统调用通过<code>do_eventfd</code>来完成evnetfd的创建和初始化：</p>
+<ul>
+<li><code>#1</code> 对等待队列头进行了初始化。</li>
+<li><code>#2</code> 取得一个未使用的文件描述符</li>
+<li><code>#3</code> 创建一个匿名inode</li>
+<li><code>#4</code> 将该fd和匿名inode安装到当前线程上</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        do_eventfd
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">do_eventfd</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> count, <span class="keyword">int</span> flags)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">eventfd_ctx</span> *<span class="title">ctx</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span></span><br><span class="line">  <span class="keyword">int</span> fd;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Check the EFD_* constants for consistency.  */</span></span><br><span class="line">  BUILD_BUG_ON(EFD_CLOEXEC != O_CLOEXEC);</span><br><span class="line">  BUILD_BUG_ON(EFD_NONBLOCK != O_NONBLOCK);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (flags &amp; ~EFD_FLAGS_SET)</span><br><span class="line">    <span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">  ctx = kmalloc(<span class="keyword">sizeof</span>(*ctx), GFP_KERNEL);</span><br><span class="line">  <span class="keyword">if</span> (!ctx)</span><br><span class="line">    <span class="keyword">return</span> -ENOMEM;</span><br><span class="line"></span><br><span class="line">  kref_init(&amp;ctx-&gt;kref);</span><br><span class="line">  init_waitqueue_head(&amp;ctx-&gt;wqh); <span class="comment">// #1 </span></span><br><span class="line">  ctx-&gt;count = count;</span><br><span class="line">  ctx-&gt;flags = flags;</span><br><span class="line">  ctx-&gt;id = ida_simple_get(&amp;eventfd_ida, <span class="number">0</span>, <span class="number">0</span>, GFP_KERNEL);</span><br><span class="line"></span><br><span class="line">  flags &amp;= EFD_SHARED_FCNTL_FLAGS;</span><br><span class="line">  flags |= O_RDWR;</span><br><span class="line">  fd = get_unused_fd_flags(flags); <span class="comment">// #2</span></span><br><span class="line">  <span class="keyword">if</span> (fd &lt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">goto</span> err;</span><br><span class="line"></span><br><span class="line">  file = anon_inode_getfile(<span class="string">"[eventfd]"</span>, &amp;eventfd_fops, ctx, flags); <span class="comment">// #3</span></span><br><span class="line">  <span class="keyword">if</span> (IS_ERR(file)) &#123;</span><br><span class="line">    put_unused_fd(fd);</span><br><span class="line">    fd = PTR_ERR(file);</span><br><span class="line">    <span class="keyword">goto</span> err;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  file-&gt;f_mode |= FMODE_NOWAIT;</span><br><span class="line">  fd_install(fd, file); <span class="comment">// #4</span></span><br><span class="line">  <span class="keyword">return</span> fd;</span><br><span class="line">err:</span><br><span class="line">  eventfd_free_ctx(ctx);</span><br><span class="line">  <span class="keyword">return</span> fd;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SYSCALL_DEFINE2(eventfd2, <span class="keyword">unsigned</span> <span class="keyword">int</span>, count, <span class="keyword">int</span>, flags)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> do_eventfd(count, flags);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SYSCALL_DEFINE1(eventfd, <span class="keyword">unsigned</span> <span class="keyword">int</span>, count)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> do_eventfd(count, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p>eventfd并没有使用之前介绍的封装好的<code>wait_event</code>和<code>wake_up</code>系列macro，而是使用<code>DECLARE_WAITQUEUE</code>，<code>__add_wait_queue</code>等自行维护<code>wait_queue</code>：</p>
+<ul>
+<li><p><code>#1</code> 在栈上静态初始化一个<code>wait_queue_entry</code>。其回调函数为<code>default_wake_function</code>。</p>
+</li>
+<li><p><code>#2</code> 不允许读取的内容少于8个字节</p>
+</li>
+<li><code>#3</code> 获得等待队列的自旋锁，该自旋锁不但保护等待队列，也保护counter。可能这就是重新实现一次wait_queue逻辑的原因。因为如果我们使用封装好的<code>wait_evnet</code>系列宏，就可能需要另一个同步原语来保证计数器的读写。</li>
+<li><code>#4</code> 如果计数器的值大于零，不需等待，直接跳到<code>#14</code>，遍历等待队列，并唤醒等待队列上所有的task。</li>
+<li><code>#5</code> 如果计数器的值为零，且不是非阻塞I/O，就进行将该task加入到等待队列的一系列工作，首先将之前声明在栈上的<code>wait_queue_entry</code>放入等待队列</li>
+<li><code>#6</code> 开始进入循环，每次程序被唤醒时从<code>schedule()</code>中返回，并从<code>#11</code>处开始执行</li>
+<li><code>#7</code> 将该task状态设置为<code>TASK_INTERRUPTIBLE</code>，准备将该进程置于interruptible sleep</li>
+<li><code>#8</code> 检查counter，如果不为零，就结束sleep</li>
+<li><code>#9</code> 因为处于interruptible sleep，检查信号，如果有待处理的信号，返回<code>-ERESTARTSYS</code></li>
+<li><code>#10</code> 马上要放弃CPU进入sleep，因为绝对不可带着自旋锁进入休眠，因此将释放自旋锁。</li>
+<li><code>#11</code> 当从该task被唤醒，并从<code>schedule()</code>返回后，重新取得自旋锁，进行<code>#7</code>,<code>#8</code>,<code>#9</code>,<code>#10</code>重新进行条件检查。</li>
+</ul>
+<p>由此可见，其逻辑基本和<code>wait_event_interruptible</code>相同。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">eventfd_read</span><span class="params">(struct file *file, <span class="keyword">char</span> __user *buf, <span class="keyword">size_t</span> count,</span></span></span><br><span class="line"><span class="function"><span class="params">          <span class="keyword">loff_t</span> *ppos)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">eventfd_ctx</span> *<span class="title">ctx</span> = <span class="title">file</span>-&gt;<span class="title">private_data</span>;</span></span><br><span class="line">  <span class="keyword">ssize_t</span> res;</span><br><span class="line">  __u64 ucnt = <span class="number">0</span>;</span><br><span class="line">  DECLARE_WAITQUEUE(wait, current); <span class="comment">// #1 </span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (count &lt; <span class="keyword">sizeof</span>(ucnt)) <span class="comment">// #2</span></span><br><span class="line">    <span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">  spin_lock_irq(&amp;ctx-&gt;wqh.lock); <span class="comment">// #3</span></span><br><span class="line">  res = -EAGAIN;</span><br><span class="line">  <span class="keyword">if</span> (ctx-&gt;count &gt; <span class="number">0</span>) <span class="comment">// #4</span></span><br><span class="line">    res = <span class="keyword">sizeof</span>(ucnt);</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (!(file-&gt;f_flags &amp; O_NONBLOCK)) &#123;</span><br><span class="line">    __add_wait_queue(&amp;ctx-&gt;wqh, &amp;wait); <span class="comment">// #5</span></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;  <span class="comment">// #6</span></span><br><span class="line">      set_current_state(TASK_INTERRUPTIBLE);  <span class="comment">// #7</span></span><br><span class="line">      <span class="keyword">if</span> (ctx-&gt;count &gt; <span class="number">0</span>) &#123; <span class="comment">// #8</span></span><br><span class="line">        res = <span class="keyword">sizeof</span>(ucnt);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (signal_pending(current)) &#123; <span class="comment">// #9</span></span><br><span class="line">        res = -ERESTARTSYS;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      spin_unlock_irq(&amp;ctx-&gt;wqh.lock); <span class="comment">// #10 </span></span><br><span class="line">      schedule();</span><br><span class="line">      spin_lock_irq(&amp;ctx-&gt;wqh.lock); <span class="comment">// #11</span></span><br><span class="line">    &#125;</span><br><span class="line">    __remove_wait_queue(&amp;ctx-&gt;wqh, &amp;wait); <span class="comment">// #12</span></span><br><span class="line">    __set_current_state(TASK_RUNNING); <span class="comment">// #13</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (likely(res &gt; <span class="number">0</span>)) &#123;</span><br><span class="line">    eventfd_ctx_do_read(ctx, &amp;ucnt);</span><br><span class="line">    <span class="keyword">if</span> (waitqueue_active(&amp;ctx-&gt;wqh)) <span class="comment">// #14</span></span><br><span class="line">      wake_up_locked_poll(&amp;ctx-&gt;wqh, EPOLLOUT); <span class="comment">// #15</span></span><br><span class="line">  &#125;</span><br><span class="line">  spin_unlock_irq(&amp;ctx-&gt;wqh.lock);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (res &gt; <span class="number">0</span> &amp;&amp; put_user(ucnt, (__u64 __user *)buf))</span><br><span class="line">    <span class="keyword">return</span> -EFAULT;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /include/linux/wait.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> wake_up_locked_poll(x, m)           \</span></span><br><span class="line">  __wake_up_locked_key((x), TASK_NORMAL, poll_to_key(m))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// /kernel/sched/wait.c</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> __wake_up_locked_key(struct wait_queue_head *wq_head, <span class="keyword">unsigned</span> <span class="keyword">int</span> mode, <span class="keyword">void</span> *key)</span><br><span class="line">&#123;</span><br><span class="line">  __wake_up_common(wq_head, mode, <span class="number">1</span>, <span class="number">0</span>, key, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<p>对于<code>eventfd_write</code>的分析和<code>eventfd_read</code>类似，这里就留给读者了。</p>
 <hr>
 <p>参考：</p>
 <ul>
@@ -387,6 +457,8 @@
 <li><a href="https://eklitzke.org/uninterruptible-sleep" target="_blank" rel="noopener">Uninterruptible Sleep - eklitzke.org</a></li>
 <li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.2.0/gcc/Local-Labels.html" target="_blank" rel="noopener">Locally Decalred Labels - gcc online documents</a></li>
 <li><a href="https://lore.kernel.org/patchwork/patch/821188" target="_blank" rel="noopener">sched/wait: Break up long wake list walk</a></li>
+<li><a href="https://jacktang816.github.io/post/jingqun/" target="_blank" rel="noopener">Linux中的惊群问题 - JackT’s Blog</a></li>
+<li><a href="https://huazq.github.io/2019/08/08/eventfd%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">eventfd 分析 - huazq’s blog</a></li>
 </ul>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
     </div>
@@ -470,7 +542,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-head-t"><span class="nav-number">1.1.</span> <span class="nav-text">wait_queue_head_t</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-entry"><span class="nav-number">1.2.</span> <span class="nav-text">wait_queue_entry</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wait-queue-API"><span class="nav-number">2.</span> <span class="nav-text">wait_queue API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#队列中entry的增加与移除"><span class="nav-number">2.1.</span> <span class="nav-text">队列中entry的增加与移除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event和wait-event-interruptible"><span class="nav-number">2.2.</span> <span class="nav-text">wait_event和wait_event_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event的实现"><span class="nav-number">2.3.</span> <span class="nav-text">wait_event的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up和wake-up-interruptible"><span class="nav-number">2.4.</span> <span class="nav-text">wake_up和wake_up_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up的实现"><span class="nav-number">2.5.</span> <span class="nav-text">wake_up的实现</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-head-t"><span class="nav-number">1.1.</span> <span class="nav-text">wait_queue_head_t</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-entry"><span class="nav-number">1.2.</span> <span class="nav-text">wait_queue_entry</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wait-queue-API"><span class="nav-number">2.</span> <span class="nav-text">wait_queue API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#队列中entry的增加与移除"><span class="nav-number">2.1.</span> <span class="nav-text">队列中entry的增加与移除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event和wait-event-interruptible"><span class="nav-number">2.2.</span> <span class="nav-text">wait_event和wait_event_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event的实现"><span class="nav-number">2.3.</span> <span class="nav-text">wait_event的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up和wake-up-interruptible"><span class="nav-number">2.4.</span> <span class="nav-text">wake_up和wake_up_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up的实现"><span class="nav-number">2.5.</span> <span class="nav-text">wake_up的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分批次唤醒"><span class="nav-number">2.5.1.</span> <span class="nav-text">分批次唤醒</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#避免惊群"><span class="nav-number">2.5.2.</span> <span class="nav-text">避免惊群</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#eventfd"><span class="nav-number">3.</span> <span class="nav-text">eventfd</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#eventfd的数据结构与初始化"><span class="nav-number">3.1.</span> <span class="nav-text">eventfd的数据结构与初始化</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -536,12 +608,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">146k</span>
+    <span title="Symbols count total">147k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:13</span>
+    <span title="Reading time total">2:14</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>

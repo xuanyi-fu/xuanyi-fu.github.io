@@ -402,7 +402,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 16:49:25" itemprop="dateModified" datetime="2020-07-30T16:49:25+08:00">2020-07-30</time>
+                <time title="Modified: 2020-07-30 18:59:54" itemprop="dateModified" datetime="2020-07-30T18:59:54+08:00">2020-07-30</time>
               </span>
 
           <br>
@@ -411,7 +411,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.1k</span>
+              <span>6.7k</span>
             </span>
 
         </div>
@@ -424,11 +424,31 @@
 
       
           <p>Linux 的等待队列(wait queue)是实现 阻塞 I/O 和 I/O复用 (select, poll, epoll 等)的关键同步原语。</p>
-<p>本文基于<a href="https://github.com/torvalds/linux/tree/v5.7" target="_blank" rel="noopener">Linux 5.7</a><br>本文主要介绍：</p>
+<p>本文基于<a href="https://github.com/torvalds/linux/tree/v5.7" target="_blank" rel="noopener">Linux 5.7</a>，主要介绍：</p>
 <ul>
-<li>wait queue 的数据结构 和 创建方式</li>
-<li>wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task)</li>
-<li>结合eventfd的实现来分析 wait queue 的使用</li>
+<li>wait queue 的数据结构 和 创建方式<ul>
+<li><code>wait_queue_head</code> : <code>DECLARE_WAIT_QUEUE_HEAD</code>, <code>init_wait_queue_head</code></li>
+<li><code>wait_queue_entry</code>: <code>DECLARE_WAIT_QUEUE</code>, <code>init_wait_queue_entry</code>, <code>init_waitqueue_func_entry</code></li>
+</ul>
+</li>
+<li><p>wait queue 的手动添加和删除的API</p>
+<ul>
+<li><code>add_wait_queue</code> 和 <code>add_wait_queue_exclusive</code></li>
+<li><code>remove_wait_queue</code></li>
+</ul>
+</li>
+<li><p>wait queue 的基本API</p>
+<ul>
+<li><code>wait_event</code>系列macro</li>
+<li><code>wake_up</code>系列macro<ul>
+<li>使用<code>WQ_FLAG_BOOKMARK</code>来分段遍历，减少单次对自旋锁的占用时间。</li>
+<li>使用<code>WQ_FLAG_EXCLUSIVE</code>来实现单独唤醒，避免“惊群”。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>结合eventfd的实现来分析 wait queue 的使用</p>
+</li>
 </ul>
           <!--noindex-->
             <div class="post-button">
@@ -1354,12 +1374,12 @@ libstdc++中对`std::optional`的隐式类型转换和`value()`函数的实现�
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">146k</span>
+    <span title="Symbols count total">147k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:13</span>
+    <span title="Reading time total">2:14</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
