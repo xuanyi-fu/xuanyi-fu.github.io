@@ -54,7 +54,7 @@
 <meta property="og:description" content="Linux 的等待队列(wait queue)是实现 阻塞 I&#x2F;O 和 I&#x2F;O复用 (select, poll, epoll 等)的关键同步原语。 本文基于Linux 5.7本文主要介绍：  wait queue 的数据结构 和 创建方式 wait queue 的基本API（如何将entry放入队列，如何唤醒队列中的entry对应的task) 结合eventfd的实现来分析 wait queue">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-07-29T10:32:00.000Z">
-<meta property="article:modified_time" content="2020-07-29T13:52:48.828Z">
+<meta property="article:modified_time" content="2020-07-30T08:49:25.905Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="wait queue">
@@ -195,10 +195,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-29 18:32:00 / Modified: 21:52:48" itemprop="dateCreated datePublished" datetime="2020-07-29T18:32:00+08:00">2020-07-29</time>
+              <time title="Created: 2020-07-29 18:32:00" itemprop="dateCreated datePublished" datetime="2020-07-29T18:32:00+08:00">2020-07-29</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-30 16:49:25" itemprop="dateModified" datetime="2020-07-30T16:49:25+08:00">2020-07-30</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -206,7 +212,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.2k</span>
+              <span>5.1k</span>
             </span>
 
         </div>
@@ -333,6 +339,44 @@
 <li><code>#8</code> 让出CPU。当它被再次唤醒时，将会从schedule函数返回。在<code>#5</code>处被重新添加到队列，并进行<code>#6</code>，<code>#7</code>的检查。</li>
 <li><code>#9</code> 从循环跳出后，恢复<code>TASK_RUNNING</code>状态，并释放<code>wq_entry-&gt;entry</code>的资源。</li>
 </ul>
+<h2 id="wake-up和wake-up-interruptible"><a href="#wake-up和wake-up-interruptible" class="headerlink" title="wake_up和wake_up_interruptible"></a>wake_up和wake_up_interruptible</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> wake_up(x)      __wake_up(x, TASK_NORMAL, 1, NULL)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> wake_up_interruptible(x)  __wake_up(x, TASK_INTERRUPTIBLE, 1, NULL)</span></span><br><span class="line"><span class="keyword">void</span> __wake_up(struct wait_queue_head *wq_head, <span class="keyword">unsigned</span> <span class="keyword">int</span> mode, <span class="keyword">int</span> nr, <span class="keyword">void</span> *key);</span><br></pre></td></tr></table></figure>
+<p>一般来说，当用<code>wait_event_interruptible</code>进行等待，之后使用<code>wake_up</code>和<code>wake_up_interruptible</code>唤醒，其效果是没有差别的。实践中，我们通常按照<code>wait_event</code>对应<code>wake_up</code>；<code>wait_event_interruptible</code>对应<code>wake_up_interruptible</code>来使用。</p>
+<h2 id="wake-up的实现"><a href="#wake-up的实现" class="headerlink" title="wake_up的实现"></a>wake_up的实现</h2><p><code>wake_up</code>的主要逻辑实现在<code>__wake_up_common</code>中。它遍历等待队列中的所有entry，并在<code>#1.5</code>处调用该entry在之前设置好的回调函数。代码中的其他细节解释如下：</p>
+<ul>
+<li><code>#1.1</code> 处使用macro <code>lockdep_assert_held</code> 来assert已经持有等待队列头的自旋锁。因此该函数只能在持有锁的情况下被调用。<code>__wake_up_common_lock</code>中的<code>#2.2</code>使用<code>spin_lock_irqsave</code>验证了这一点。</li>
+</ul>
+<hr>
+<p>优化：分批次遍历较长的等待队列，以免持有自旋锁时间过长，影响性能。</p>
+<ul>
+<li><code>#1.2</code> 用来处理<code>bookmark</code>逻辑的代码。<ul>
+<li>首次进入函数<code>__wake_up_common</code>时， <code>#1.2</code>处，<code>bookmark</code>的<code>WQ_FLAG_BOOKMARK</code>还没有设置(见<code>#2.1</code>)，因此将<code>curr</code>置为等待队列的第一个entry(<code>#1.3</code>)。</li>
+</ul>
+</li>
+<li>之后进入循环<code>list_for_each_entry_safe_from</code>，在<code>#1.7处</code>检查当前已经遍历过的节点个数是否已经超过<code>WAITQUEUE_WALK_BREAK_CNT</code>(在当前版本该值被定义为64)，如果已经超过，就在 下一个entry<code>next</code>之前将<code>bookmark</code>设置好<code>WQ_FLAG_BOOKMARK</code>后，用macro<code>list_add_tail</code>插入到<code>next</code>节点之前，并结束循环。</li>
+<li>结束循环后在<code>#2.4</code>处放弃了持有自旋锁。这样就保证了自旋锁的持有时间不会过长。</li>
+<li>之后循环继续进行，重新进入<code>__wake_up_common</code>函数后，在<code>#1.2</code>位置，因为<code>WQ_FLAG_BOOKMARK</code>已经被设置，因此<code>curr</code>会被置为<code>bookmark</code>的后继节点，也就是继续之前的循环。</li>
+</ul>
+<p>关于<code>bookmark</code>，详见<a href="https://lore.kernel.org/patchwork/patch/821188" target="_blank" rel="noopener">sched/wait: Break up long wake list walk</a></p>
+<hr>
+<p>优化：防止惊群的Exclusive waits</p>
+<p>由上面关于<code>wake_up</code>的行为分析可知，<code>wake_up</code>会一段一段地调用等待队列中的entry的回调函数<code>func</code>。由前面关于<code>wait_event</code>的实现分析可知，使用<code>wait_event</code>系列macro添加到队列中的entry的回调函数<code>autoremove_wake_function</code>。其作用为将当前entry从等待队列中移除，并将对应的task唤醒。</p>
+<p>当有许多任务等待在等待队列上等待某一资源，而该资源却只能由被唤醒的task中的其中一个得到时，被唤醒的，未得到该资源的其他task就会重新进入sleep。这导致了不必要的context switch，从而降低了内核性能。我们把这种状况称为”惊群“(thundering herd)。</p>
+<p>为了避免惊群，<code>wait_queue</code>提供了一个<code>WQ_FLAG_EXCLUSIVE</code>。当一个entry被标记为exclusive时，在<code>prepare_to_wait_event</code>函数中，其会被添加到等待队列的末尾。</p>
+<blockquote>
+<p>注意：手动添加entry到等待队列的函数<code>add_wait_queue</code>会清除<code>WQ_FLAG_EXCLUSIVE</code>，要用<code>add_wait_queue_exclusive</code>来添加带有该flag的entry。</p>
+</blockquote>
+<p>当<code>wake_up</code>对等待队列中的entry进行唤醒时，<code>#1.6</code>说明对整个等待队列的遍历会停止在第一个遇到的<code>flag</code>为<code>WQ_FLAG_EXCLUSIVE</code>的entry上面。</p>
+<p>因此，如果所有的entry都带有该flag，且结果就是每次只有一个task被唤醒，不会产生“惊群”。</p>
+<p>当多个task之间对某种资源有很严重的竞争，并且当该资源可用时，只唤醒一个task便足以将该资源完全消耗时，我们考虑使用Exclusive waits。一个网络编程中典型的例子是：当多个acceptors竞争一个新到来的tcp握手请求，进行accept系统调用时，我们只需要唤醒其中一个acceptor即可完全处理这个新到来的tcp链接。唤醒其他acceptor是不必要的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __wake_up_common(struct wait_queue_head *wq_head, <span class="keyword">unsigned</span> <span class="keyword">int</span> mode,</span><br><span class="line">      <span class="keyword">int</span> nr_exclusive, <span class="keyword">int</span> wake_flags, <span class="keyword">void</span> *key,</span><br><span class="line">      <span class="keyword">wait_queue_entry_t</span> *bookmark)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">wait_queue_entry_t</span> *curr, *next;</span><br><span class="line">  <span class="keyword">int</span> cnt = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  lockdep_assert_held(&amp;wq_head-&gt;lock); <span class="comment">// #1.1</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (bookmark &amp;&amp; (bookmark-&gt;flags &amp; WQ_FLAG_BOOKMARK)) &#123; <span class="comment">// #1.2</span></span><br><span class="line">    curr = list_next_entry(bookmark, entry);</span><br><span class="line"></span><br><span class="line">    list_del(&amp;bookmark-&gt;entry);</span><br><span class="line">    bookmark-&gt;flags = <span class="number">0</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span></span><br><span class="line">    curr = list_first_entry(&amp;wq_head-&gt;head, <span class="keyword">wait_queue_entry_t</span>, entry); <span class="comment">// #1.3</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (&amp;curr-&gt;entry == &amp;wq_head-&gt;head) <span class="comment">// #1.4</span></span><br><span class="line">    <span class="keyword">return</span> nr_exclusive;</span><br><span class="line"></span><br><span class="line">  list_for_each_entry_safe_from(curr, next, &amp;wq_head-&gt;head, entry) &#123;</span><br><span class="line">    <span class="keyword">unsigned</span> flags = curr-&gt;flags;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (flags &amp; WQ_FLAG_BOOKMARK)</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">    ret = curr-&gt;func(curr, mode, wake_flags, key); <span class="comment">// #1.5</span></span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">if</span> (ret &amp;&amp; (flags &amp; WQ_FLAG_EXCLUSIVE) &amp;&amp; !--nr_exclusive) <span class="comment">// #1.6</span></span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bookmark &amp;&amp; (++cnt &gt; WAITQUEUE_WALK_BREAK_CNT) &amp;&amp; <span class="comment">// #1.7</span></span><br><span class="line">        (&amp;next-&gt;entry != &amp;wq_head-&gt;head)) &#123;</span><br><span class="line">      bookmark-&gt;flags = WQ_FLAG_BOOKMARK;</span><br><span class="line">      list_add_tail(&amp;bookmark-&gt;entry, &amp;next-&gt;entry);      <span class="comment">// #1.8</span></span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> nr_exclusive;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        `__wake_up, __wake_up_common_lock`
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/sched/wait.c</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> __wake_up(struct wait_queue_head *wq_head, <span class="keyword">unsigned</span> <span class="keyword">int</span> mode,</span><br><span class="line">      <span class="keyword">int</span> nr_exclusive, <span class="keyword">void</span> *key)</span><br><span class="line">&#123;</span><br><span class="line">  __wake_up_common_lock(wq_head, mode, nr_exclusive, <span class="number">0</span>, key);</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL(__wake_up);</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __wake_up_common_lock(struct wait_queue_head *wq_head, <span class="keyword">unsigned</span> <span class="keyword">int</span> mode,</span><br><span class="line">      <span class="keyword">int</span> nr_exclusive, <span class="keyword">int</span> wake_flags, <span class="keyword">void</span> *key)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line">  <span class="keyword">wait_queue_entry_t</span> bookmark; <span class="comment">// #2.1</span></span><br><span class="line"></span><br><span class="line">  bookmark.flags = <span class="number">0</span>;</span><br><span class="line">  bookmark.<span class="keyword">private</span> = <span class="literal">NULL</span>;</span><br><span class="line">  bookmark.func = <span class="literal">NULL</span>;</span><br><span class="line">  INIT_LIST_HEAD(&amp;bookmark.entry);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    spin_lock_irqsave(&amp;wq_head-&gt;lock, flags); <span class="comment">// #2.2</span></span><br><span class="line">    nr_exclusive = __wake_up_common(wq_head, mode, nr_exclusive,</span><br><span class="line">            wake_flags, key, &amp;bookmark); <span class="comment">// #2.3</span></span><br><span class="line">    spin_unlock_irqrestore(&amp;wq_head-&gt;lock, flags); <span class="comment">// #2.4</span></span><br><span class="line">  &#125; <span class="keyword">while</span> (bookmark.flags &amp; WQ_FLAG_BOOKMARK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
 <hr>
 <p>参考：</p>
 <ul>
@@ -342,6 +386,7 @@
 <li><a href="http://gityuan.com/2018/12/02/linux-wait-queue/" target="_blank" rel="noopener">源码解读Linux等待队列 - Gityuan</a></li>
 <li><a href="https://eklitzke.org/uninterruptible-sleep" target="_blank" rel="noopener">Uninterruptible Sleep - eklitzke.org</a></li>
 <li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.2.0/gcc/Local-Labels.html" target="_blank" rel="noopener">Locally Decalred Labels - gcc online documents</a></li>
+<li><a href="https://lore.kernel.org/patchwork/patch/821188" target="_blank" rel="noopener">sched/wait: Break up long wake list walk</a></li>
 </ul>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
     </div>
@@ -425,7 +470,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-head-t"><span class="nav-number">1.1.</span> <span class="nav-text">wait_queue_head_t</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-entry"><span class="nav-number">1.2.</span> <span class="nav-text">wait_queue_entry</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wait-queue-API"><span class="nav-number">2.</span> <span class="nav-text">wait_queue API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#队列中entry的增加与移除"><span class="nav-number">2.1.</span> <span class="nav-text">队列中entry的增加与移除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event和wait-event-interruptible"><span class="nav-number">2.2.</span> <span class="nav-text">wait_event和wait_event_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event的实现"><span class="nav-number">2.3.</span> <span class="nav-text">wait_event的实现</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-head-t"><span class="nav-number">1.1.</span> <span class="nav-text">wait_queue_head_t</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-queue-entry"><span class="nav-number">1.2.</span> <span class="nav-text">wait_queue_entry</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wait-queue-API"><span class="nav-number">2.</span> <span class="nav-text">wait_queue API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#队列中entry的增加与移除"><span class="nav-number">2.1.</span> <span class="nav-text">队列中entry的增加与移除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event和wait-event-interruptible"><span class="nav-number">2.2.</span> <span class="nav-text">wait_event和wait_event_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-event的实现"><span class="nav-number">2.3.</span> <span class="nav-text">wait_event的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up和wake-up-interruptible"><span class="nav-number">2.4.</span> <span class="nav-text">wake_up和wake_up_interruptible</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wake-up的实现"><span class="nav-number">2.5.</span> <span class="nav-text">wake_up的实现</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -491,12 +536,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">144k</span>
+    <span title="Symbols count total">146k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:11</span>
+    <span title="Reading time total">2:13</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
