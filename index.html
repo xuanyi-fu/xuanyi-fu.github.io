@@ -204,7 +204,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-29 21:55:57" itemprop="dateModified" datetime="2020-07-29T21:55:57+08:00">2020-07-29</time>
+                <time title="Modified: 2020-08-08 14:23:18" itemprop="dateModified" datetime="2020-08-08T14:23:18+08:00">2020-08-08</time>
               </span>
 
           <br>
@@ -213,7 +213,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>460</span>
+              <span>481</span>
             </span>
 
         </div>
@@ -333,6 +333,9 @@
 <tr>
 <td style="text-align:left"><a href="/posts/68197d16/" title="帮助编译器优化：inline与const propogation">帮助编译器优化：inline与const propogation</a></td>
 </tr>
+<tr>
+<td style="text-align:left"><a href="/posts/b4b8ca20/" title="单例模式(Singleton)：使用与实现">单例模式(Singleton)：使用与实现</a></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -351,6 +354,102 @@
 </table>
 </div>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/b4b8ca20/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/b4b8ca20/" class="post-title-link" itemprop="url">单例模式(Singleton)：使用与实现</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-05 23:45:26" itemprop="dateCreated datePublished" datetime="2020-08-05T23:45:26+08:00">2020-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-08-08 14:27:10" itemprop="dateModified" datetime="2020-08-08T14:27:10+08:00">2020-08-08</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.4k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是-Singleton"><a href="#什么是-Singleton" class="headerlink" title="什么是 Singleton"></a>什么是 Singleton</h1><p>Singleton是<a href="http://www.uml.org.cn/c++/pdf/DesignPatterns.pdf" target="_blank" rel="noopener">GoF Design Patterns</a>中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下</p>
+<blockquote>
+<p>Ensure a class only has one instance, and provide a global point of access to it</p>
+</blockquote>
+<p>实践中，一般Singleton被认为是：</p>
+<ul>
+<li>在程序的整个寿命周期中，只能拥有一个实例的类</li>
+<li>提供一个在全局能够访问该唯一实例的方法</li>
+</ul>
+<p>本文解决以下问题：</p>
+<ul>
+<li>为什么我们需要Singleton</li>
+<li>“Magic Static” 与 libsupc++ 中 “Magic Static” 的实现</li>
+<li>如何使用 “Magic Static” 实现 Singleton</li>
+<li>Singleton 有哪些不足</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/posts/b4b8ca20/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1159,99 +1258,6 @@ libstdc++中对`std::optional`的隐式类型转换和`value()`函数的实现�
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/326396eb/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Xuanyi Fu">
-      <meta itemprop="description" content="Xuanyi Fu的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Xuanyi Fu Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/326396eb/" class="post-title-link" itemprop="url">Type Punning</a>
-        </h1>
-
-        <div class="post-meta">
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-07-06 15:44:56" itemprop="dateCreated datePublished" datetime="2020-07-06T15:44:56+08:00">2020-07-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-07 22:19:22" itemprop="dateModified" datetime="2020-07-07T22:19:22+08:00">2020-07-07</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>9.9k</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>类型双关(type punning)经常在需要高性能的代码和网络编程中出现。比如：</p>
-<ul>
-<li>利用强制类型转换，将<code>float</code>和<code>int</code>互相转换。</li>
-<li>将<code>malloc</code>申请来的内存指针<code>void *</code>强制类型转换为一个对象的指针类型<code>X *</code>，并通过该指针访问<code>X</code>的成员。</li>
-</ul>
-<p>然而，C++中的大部分的type punning（包括以上的两种）都会导致undefined behaviour。<br>我们将解决以下问题：</p>
-<ul>
-<li>type punning 会导致怎样的undefined behaviour?</li>
-<li>type punning 为何会导致undefined behaviour?</li>
-<li>哪些type punning是正确的，哪些是错误的？</li>
-<li>当我们必须进行type punning时，如何避免undefined behaviour来实现type punning的功能？</li>
-</ul>
-<p><a href="https://www.youtube.com/watch?v=_qzMpk-22cc" target="_blank" rel="noopener">CppCon 2019: Timur Doumler “Type punning in modern C++”</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/326396eb/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1322,7 +1328,7 @@ libstdc++中对`std::optional`的隐式类型转换和`value()`函数的实现�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1332,7 +1338,7 @@ libstdc++中对`std::optional`的隐式类型转换和`value()`函数的实现�
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
@@ -1374,12 +1380,12 @@ libstdc++中对`std::optional`的隐式类型转换和`value()`函数的实现�
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">147k</span>
+    <span title="Symbols count total">152k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:14</span>
+    <span title="Reading time total">2:18</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>

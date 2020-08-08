@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="什么是 SingletonSingleton是GoF Design Patterns中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下  Ensure a class only has one instance, and provide a global point of access to it  实践中，一般Singleton被认为是：  在程序的整个寿命周期中，只能拥">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单例模式(Singleton)：使用与实现">
+<meta property="og:url" content="http://xyfu.me/posts/b4b8ca20/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="什么是 SingletonSingleton是GoF Design Patterns中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下  Ensure a class only has one instance, and provide a global point of access to it  实践中，一般Singleton被认为是：  在程序的整个寿命周期中，只能拥">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-08-05T15:45:26.000Z">
+<meta property="article:modified_time" content="2020-08-08T06:27:10.561Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="design pattern">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/b4b8ca20/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>单例模式(Singleton)：使用与实现 | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/b4b8ca20/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          单例模式(Singleton)：使用与实现
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-05 23:45:26" itemprop="dateCreated datePublished" datetime="2020-08-05T23:45:26+08:00">2020-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-08-08 14:27:10" itemprop="dateModified" datetime="2020-08-08T14:27:10+08:00">2020-08-08</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.4k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="什么是-Singleton"><a href="#什么是-Singleton" class="headerlink" title="什么是 Singleton"></a>什么是 Singleton</h1><p>Singleton是<a href="http://www.uml.org.cn/c++/pdf/DesignPatterns.pdf" target="_blank" rel="noopener">GoF Design Patterns</a>中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下</p>
+<blockquote>
+<p>Ensure a class only has one instance, and provide a global point of access to it</p>
+</blockquote>
+<p>实践中，一般Singleton被认为是：</p>
+<ul>
+<li>在程序的整个寿命周期中，只能拥有一个实例的类</li>
+<li>提供一个在全局能够访问该唯一实例的方法</li>
+</ul>
+<p>本文解决以下问题：</p>
+<ul>
+<li>为什么我们需要Singleton</li>
+<li>“Magic Static” 与 libsupc++ 中 “Magic Static” 的实现</li>
+<li>如何使用 “Magic Static” 实现 Singleton</li>
+<li>Singleton 有哪些不足</li>
+</ul>
+<a id="more"></a>
+<h1 id="为什么我们需要-Singleton"><a href="#为什么我们需要-Singleton" class="headerlink" title="为什么我们需要 Singleton"></a>为什么我们需要 Singleton</h1><p><a href="http://www.uml.org.cn/c++/pdf/DesignPatterns.pdf" target="_blank" rel="noopener">GoF Design Patterns</a>中这样描述何时使用 Singleton:</p>
+<blockquote>
+<p>Use the Singleton pattern when:<br>• there must be exactly one instance of a class, and it must be accessible to clients from a well-known access point.<br>• when the sole instance should be extensible by subclassing, and clients should be able to use an extended instance without modifying their code.</p>
+</blockquote>
+<p>当我们要在一个复杂系统中实现一个新特性时。与其在层层包装的复杂系统中以组合的形式添加新模块，不如将新模块实现成一个全局可达的Singleton。</p>
+<h1 id="Singleton-的实现"><a href="#Singleton-的实现" class="headerlink" title="Singleton 的实现"></a>Singleton 的实现</h1><p>Singleton在程序的生命周期中只允许存在一个实例，因此我们需要确保：</p>
+<ul>
+<li>在第一次使用Singleton的方法时，该实例已经被正确地初始化。</li>
+<li>每次使用Singleton的方法，都作用在同一实例上。</li>
+<li>在多线程情况下，该实例的初始化不出现race condition。</li>
+</ul>
+<p><strong>Meyers Singleton</strong>通过C++11标准中对静态局部对象的初始化来保证以上三个条件。然而当程序中存在多个相互依赖的Singleton时，Singleton的初始化顺序需要得到妥善处理，因此产生了<strong>按需初始化的Singleton</strong>。</p>
+<h2 id="Magic-Static"><a href="#Magic-Static" class="headerlink" title="Magic Static"></a>Magic Static</h2><p>C++ 11标准中规定了“具有静态存储期，且只初始化一次的块作用域变量”。我们一般称定义于函数内的，并将其返回给函数调用者的local static变量为”Magic Static”。”Magic Static”是实现Singleton的基石。</p>
+<p>标准中<a href="https://isocpp.org/files/papers/N4860.pdf" target="_blank" rel="noopener">§8.8 stmt.dcl</a>关于静态局部变量的初始化提到：</p>
+<blockquote>
+<p>Dynamic initialization of a block-scope variable with static storage duration or thread storage duration is performed the first time control passes through its declaration; such a variable is considered initialized upon the completion of its initialization. If the initialization exits by throwing an exception, the initialization is not complete, so it will be tried again the next time control enters the declaration.<br>If control enters the declaration concurrently while the variable is being initialized, the concurrent execution shall wait for completion of the initialization.85 If control re-enters the declaration recursively while the variable is being initialized, the behavior is undefined.</p>
+</blockquote>
+<p>声明于块作用域且带有 <code>static</code> 或 <code>thread_local</code> (C++11 起) 说明符的变量拥有静态或线程 (C++11 起)存储期，但在控制首次经过其声明时才会被初始化（除非其初始化是零初始化或常量初始化，这可以在首次进入块前进行）。在其后所有的调用中，声明均被跳过。</p>
+<ul>
+<li>若初始化抛出异常，则不认为变量被初始化，且控制下次经过该声明时将再次尝试初始化。</li>
+<li>若初始化递归地进入正在初始化的变量的块，则行为未定义。</li>
+<li>若多个线程试图同时初始化同一静态局部变量，则初始化严格发生一次（类似的行为也可对任意函数以 <code>std::call_once</code> 来达成）。注意：此功能特性的通常实现均使用双检查锁定模式的变体，这使得对已初始化的局部静态变量检查的运行时开销减少为单次非原子的布尔比较</li>
+<li>块作用域静态变量的析构函数在初始化已成功的情况下在程序退出时被调用。</li>
+<li>相同内联函数（可以是隐式内联）的所有定义中，函数局域的静态对象均指代定义于一个翻译单元中的同一对象。</li>
+</ul>
+<hr>
+<iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:11,endLineNumber:4,positionColumn:11,positionLineNumber:4,selectionStartColumn:11,selectionStartLineNumber:4,startColumn:11,startLineNumber:4),source:'struct+A%7B%0A++++int+a%3B%0A++++A():%0A++++a%7B1%7D%7B%7D%0A%7D%3B%0A%0AA*+init_A()%0A%7B%0A++++static+A+a%7B%7D%3B%0A++++return+%26a%3B%0A%7D%3B'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:g102,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'',selection:(endColumn:12,endLineNumber:31,positionColumn:12,positionLineNumber:31,selectionStartColumn:12,selectionStartLineNumber:31,startColumn:12,startLineNumber:31),source:1),l:'5',n:'0',o:'x86-64+gcc+10.2+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),header:(),k:50,l:'4',n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+
+<p>在上面这段代码中，local static变量<code>A</code>就是就是一个”Magic Static”，编译器为了保证该变量在<strong>在控制首次经过其声明时才会被初始化</strong>，使用了一个guard variable: <code>guard variable for init_A()::a</code>，并调用了<code>__cxa_guard_acquire</code>和<code>__cxa_guard_release</code>。在<code>libstdc++</code>的<code>libsups++</code>中，其在x86-64 Linux环境下实现大致如下：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__guard.first_byte == <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> ( __cxa_guard_acquire (&amp;__guard) ) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// ... initialize the object ...;</span></span><br><span class="line">    &#125; <span class="keyword">catch</span> (...) &#123;</span><br><span class="line">      __cxa_guard_abort (&amp;__guard);</span><br><span class="line">      <span class="keyword">throw</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ... queue object destructor with __cxa_atexit() ...;</span></span><br><span class="line">    __cxa_guard_release (&amp;__guard);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其实现大致为：使用一个原子变量<code>__guard</code>作为互斥锁，对<code>__guard</code>进行争夺，争夺成功的线程进行初始化，争夺失败的线程使用futex来放入内核的等待队列，等待该变量成功初始化。</p>
+<hr>
+<p>对于每个local static变量都会生成一个<code>__guard</code>，来标示其初始化的状态：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__extension__ <span class="keyword">typedef</span> <span class="keyword">int</span> __guard __attribute__((mode (__DI__)));</span><br></pre></td></tr></table></figure><br>其中<code>__attribute__((mode (__DI__)))</code>是gcc的<a href="https://gcc.gnu.org/onlinedocs/gcc-3.4.6/gcc/Vector-Extensions.html" target="_blank" rel="noopener">vector extensions</a></p>
+<blockquote>
+<p>DI，An integer, eight times as wide as a QI mode integer, usually 64 bits.</p>
+</blockquote>
+<p>即<code>__guard</code>是一个64bit的整数，其可能的状态如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; Valid values of the first integer in guard are:</span><br><span class="line">&#x2F;&#x2F; 0				  No thread encountered the guarded init</span><br><span class="line">&#x2F;&#x2F;				  yet or it has been aborted.</span><br><span class="line">&#x2F;&#x2F; _GLIBCXX_GUARD_BIT		  The guarded static var has been successfully</span><br><span class="line">&#x2F;&#x2F;				  initialized.</span><br><span class="line">&#x2F;&#x2F; _GLIBCXX_GUARD_PENDING_BIT	  The guarded static var is being initialized</span><br><span class="line">&#x2F;&#x2F;				  and no other thread is waiting for its</span><br><span class="line">&#x2F;&#x2F;				  initialization.</span><br><span class="line">&#x2F;&#x2F; (_GLIBCXX_GUARD_PENDING_BIT    The guarded static var is being initialized</span><br><span class="line">&#x2F;&#x2F;  | _GLIBCXX_GUARD_WAITING_BIT) and some other threads are waiting until</span><br><span class="line">&#x2F;&#x2F;				  it is initialized.</span><br></pre></td></tr></table></figure>
+<hr>
+<p><code>__cxa_guard_acquire</code>对<code>__guard</code>使用<code>__atomic_compare_exchange_n</code>进行CAS，如果CAS成功，则返回1，否则返回0，并将<code>gi</code>的值拷贝进<code>expected</code>：</p>
+<ul>
+<li>CAS成功，即<code>__guard</code>为0，且成功将<code>__guard</code>变为<code>_GLIBCXX_GUARD_PENDING_BIT</code>，则本线程负责该变量的初始化。</li>
+<li>CAS失败：<ul>
+<li><code>__guard</code>为<code>_GLIBCXX_GUARD_BIT</code>，即已经成功初始化，返回0<br>-<code>__guard</code>为<code>_GLIBCXX_GUARD_PENDING_BIT</code>，即有线程正在初始化，当前线程应该等待正在进行初始化的线程成功完成初始化，使用<code>futex</code>来将该线程放入内核中的等待队列。</li>
+</ul>
+</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        `__cxa_guard_acquire`（仅保留使用futex的实现）
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">extern</span> <span class="string">"C"</span></span><br><span class="line">  <span class="keyword">int</span> __cxa_guard_acquire (__guard *g) </span><br><span class="line">  &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __GTHREADS</span></span><br><span class="line">    <span class="comment">// If the target can reorder loads, we need to insert a read memory</span></span><br><span class="line">    <span class="comment">// barrier so that accesses to the guarded variable happen after the</span></span><br><span class="line">    <span class="comment">// guard test.</span></span><br><span class="line">    <span class="keyword">if</span> (_GLIBCXX_GUARD_TEST_AND_ACQUIRE (g))</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> _GLIBCXX_USE_FUTEX</span></span><br><span class="line">    <span class="comment">// If __atomic_* and futex syscall are supported, don't use any global</span></span><br><span class="line">    <span class="comment">// mutex.</span></span><br><span class="line">    <span class="keyword">if</span> (__gthread_active_p ())</span><br><span class="line">      &#123;</span><br><span class="line">    <span class="keyword">int</span> *gi = (<span class="keyword">int</span> *) (<span class="keyword">void</span> *) g;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> guard_bit = _GLIBCXX_GUARD_BIT;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> pending_bit = _GLIBCXX_GUARD_PENDING_BIT;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> waiting_bit = _GLIBCXX_GUARD_WAITING_BIT;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">expected</span><span class="params">(<span class="number">0</span>)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (__atomic_compare_exchange_n(gi, &amp;expected, pending_bit, <span class="literal">false</span>,</span><br><span class="line">                        __ATOMIC_ACQ_REL,</span><br><span class="line">                        __ATOMIC_ACQUIRE))</span><br><span class="line">          &#123;</span><br><span class="line">        <span class="comment">// This thread should do the initialization.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          </span><br><span class="line">        <span class="keyword">if</span> (expected == guard_bit)</span><br><span class="line">          &#123;</span><br><span class="line">        <span class="comment">// Already initialized.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;    </span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">         <span class="keyword">if</span> (expected == pending_bit)</span><br><span class="line">           &#123;</span><br><span class="line">         <span class="comment">// Use acquire here.</span></span><br><span class="line">         <span class="keyword">int</span> newv = expected | waiting_bit;</span><br><span class="line">         <span class="keyword">if</span> (!__atomic_compare_exchange_n(gi, &amp;expected, newv, <span class="literal">false</span>,</span><br><span class="line">                          __ATOMIC_ACQ_REL, </span><br><span class="line">                          __ATOMIC_ACQUIRE))</span><br><span class="line">           &#123;</span><br><span class="line">             <span class="keyword">if</span> (expected == guard_bit)</span><br><span class="line">               &#123;</span><br><span class="line">             <span class="comment">// Make a thread that failed to set the</span></span><br><span class="line">             <span class="comment">// waiting bit exit the function earlier,</span></span><br><span class="line">             <span class="comment">// if it detects that another thread has</span></span><br><span class="line">             <span class="comment">// successfully finished initialising.</span></span><br><span class="line">             <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">               &#125;</span><br><span class="line">             <span class="keyword">if</span> (expected == <span class="number">0</span>)</span><br><span class="line">               <span class="keyword">continue</span>;</span><br><span class="line">           &#125;</span><br><span class="line">         </span><br><span class="line">         expected = newv;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">        syscall (SYS_futex, gi, _GLIBCXX_FUTEX_WAIT, expected, <span class="number">0</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><code>__cxa_guard_abort</code>用于初始化失败抛出异常的处理。初始化失败时，将<code>__guard</code>的flag变为0。如果之前<code>__guard</code>为<code>_GLIBCXX_GUARD_WAITING_BIT</code>，即有线程在futex的内核等待队列上等待初始化完成，则将等待的全部线程唤醒。被唤醒的全部线程会重新尝试竞争这个初始化锁，并重新尝试初始化该变量。（可能的惊群？因为只有一个线程可以对该变量进行初始化）</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        `__cxa_guard_abort`（仅保留使用futex的实现）
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">extern</span> <span class="string">"C"</span></span><br><span class="line"> <span class="keyword">void</span> __cxa_guard_abort (__guard *g) <span class="keyword">throw</span> ()</span><br><span class="line"> &#123;</span><br><span class="line">   <span class="comment">// If __atomic_* and futex syscall are supported, don't use any global</span></span><br><span class="line">   <span class="comment">// mutex.</span></span><br><span class="line">   <span class="keyword">if</span> (__gthread_active_p ())</span><br><span class="line">     &#123;</span><br><span class="line"><span class="keyword">int</span> *gi = (<span class="keyword">int</span> *) (<span class="keyword">void</span> *) g;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> waiting_bit = _GLIBCXX_GUARD_WAITING_BIT;</span><br><span class="line"><span class="keyword">int</span> old = __atomic_exchange_n (gi, <span class="number">0</span>, __ATOMIC_ACQ_REL);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> ((old &amp; waiting_bit) != <span class="number">0</span>)</span><br><span class="line">  syscall (SYS_futex, gi, _GLIBCXX_FUTEX_WAKE, INT_MAX);</span><br><span class="line"><span class="keyword">return</span>;</span><br><span class="line">     &#125;</span><br><span class="line">   set_init_in_progress_flag(g, <span class="number">0</span>);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<hr>
+<p><code>__cxa_guard_release</code>用于初始化成功时，将<code>__gurad</code>变为<code>_GLIBCXX_GUARD_BIT</code>，并唤醒所有在futex的内核等待队列上等待的线程。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        `__cxa_guard_release`（仅保留使用futex的实现）
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">extern</span> <span class="string">"C"</span></span><br><span class="line">  <span class="keyword">void</span> __cxa_guard_release (__guard *g) <span class="keyword">throw</span> ()</span><br><span class="line">  &#123;</span><br><span class="line">#ifdef _GLIBCXX_USE_FUTEX</span><br><span class="line">    <span class="comment">// If __atomic_* and futex syscall are supported, don't use any global</span></span><br><span class="line">    <span class="comment">// mutex.</span></span><br><span class="line">    <span class="keyword">if</span> (__gthread_active_p ())</span><br><span class="line">      &#123;</span><br><span class="line">    <span class="keyword">int</span> *gi = (<span class="keyword">int</span> *) (<span class="keyword">void</span> *) g;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> guard_bit = _GLIBCXX_GUARD_BIT;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> waiting_bit = _GLIBCXX_GUARD_WAITING_BIT;</span><br><span class="line">    <span class="keyword">int</span> old = __atomic_exchange_n (gi, guard_bit, __ATOMIC_ACQ_REL);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((old &amp; waiting_bit) != <span class="number">0</span>)</span><br><span class="line">      syscall (SYS_futex, gi, _GLIBCXX_FUTEX_WAKE, INT_MAX);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    set_init_in_progress_flag(g, <span class="number">0</span>);</span><br><span class="line">    _GLIBCXX_GUARD_SET_AND_RELEASE (g);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h2 id="Meyers-Singleton"><a href="#Meyers-Singleton" class="headerlink" title="Meyers Singleton"></a>Meyers Singleton</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">singleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> singleton&amp; <span class="title">instance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">static</span> singleton s&#123;&#125;; <span class="comment">// #1</span></span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    singleton(<span class="keyword">const</span> singleton&amp;) = <span class="keyword">delete</span>; <span class="comment">// #2</span></span><br><span class="line">    <span class="keyword">void</span> <span class="keyword">operator</span>=(<span class="keyword">const</span> singleton&amp;) = <span class="keyword">delete</span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    singleton()</span><br><span class="line">    &#123;</span><br><span class="line">    	<span class="comment">// ...</span></span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>#1</code>处使用静态局部变量来保证该singleton的实例在首次调用<code>singleton::instance()</code>时被初始化，只初始化一次，且不产生race condition。</li>
+<li>根据<a href="https://github.com/vpreethamkashyap/Library/blob/master/Scott%20Meyers-Effective%20Modern%20C%2B%2B_%2042%20Specific%20Ways%20to%20Improve%20Your%20Use%20of%20C%2B%2B11%20and%20C%2B%2B14-O&#39;Reilly%20Media%20(2014" target="_blank" rel="noopener">Effetive Modern C++</a>.pdf)中Item11: Prefer deleted functions to private undefined one. ：<code>#2</code>处将copy ctor 和 copy assignment operator使用<code>=delete</code>删除，并声明为<code>public</code>。相比较将其声明为<code>private</code>并做不定义，声明成<code>public</code>的<code>delete</code>有以下优势：<ul>
+<li>可以保证即使在该类的<strong>成员函数</strong>和<strong>友元函数</strong>也无法进行拷贝复制。</li>
+<li>C++在编译时先检查访问权限再检查<code>delete</code>，因此声明为<code>public</code>可以获得更明确的错误信息。</li>
+</ul>
+</li>
+<li>无需考虑删除 move ctor 和 move assignment operator，因为它们只在一个类中不含有用户定义的copy operations, move operations 和 dtor 时才会被编译器生成。</li>
+</ul>
+<h2 id="按需初始化和释放的-Singleton"><a href="#按需初始化和释放的-Singleton" class="headerlink" title="按需初始化和释放的 Singleton"></a>按需初始化和释放的 Singleton</h2><p>当各个 Singleton之间有依赖关系时，需要保证各个 Singleton之间的初始化和释放的顺序。尝试使用<code>unique_ptr</code>配合IIFE(immediately invoked function expression)来完成local static的初始化和释放。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cassert&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">singleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">auto</span>&amp; <span class="title">instance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">auto</span>&amp; s = []() -&gt; T&amp;</span><br><span class="line">        &#123;</span><br><span class="line">            m_instance = <span class="built_in">std</span>::make_unique&lt;T&gt;();</span><br><span class="line">            <span class="keyword">return</span> *m_instance;</span><br><span class="line">        &#125;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">free</span><span class="params">()</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        m_instance.reset();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">bool</span> <span class="title">is_freed</span><span class="params">()</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_instance.get() == <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;T&gt; m_instance;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> foo_singleton</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">namespace</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">foo</span></span></span><br><span class="line"><span class="class">        &#123;</span></span><br><span class="line">            <span class="keyword">int</span> m_value;</span><br><span class="line">            foo()</span><br><span class="line">            :m_value&#123;<span class="number">1</span>&#125;&#123;&#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">foo&amp; <span class="title">use_foo</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton&lt;foo&gt;::instance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">free_foo</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        singleton&lt;foo&gt;::<span class="built_in">free</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">auto</span> <span class="title">is_freed</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton&lt;foo&gt;::is_freed();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span>&amp; f = foo_singleton::use_foo();</span><br><span class="line">    assert(f.m_value == <span class="number">1</span>);</span><br><span class="line">    foo_singleton::free_foo();</span><br><span class="line">    assert(foo_singleton::is_freed());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
+<h1 id="Singleton-有哪些问题"><a href="#Singleton-有哪些问题" class="headerlink" title="Singleton 有哪些问题"></a>Singleton 有哪些问题</h1><h2 id="Singletons之间的初始化依赖"><a href="#Singletons之间的初始化依赖" class="headerlink" title="Singletons之间的初始化依赖"></a>Singletons之间的初始化依赖</h2><p>Singleton往往被实现为local static对象。C++只保证local static对象在其所在的函数第一次被调用时完成初始化。当这些Singleton之间相互依赖时，它们的初始化顺序无法被很好地保证。当你的设计中存在多个Singleton时，可能需要使用一个Singleton Manager和按需初始化/释放的Singleton，来保证各个Singleton之间有序初始化。</p>
+<h2 id="难以进行单元测试"><a href="#难以进行单元测试" class="headerlink" title="难以进行单元测试"></a>难以进行单元测试</h2><p>Singleton作为一个全局对象，其生命周期与整个程序大致相同。这导致所有依赖Singleton的功能的单元测试十分困难。其次，大部分的单元测试框架依赖于Singleton，单元测试框架的Singletons和被测试的程序的Singletons之间的初始化顺序难以保证，可能会出现意想不到的问题。</p>
+<h2 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h2><p>Singleton作为一个全局可达的资源，多线程程序修改Singleton时必须要进行正确的同步，这可能导致程序的性能下降。</p>
+<hr>
+<p>参考</p>
+<p><a href="https://blog.mbedded.ninja/programming/languages/c-plus-plus/magic-statics/" target="_blank" rel="noopener">Magic Static - mbedded.ninja</a><br><a href="https://manishearth.github.io/blog/2015/06/26/adventures-in-systems-programming-c-plus-plus-local-statics/" target="_blank" rel="noopener">Adventures in Systems Programming: C++ Local Statics - Manish Goregaokar’s blog</a><br><a href="https://vladris.com/blog/2017/07/10/singletons.html" target="_blank" rel="noopener">Singletons - vladris.com</a></p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/design-pattern/" rel="tag"># design pattern</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/236f51d8/" rel="prev" title="Linux 等待队列 (wait queue)">
+      <i class="fa fa-chevron-left"></i> Linux 等待队列 (wait queue)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是-Singleton"><span class="nav-number">1.</span> <span class="nav-text">什么是 Singleton</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么我们需要-Singleton"><span class="nav-number">2.</span> <span class="nav-text">为什么我们需要 Singleton</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Singleton-的实现"><span class="nav-number">3.</span> <span class="nav-text">Singleton 的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Magic-Static"><span class="nav-number">3.1.</span> <span class="nav-text">Magic Static</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Meyers-Singleton"><span class="nav-number">3.2.</span> <span class="nav-text">Meyers Singleton</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#按需初始化和释放的-Singleton"><span class="nav-number">3.3.</span> <span class="nav-text">按需初始化和释放的 Singleton</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Singleton-有哪些问题"><span class="nav-number">4.</span> <span class="nav-text">Singleton 有哪些问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Singletons之间的初始化依赖"><span class="nav-number">4.1.</span> <span class="nav-text">Singletons之间的初始化依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#难以进行单元测试"><span class="nav-number">4.2.</span> <span class="nav-text">难以进行单元测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程"><span class="nav-number">4.3.</span> <span class="nav-text">多线程</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">152k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">2:18</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
