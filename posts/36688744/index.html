@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。 寄存器AMD64架构有16个64bit的通用寄存器(%rax, %rbx, %rcx, %rdx, %rsp, %rbp, %rsi, %rdi, %r8 - %r15)和">
+  <meta name="description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="System V AMD64 ABI - Calling Convention">
 <meta property="og:url" content="http://xyfu.me/posts/36688744/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。 寄存器AMD64架构有16个64bit的通用寄存器(%rax, %rbx, %rcx, %rdx, %rsp, %rbp, %rsi, %rdi, %r8 - %r15)和">
+<meta property="og:description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-08-14T04:48:26.000Z">
-<meta property="article:modified_time" content="2020-08-14T07:25:51.789Z">
+<meta property="article:modified_time" content="2020-08-14T07:32:24.921Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta name="twitter:card" content="summary">
 
@@ -195,7 +195,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-08-14 12:48:26 / Modified: 15:25:51" itemprop="dateCreated datePublished" datetime="2020-08-14T12:48:26+08:00">2020-08-14</time>
+              <time title="Created: 2020-08-14 12:48:26 / Modified: 15:32:24" itemprop="dateCreated datePublished" datetime="2020-08-14T12:48:26+08:00">2020-08-14</time>
             </span>
 
           <br>
@@ -217,14 +217,12 @@
 
       
         <p>本文参考<a href="https://github.com/hjl-tools/x86-psABI/wiki/x86-64-psABI-1.0.pdf" target="_blank" rel="noopener">System V ABI: AMD64 Architecture Processor Supplement</a>，并且不考虑<code>__float128</code>，<code>__m128</code>，<code>__m256</code>和<code>__m512</code>等类型的参数的传递和作为返回值的情况。</p>
+<a id="more"></a>
 <h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><p>AMD64架构有16个64bit的<strong>通用寄存器</strong>(%rax, %rbx, %rcx, %rdx, %rsp, %rbp, %rsi, %rdi, %r8 - %r15)和16个128bit的<strong>SSE寄存器</strong>(%xmm0 - %xmm15)。</p>
 <p>进行函数调用时，%rbp, %rbx, %r12 - %r15 属于caller，callee 要保管这6个寄存器的内容。<br>剩下的寄存器%rax, %rcx, %rdx, %rsp, %rbp,  %rdi, %r8 - %r11 和 %xmm0 - $xmm15 属于callee。<br>其中%rdi, %rsi, %rdx, %rcx, %r8, %r9 和 %xmm0 - %xmm7 可用来传递参数。%rax, %rdx，%xmm0, %xmm1 用来保存返回值。不能由寄存器保存的参数，将会被放置在栈上。</p>
 <hr>
 <p>通过一个使用所有通用寄存器的函数，我们可以观察到%rbp, %rbx, %r12 - %r15在进入函数时被<code>push</code>放入栈中保存，离开函数时<code>pop</code>从栈中恢复。</p>
 <iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tLgAZSW9ABk8tTADljAI0zEQAdlIAHVAsLqtHqGJuY%2BfgF0tvZORq7uXkoqanQMBMzEBMHGppwWSZiqgWkZBNGOLm6eiumZ2aF5NaXlsfGeAJSKqAbEyBwA5FIAzHbIhlgA1OJDOsgKBPj009jiZgCCq2sGdgQAbNwA%2BgQToxDb9PtHJ%2B1THrLrE48TBwfMCkYvzwcAbvrMauwXhBNk9QVNJJIpJCHmDHiBwZCZEYoRMIHh2iDYRMQJjYfCocRmAAPKGkXFYgnOEkQskwrEI3rUyS0tb0x4E9BMllshn%2BUnk2EcvD8ukUiHEBTeEWstkEgAc0p5BIAnIrZeK8mr6QTOJwtWLJMROIjmQKwTqhvrBRruFbzRqAKxQ8kYob3GWPYiYAg9WgncHSCZ6t2bcQeAAim36nVYIH6Dv6pFM/TMidQcZ0cjkEwU3V6mHBQ04iYIcdT7U6AGsQA6LLH%2BtxE0ZzBZk6nSOn%2BomFCALKWU9HSHBYEg0EZvHh2GQKBAxxOpyBgHlmVRJwQ3D2IM4y4nnHYMgBPOPF0hjoxaAgAeVorCPA9IWCMImA7B3D7wXqK30wPfvmCJhQGOux6JjsyhvqweDOISxAHnoWAgaQBDEHgzb9MWnQ0PQTBsBwPD8IIwiiCgWYyEIUE9pAnSoN4KS0L%2BAC0l7tgURQaBAVj1LkljaC0lTuJw4T%2BHRXGCL4wmBHxcRVIJrF0SUdT6DkghycUtRlHYFTSQJTSKSE3HzM0mmtDJnS5j0fRcDGcYJkmb6dkScq7Ax%2BwTMAyDIEGZgAHSSKiuCECQhaCRMejjpObjBTcmYyHIJY7hWpAIJgzBYO4EBVjWdZxo2pDNnkrb2XG3a9khCXWf0kiJm2abFWVA6Jd%2BEqBCA3BAA%3D"></iframe>
-
-
-
 
 <h1 id="页帧"><a href="#页帧" class="headerlink" title="页帧"></a>页帧</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">                       8 bytes                                       8 bytes</span><br><span class="line">              &lt;----------------------&gt;                      &lt;----------------------&gt;</span><br><span class="line"></span><br><span class="line">              +----------------------+                      +----------------------+</span><br><span class="line">              | memory argument      |                      | memory argument      |</span><br><span class="line">              +----------------------+                      +----------------------+</span><br><span class="line">              | memory argument      |     previous frame   | memory argument      |</span><br><span class="line">              +----------------------+         ^            +----------------------+</span><br><span class="line">     aligned  | memory argument      |         |            | memory argument      |</span><br><span class="line">     +-----------------------------------------------------------------------------+</span><br><span class="line">              |return address        |         |            |return address        |</span><br><span class="line">      rbp +--&gt;-----------------------+         v            +----------------------+</span><br><span class="line">              |previous %rbp value   |     current frame    |                      |</span><br><span class="line">              +----------------------+                      |  saved registers ... |</span><br><span class="line">              |                      |                      |  stack variables ... |</span><br><span class="line">              |  saved registers ... |                      |                      |</span><br><span class="line">              |  stack variables ... |                      |                      |</span><br><span class="line">              |                      |                      |                      |</span><br><span class="line">              |                      |              rsp +--&gt;-----------------------+</span><br><span class="line">      rsp +--&gt;-----------------------+                      |                      |</span><br><span class="line">              |                      |                      |                      |</span><br><span class="line">              |                      |                      |  red zone(128 bits)  |</span><br><span class="line">              |  red zone(128 bits)  |                      |                      |</span><br><span class="line">              |                      |                      v                      v</span><br><span class="line">              v                      v</span><br><span class="line">                                              rsp - 128 +---&gt;----------------------+</span><br><span class="line">rsp - 128 +---&gt;----------------------+</span><br></pre></td></tr></table></figure>
 <p>caller通过<code>call func</code>，即等价于<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">push return_address</span><br><span class="line">jmp  func</span><br></pre></td></tr></table></figure><br>将控制权转移给函数<code>func</code>后，此时<code>rsp</code>指向左图中<code>rbp</code>的位置。此时要求<code>rbp + 8</code>的位置，也就是栈上用来传递参数部分的末尾地址和16bytes对齐。</p>
