@@ -54,7 +54,7 @@
 <meta property="og:description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-08-14T04:48:26.000Z">
-<meta property="article:modified_time" content="2020-08-14T07:32:24.921Z">
+<meta property="article:modified_time" content="2020-08-14T09:51:12.261Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta name="twitter:card" content="summary">
 
@@ -195,7 +195,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-08-14 12:48:26 / Modified: 15:32:24" itemprop="dateCreated datePublished" datetime="2020-08-14T12:48:26+08:00">2020-08-14</time>
+              <time title="Created: 2020-08-14 12:48:26 / Modified: 17:51:12" itemprop="dateCreated datePublished" datetime="2020-08-14T12:48:26+08:00">2020-08-14</time>
             </span>
 
           <br>
@@ -204,7 +204,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.6k</span>
+              <span>3.1k</span>
             </span>
 
         </div>
@@ -238,9 +238,65 @@
 <p>可以观察到上面例子中，使用<code>-fno-omit-frame-pointer</code>参数进行编译的结果中，<code>get_rt()</code>没有在function prelogue通过<code>sub rsp, xxx</code>来扩展当前栈的大小，也没有在function epilogue中使用<code>leave</code>来恢复<code>rsp</code>到之前的<code>rbp</code>。这时因为<code>get_rt()</code>是一个<strong>leaf function</strong>，他没有调用其他函数，并且栈上的需要的空间小于<strong>read zone</strong>的128bytes。因此使用<strong>read zone</strong>来保存栈上的局部变量，注意到<br><code>mov     DWORD PTR [rbp-4], 1</code>，因此<code>i</code>就被保存在<code>rbp-4</code>的位置上。这里刚好是<strong>read zone</strong>。<br>如果我们修改编译参数，加上<code>-mno-red-zone</code>来取消<strong>read zone</strong>，就可以看到函数进行完整的function prelogue和function epilogue了</p>
 <iframe width="1000px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tLry3oAMnlqYAcsYBGmYiAAcpAA6oFhdbT1DEzMvHz86a1sHI2dXDyUVNToGAmZiAkDjUx5FZUxVfxS0gkj7Jxd3RVT0zOCchWqSmzKYircASkVUA2JkDgBycQBWWRHgWgMQEFpUG1Zm4YARJfEABgBBZgMiAGpgTAIAfXSIdrX18QB2WQ2du52bAged8QBmRZ3ON5v1%2B53iA49WgPb7nK7LDbnLa7FisdjEU5g67nP4AghAvYHY4ERGvH7gsGQonrfqdVggfpDfqkUz9VbU1AUnRyOQ7BTdXqYF6SV6cakECn09qdADWICGqyEFO41KMXFWktp9NIjP61IUIElArppNIcFgMEQKFQRk8eHh5EoaFN5oqwE4q0kpCo5oILg1EEcgupjhsaQAnhS%2BaRrUYtAQAPK0ViBnWkLBGETAdje%2BN4AEFABumA1ccwAA98tsBsHHspU/NHMQA3osEH%2BcQ8HL%2BnzOjR6Ew2BwcgJOEIkygWTIhHhHBrIJ1UJ4krRcwBaCOrHZzqgzOcmwgr6thufeMvEdV5AoaCAWWrZJ0WUrRWJcV6hXwz89cJ3eR/%2Ba/lVyce8JfIzooan0LIX1yRJCkaT9Wm/X9GmfTgnQaYooNvH9OnZHo%2Bi4MkKSpGlU1VfM3AANjnYjuD2ZBkE%2BVYADpJB2CBcEIEhuV5Ugdj0G14TYzh2k4odpH5b1hVIBBMGYLBXFOUgxQlKV%2BhlUg5XkpUGQpdVNVIbUhT1Q0ICQa0zQtCgICM21XHtR1nVdd1KC9ONfVoAN6xDE0w3oKMY1TBMkxTON8AzNRs1zZUCyLN1XLLck40ratiH9WsSwbJt6zbOhGFhbteAEJ1hFEQcZDkEcx3gSdp38edF2XVdUHXIxNyobdMF3WZ6BcZcTDqgF0DnAAvOhMEPcCTzPYC6klK9mhvCo%2BzfcIAnG7IHwWlDZrA/8IOKeDJT/Y9aEApooi/QQkKAoJlrOo6WlQ9COSwviFLwtSVQpIjSPIyjqIdejGOYohiF4jiuOMjqpFeSR%2BOZIqZGEnVRPEySKhkmKlJUxUCI0xQtJ00lRXFSUYteakXtVOGhRw/pJBJzG1W0kTOmzYhfA0bggA"></iframe>
 
-<h1 id="参数分类"><a href="#参数分类" class="headerlink" title="参数分类"></a>参数分类</h1><h1 id="参数传递过程"><a href="#参数传递过程" class="headerlink" title="参数传递过程"></a>参数传递过程</h1><h1 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h1><hr>
+<h2 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h2><h1 id="参数分类"><a href="#参数分类" class="headerlink" title="参数分类"></a>参数分类</h1><p>参数根据参数传递的方式不同，可以大致分为：</p>
+<ul>
+<li><strong>NO_CLASS</strong>: padding或空<code>struct</code>类型</li>
+<li><strong>INTEGER</strong>: 使用6个通用寄存器(%rdi, %rsi, %rdx, %rcx, %r8, %r9)传递</li>
+<li><strong>SSE</strong>: 使用SSE寄存器(%xmm0 - %xmm7)传递。</li>
+<li><strong>MEMORY</strong>: 使用<code>psuh</code>，在栈上传递</li>
+</ul>
+<hr>
+<p>不考虑<code>__float128</code>，<code>__m128</code>，<code>__m256</code>和<code>__m512</code>等类型的参数，basic type的参数可以被分为：</p>
+<ul>
+<li><strong>INTEGER</strong>: <code>bool</code>, <code>char</code>, <code>short</code>, <code>int</code>, <code>long</code>, <code>long long</code> 和 指针</li>
+<li><strong>SSE</strong>: <code>float</code>, <code>double</code></li>
+<li><strong>MEMORY</strong>: 不通过寄存器，而是通过栈来传递参数</li>
+</ul>
+<p><a href="https://zh.cppreference.com/w/cpp/language/aggregate_initialization" target="_blank" rel="noopener">聚合类型</a>(数组 和 无虚函数、自定义构造函数、基类或private/protected数据成员的 <code>struct</code> 或<code>union</code>)按照以下方式分类：</p>
+<ul>
+<li>如果该对象的类型对于调用是non-trivial的，即：<ul>
+<li>有 non-trivial ctor 或 non-trivial move constructor 或 non-trivial dtor</li>
+<li>或其所有的ctors 和 move constructors 都被声明为<code>delete</code><br>，则将该讲该参数构造在caller的栈上，并将该参数替换成构造在栈上的对象的引用。</li>
+</ul>
+</li>
+<li>如果聚合类型的大小超过16bytes 或 该聚合类型包含未对齐的field，则是<strong>MEMORY</strong>类型</li>
+<li>如果聚合类型的大小大于8bytes且小于16bytes，则将每个8bytes都分开进行分类，将分类的结果两两按以下规则合并：<ul>
+<li>如果任一为<strong>MEMORY</strong>，则整个聚合类型以<strong>MEMORY</strong>方式传递。</li>
+<li>如果两个8bytes分类相同，则合并的结果也相同。</li>
+<li>如果其一为<strong>NO_CLASS</strong>，则合并的结果为另一个的类型。</li>
+<li>如果其一为<strong>INTEGER</strong>，则合并的结果为<strong>INTEGER</strong>。</li>
+<li>否则为<strong>SSE</strong>。</li>
+</ul>
+</li>
+</ul>
+<h1 id="参数传递过程"><a href="#参数传递过程" class="headerlink" title="参数传递过程"></a>参数传递过程</h1><p>一旦所有参数都已经分类完毕，寄存器按照以下规则进行赋值：</p>
+<ul>
+<li>跳过<strong>MEMORY</strong>类型，<strong>MEMORY</strong>不使用寄存器，而是在<code>push</code>到栈上。</li>
+<li><strong>INTEGER</strong>类型按照 %rdi,%rsi, %rdx, %rcx, %r8, %r9 的顺序赋值给通用寄存器。</li>
+<li><strong>SSE</strong>类型按%xmm0 - %xmm7的顺序赋值给SSE寄存器</li>
+<li><code>bool</code>类型的必须保证bit 0包含值，且bit 1 - bit 7 为0，但不保证其他bit的数值。</li>
+</ul>
+<p>如果在传递参数的过程中寄存器全被占用了，则将该参数整个通过<strong>MEMORY</strong>的方式传递。如果寄存器全被占用，则按<strong>MEMORY</strong>类型传递的参数以<strong>从右到左</strong>的顺序入栈。</p>
+<hr>
+<p>例子1：传递8个int作为参数。其中前6个int被存放在寄存器中，后2个int被放置在栈上。</p>
+<iframe width="800px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tLgDZSW9ABk8tTADljAI0zFBAB1QLC62nsMTc1IvHzU6W3snI1d3TkVlTFU/BgJmYgIA41NOCyUVcNpU9IJIxxc3QQU0jKyg3MUa0rtymMrOAEpFVANiZA4AcnEAVllR4FoDEBBaVDtWFpGAEWXxAAYAQWYDIgBqHwAPAH07AgUIU93mUl3L5xvL5Af6XfRngl3Md92qUnWNy7Ab4IDr/cQAdlkm12MN2xEwBF6tCuuzku2cqJku2QmOkr1xnwJVAJwAJCHEAGYoRsIStNv9tnsWKx2MQIKD6ZD/rDbi9mKiKUtdpxKdSeXcBULJKLubDHpLdhSZdC5S90AruMqNuKXpgFcMtTqPsTKUKzIbVR9SabduCLTDLggFQAOe1whFI/Z4Y6nc7XdE3J6vG5fH43IG7EFa2kDLqsEADYYDUimAZrZOoBM6ORohQ9Pp6qQUzjJggJ9MdLoAaxAwzWQgT3GTRi4a3rqfTpEzA2TChA9bLadjpDgsBgiBQqCMHjwrPIlDQ09nlWAnDWklIVFnBDcfYgznLyecdnSAE8EyXSIujFoCAB5Wisc9D0hYIwiYDsQ%2BvvDw5IAN0wPsX0wA4kh2QZL1OZRvwWZxiDPPQsAvUtiDwFsBhLLoaHoJg2A4Hh%2BEEYRRBQHMZCEPBnD7SAulQDxCmAgBaO8KV7RJkg0CArDqHJnUsbQymiWIuHiUJfDoXiuH48TCiEio4nifIkkKYpan0bJpISAoUiaeS2kUxoSikzh%2BOqEp9JEzhOm6Xp%2Bi4OMEyTFNv27A5nTMJizG4XZgGQHE1wAOkkXYIFwQgSExYsbj0JdWSizpdmzGQ5FLQ9K1IBBMGYLB3HZUgazrBsBibUgWyKjsMwTXt%2B1IQcKxHccICQHoCA8HZ5wgRcZ1ZQRMHwIg4k3OhGGZAjeAAdwQjwUMcxNk0qrsEyLThdgmwgnXczzvN8/zhTWYK0qHDL4xK5ta3bVzqsUWr6tjasLuKtiXJfbsjorObJAWq6ezq9KukA4gfA0bggA%3D%3D"></iframe>
+
+<hr>
+<p>例子2：传递1个大小为12bytes的聚合类型，该聚合类型的第一个和第二个data members被拼在一起用<code>%rdi</code>传递，第三个data member用%rsi的低位<code>%esi</code>传递。这这证明了聚合类型的参数传递的确是以8byte来分割的。</p>
+<iframe width="800px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:17,endLineNumber:6,positionColumn:17,positionLineNumber:6,selectionStartColumn:17,selectionStartLineNumber:6,startColumn:17,startLineNumber:6),source:'%23include+%3Ccstdint%3E%0Astruct+t%0A%7B%0A++++uint32_t+m1%3B%0A++++uint32_t+m2%3B%0A++++uint32_t+m3%3B%0A%7D%3B%0A%0A%5B%5Bgnu::noinline%5D%5D%0Aauto+callee(t+p)%0A%7B%0A++++return+p.m1+%2B+p.m2+*+2%3B%0A%7D%0A%0Aauto+caleer()%0A%7B%0A++++auto+l+%3D+t%7B1,+2,+3%7D%3B%0A++++static_assert(sizeof(t)+%3D%3D+12)%3B%0A++++return+callee(l)%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:g102,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'-O3',selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'x86-64+gcc+10.2+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),header:(),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+
+<hr>
+<p>例子3: 使用<code>__attribute__((packed))</code>的未对齐类型、大小大于16bytes的聚合类型 和 non-trival 的C++ class以<strong>MEMORY</strong>的方式传递。注意到<code>callee</code>函数中的source都是<code>rsp + offset</code>的形式吗，证明参数的确都被放在了栈上。</p>
+<iframe width="800px" height="200px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:1,endLineNumber:35,positionColumn:1,positionLineNumber:35,selectionStartColumn:1,selectionStartLineNumber:35,startColumn:1,startLineNumber:35),source:'%23include+%3Ccstdint%3E%0A%0Astruct+t%0A%7B%0A++++uint32_t+m1%3B%0A++++uint8_t++m2%3B%0A++++uint64_t+m3%3B%0A%7D__attribute__((packed))%3B%0A%0Astruct+m%0A%7B%0A++++uint64_t+m1%3B%0A++++uint64_t+m2%3B%0A++++uint8_t++m3%3B%0A%7D%3B%0A%0A%5B%5Bgnu::noinline%5D%5D%0Aauto+callee(t+p)%0A%7B%0A++++return+p.m1+%2B+p.m2+*+2%3B%0A%7D%0A%0A%5B%5Bgnu::noinline%5D%5D%0Aauto+callee1(m+p)%0A%7B%0A++++return+p.m1+%2B+p.m2+*+2%3B%0A%7D%0A%0Aauto+caller()%0A%7B%0A++++auto+l+%3D+t%7B1,+2,+3%7D%3B%0A++++static_assert(sizeof(t)+%3C+16)%3B%0A++++return+callee(l)%3B%0A%7D%0A%0Aauto+caller2()%0A%7B%0A++++auto+l+%3D+m%7B1,+2,+3%7D%3B%0A++++static_assert(sizeof(m)+%3E+16)%3B%0A++++return+callee1(l)%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:44.05572915391875,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:g102,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'-O3+-std%3Dc%2B%2B20',selection:(endColumn:33,endLineNumber:4,positionColumn:33,positionLineNumber:4,selectionStartColumn:33,selectionStartLineNumber:4,startColumn:33,startLineNumber:4),source:1),l:'5',n:'0',o:'x86-64+gcc+10.2+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),header:(),k:55.94427084608125,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+
+<hr>
+<p>例子4：对于函数调用non-trivial的类型 和 trivial的类型对比。可见non-trivial的类型由caller在栈上构造：<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span>     <span class="built_in">QWORD</span> <span class="built_in">PTR</span> [<span class="built_in">rsp</span>], <span class="number">2</span></span><br><span class="line"><span class="keyword">mov</span>     <span class="built_in">DWORD</span> <span class="built_in">PTR</span> [<span class="built_in">rsp</span>+<span class="number">8</span>], <span class="number">4</span></span><br></pre></td></tr></table></figure><br>并且因引用的方式传递给callee(<code>mov     rdi, rsp</code>)。可以看到，传引用的形式和传值的形式生成的代码是完全相同的</p>
+<iframe width="800px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEAGZeW9ABk8tTADljAI0zEQ3AAykADqgWE6rR6hibmvH4BanS29k5Gru5eisqYqkEMBMzEBCHGphYpKtG0mdkEsY4ubh7eClk5eWGF9eWV8Ym1AJSKqAbEyBwA5FJmdsiGWADU4mY6yPX49LPY4p4Agmvr9cQGqlNGW%2BIA7LIbUxdTBnYEAGzcAPoEB5yzZ%2BuXVzdmkk8Hkm8jscACKAjZbCbMBQKKa0IHvHwGZysPDIEBbT60CA3KbMUhTHHOLogIyvU7ME7A/FGAGnZyUk6yEFgj6XLFoWj1WFSW5TVDE0mM1AAOhplOptOkIppUwAVFNaaDTgyzO9PgA/LFdRkqtWXa70e5/QWqjH676/Z5i03g5k2zbggCssmdwFoBhAIFoqDsKPs4kdoMDW2YBiIUxYrHYmAe3toT2IeAAbng2BBaFMfNrbXqLsRMAR%2BhmfKKAfaGeCnS7pG6PV6fbQ/ZgA0HQRtQ%2BHI9HY3QE8nU6wHvmqOmeZns5tledLvnC8Ri6WWRWHesO6gI2x2MQe/GCImU2mJzrpxc11NWDMzMDuadOPjFSzPrOixuo5gY3G%2BwfWBBWNry8ylarmG65dm4O5fgOQ6YCOR5Tqyp4geel7XnCt73rqZp5gWL5gR%2BvZ7v2bDQSOf5LoBK4BtWtaet6vp2M2wbBu2SF4ZBaZGOO8JYVMz7zpmi4AW2K5nmB26Ed%2BEBwbmuJIReszXoc6EKphJ68Th/FsRJA6/v%2B7yUkMPSsCAQyOkMpCmEMnjmagJk6HIchTAofQDJgMySGYnDmQQJnWV0PQANYgI63jGUM3DmUYXCeN4lnWaQtlDOZCggN4PlWYZpBwLASBoEYPh4Fu5CUHlBVbiAwCcJ4kikFQhUEG4KUQM4vnmc4djZAAniZXmkHlRhaAQADyjbdRlpBYEYIjAOwrUTXg%2BbpEmmApeNmAAB5pGGwy9TcyhzSizjEF1ehYD13mJlFQxeT0ND0EwbAcDw/CCMIogoA5MhCHgzgpZAPSoD4JSrQAtENZjJak6QaBAVhNKYd5WO01TuHekSBHQ8OCOjJTIwkNR3koxQZA0uT6PkghE2kJRlDkeOdITpNY4zbQMR0BM9M5/SDFwRkmWZFlzYl60ABy3CD9xTMAyDIFMVXCpIUwQLghAkO5nn4no%2BWFW46ucF0Uz2TIcjea1/mkAgmDMFg7hSaQQUhUIJkRaQUVVbFQsmclqWkOlfl80MkjmXFNle77Zs9MtxABBo3BAA%3D%3D"></iframe>
+
+
+<h1 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h1><hr>
 <p>参考：</p>
-<p><a href="https://stackoverflow.com/questions/18024672/what-registers-are-preserved-through-a-linux-x86-64-function-call" target="_blank" rel="noopener">What registers are preserved through a linux x86-64 function call</a></p>
+<p><a href="https://stackoverflow.com/questions/18024672/what-registers-are-preserved-through-a-linux-x86-64-function-call" target="_blank" rel="noopener">What registers are preserved through a linux x86-64 function call</a><br><a href="https://itanium-cxx-abi.github.io/cxx-abi/abi.html#calls" target="_blank" rel="noopener">Itanium C++ ABI</a><br><a href="https://github.com/hjl-tools/x86-psABI/wiki/x86-64-psABI-1.0.pdf" target="_blank" rel="noopener">System V ABI: AMD64 Architecture Processor Supplement</a></p>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
     </div>
 
@@ -319,7 +375,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#寄存器"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#页帧"><span class="nav-number">2.</span> <span class="nav-text">页帧</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数分类"><span class="nav-number">3.</span> <span class="nav-text">参数分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数传递过程"><span class="nav-number">4.</span> <span class="nav-text">参数传递过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#返回值"><span class="nav-number">5.</span> <span class="nav-text">返回值</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#寄存器"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#页帧"><span class="nav-number">2.</span> <span class="nav-text">页帧</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#参数传递"><span class="nav-number">2.1.</span> <span class="nav-text">参数传递</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数分类"><span class="nav-number">3.</span> <span class="nav-text">参数分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数传递过程"><span class="nav-number">4.</span> <span class="nav-text">参数传递过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#返回值"><span class="nav-number">5.</span> <span class="nav-text">返回值</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -385,12 +441,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">154k</span>
+    <span title="Symbols count total">155k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:20</span>
+    <span title="Reading time total">2:21</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>
