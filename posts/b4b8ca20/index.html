@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="什么是 SingletonSingleton是GoF Design Patterns中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下  Ensure a class only has one instance, and provide a global point of access to it  实践中，一般Singleton被认为是：  在程序的整个寿命周期中，只能拥">
+  <meta name="description" content="Singleton是GoF Design Patterns中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下  Ensure a class only has one instance, and provide a global point of access to it  实践中，一般Singleton被认为是：  在程序的整个寿命周期中，只能拥有一个实例的类 提供一个在">
 <meta property="og:type" content="article">
 <meta property="og:title" content="单例模式(Singleton)：使用与实现">
 <meta property="og:url" content="http://xyfu.me/posts/b4b8ca20/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="什么是 SingletonSingleton是GoF Design Patterns中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下  Ensure a class only has one instance, and provide a global point of access to it  实践中，一般Singleton被认为是：  在程序的整个寿命周期中，只能拥">
+<meta property="og:description" content="Singleton是GoF Design Patterns中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下  Ensure a class only has one instance, and provide a global point of access to it  实践中，一般Singleton被认为是：  在程序的整个寿命周期中，只能拥有一个实例的类 提供一个在">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-08-05T15:45:26.000Z">
-<meta property="article:modified_time" content="2020-08-08T06:27:10.561Z">
+<meta property="article:modified_time" content="2020-08-08T06:27:52.982Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="design pattern">
@@ -203,7 +203,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-08 14:27:10" itemprop="dateModified" datetime="2020-08-08T14:27:10+08:00">2020-08-08</time>
+                <time title="Modified: 2020-08-08 14:27:52" itemprop="dateModified" datetime="2020-08-08T14:27:52+08:00">2020-08-08</time>
               </span>
 
           <br>
@@ -224,7 +224,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="什么是-Singleton"><a href="#什么是-Singleton" class="headerlink" title="什么是 Singleton"></a>什么是 Singleton</h1><p>Singleton是<a href="http://www.uml.org.cn/c++/pdf/DesignPatterns.pdf" target="_blank" rel="noopener">GoF Design Patterns</a>中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下</p>
+        <p>Singleton是<a href="http://www.uml.org.cn/c++/pdf/DesignPatterns.pdf" target="_blank" rel="noopener">GoF Design Patterns</a>中提及的面向对象的23种设计模式之一，书中关于Singleton的定义如下</p>
 <blockquote>
 <p>Ensure a class only has one instance, and provide a global point of access to it</p>
 </blockquote>
@@ -362,7 +362,10 @@
     <a href="/posts/236f51d8/" rel="prev" title="Linux 等待队列 (wait queue)">
       <i class="fa fa-chevron-left"></i> Linux 等待队列 (wait queue)
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/posts/36688744/" rel="next" title="System V AMD64 ABI - Calling Convention">
+      System V AMD64 ABI - Calling Convention <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -422,7 +425,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是-Singleton"><span class="nav-number">1.</span> <span class="nav-text">什么是 Singleton</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么我们需要-Singleton"><span class="nav-number">2.</span> <span class="nav-text">为什么我们需要 Singleton</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Singleton-的实现"><span class="nav-number">3.</span> <span class="nav-text">Singleton 的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Magic-Static"><span class="nav-number">3.1.</span> <span class="nav-text">Magic Static</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Meyers-Singleton"><span class="nav-number">3.2.</span> <span class="nav-text">Meyers Singleton</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#按需初始化和释放的-Singleton"><span class="nav-number">3.3.</span> <span class="nav-text">按需初始化和释放的 Singleton</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Singleton-有哪些问题"><span class="nav-number">4.</span> <span class="nav-text">Singleton 有哪些问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Singletons之间的初始化依赖"><span class="nav-number">4.1.</span> <span class="nav-text">Singletons之间的初始化依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#难以进行单元测试"><span class="nav-number">4.2.</span> <span class="nav-text">难以进行单元测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程"><span class="nav-number">4.3.</span> <span class="nav-text">多线程</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么我们需要-Singleton"><span class="nav-number">1.</span> <span class="nav-text">为什么我们需要 Singleton</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Singleton-的实现"><span class="nav-number">2.</span> <span class="nav-text">Singleton 的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Magic-Static"><span class="nav-number">2.1.</span> <span class="nav-text">Magic Static</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Meyers-Singleton"><span class="nav-number">2.2.</span> <span class="nav-text">Meyers Singleton</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#按需初始化和释放的-Singleton"><span class="nav-number">2.3.</span> <span class="nav-text">按需初始化和释放的 Singleton</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Singleton-有哪些问题"><span class="nav-number">3.</span> <span class="nav-text">Singleton 有哪些问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Singletons之间的初始化依赖"><span class="nav-number">3.1.</span> <span class="nav-text">Singletons之间的初始化依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#难以进行单元测试"><span class="nav-number">3.2.</span> <span class="nav-text">难以进行单元测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程"><span class="nav-number">3.3.</span> <span class="nav-text">多线程</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -436,7 +439,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -488,12 +491,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">152k</span>
+    <span title="Symbols count total">154k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:18</span>
+    <span title="Reading time total">2:20</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
   </div>

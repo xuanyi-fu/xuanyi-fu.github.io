@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://xyfu.me').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。 寄存器AMD64架构有16个64bit的通用寄存器(%rax, %rbx, %rcx, %rdx, %rsp, %rbp, %rsi, %rdi, %r8 - %r15)和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="System V AMD64 ABI - Calling Convention">
+<meta property="og:url" content="http://xyfu.me/posts/36688744/index.html">
+<meta property="og:site_name" content="Xuanyi Fu Blog">
+<meta property="og:description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。 寄存器AMD64架构有16个64bit的通用寄存器(%rax, %rbx, %rcx, %rdx, %rsp, %rbp, %rsi, %rdi, %r8 - %r15)和">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-08-14T04:48:26.000Z">
+<meta property="article:modified_time" content="2020-08-14T07:25:51.789Z">
+<meta property="article:author" content="Xuanyi Fu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://xyfu.me/posts/36688744/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>System V AMD64 ABI - Calling Convention | Xuanyi Fu Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Xuanyi Fu Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://xyfu.me/posts/36688744/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Xuanyi Fu">
+      <meta itemprop="description" content="Xuanyi Fu的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Xuanyi Fu Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          System V AMD64 ABI - Calling Convention
+        </h1>
+
+        <div class="post-meta">
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-08-14 12:48:26 / Modified: 15:25:51" itemprop="dateCreated datePublished" datetime="2020-08-14T12:48:26+08:00">2020-08-14</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.6k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文参考<a href="https://github.com/hjl-tools/x86-psABI/wiki/x86-64-psABI-1.0.pdf" target="_blank" rel="noopener">System V ABI: AMD64 Architecture Processor Supplement</a>，并且不考虑<code>__float128</code>，<code>__m128</code>，<code>__m256</code>和<code>__m512</code>等类型的参数的传递和作为返回值的情况。</p>
+<h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><p>AMD64架构有16个64bit的<strong>通用寄存器</strong>(%rax, %rbx, %rcx, %rdx, %rsp, %rbp, %rsi, %rdi, %r8 - %r15)和16个128bit的<strong>SSE寄存器</strong>(%xmm0 - %xmm15)。</p>
+<p>进行函数调用时，%rbp, %rbx, %r12 - %r15 属于caller，callee 要保管这6个寄存器的内容。<br>剩下的寄存器%rax, %rcx, %rdx, %rsp, %rbp,  %rdi, %r8 - %r11 和 %xmm0 - $xmm15 属于callee。<br>其中%rdi, %rsi, %rdx, %rcx, %r8, %r9 和 %xmm0 - %xmm7 可用来传递参数。%rax, %rdx，%xmm0, %xmm1 用来保存返回值。不能由寄存器保存的参数，将会被放置在栈上。</p>
+<hr>
+<p>通过一个使用所有通用寄存器的函数，我们可以观察到%rbp, %rbx, %r12 - %r15在进入函数时被<code>push</code>放入栈中保存，离开函数时<code>pop</code>从栈中恢复。</p>
+<iframe width="1000px" height="400px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tLgAZSW9ABk8tTADljAI0zEQAdlIAHVAsLqtHqGJuY%2BfgF0tvZORq7uXkoqanQMBMzEBMHGppwWSZiqgWkZBNGOLm6eiumZ2aF5NaXlsfGeAJSKqAbEyBwA5FIAzHbIhlgA1OJDOsgKBPj009jiZgCCq2sGdgQAbNwA%2BgQToxDb9PtHJ%2B1THrLrE48TBwfMCkYvzwcAbvrMauwXhBNk9QVNJJIpJCHmDHiBwZCZEYoRMIHh2iDYRMQJjYfCocRmAAPKGkXFYgnOEkQskwrEI3rUyS0tb0x4E9BMllshn%2BUnk2EcvD8ukUiHEBTeEWstkEgAc0p5BIAnIrZeK8mr6QTOJwtWLJMROIjmQKwTqhvrBRruFbzRqAKxQ8kYob3GWPYiYAg9WgncHSCZ6t2bcQeAAim36nVYIH6Dv6pFM/TMidQcZ0cjkEwU3V6mHBQ04iYIcdT7U6AGsQA6LLH%2BtxE0ZzBZk6nSOn%2BomFCALKWU9HSHBYEg0EZvHh2GQKBAxxOpyBgHlmVRJwQ3D2IM4y4nnHYMgBPOPF0hjoxaAgAeVorCPA9IWCMImA7B3D7wXqK30wPfvmCJhQGOux6JjsyhvqweDOISxAHnoWAgaQBDEHgzb9MWnQ0PQTBsBwPD8IIwiiCgWYyEIUE9pAnSoN4KS0L%2BAC0l7tgURQaBAVj1LkljaC0lTuJw4T%2BHRXGCL4wmBHxcRVIJrF0SUdT6DkghycUtRlHYFTSQJTSKSE3HzM0mmtDJnS5j0fRcDGcYJkmb6dkScq7Ax%2BwTMAyDIEGZgAHSSKiuCECQhaCRMejjpObjBTcmYyHIJY7hWpAIJgzBYO4EBVjWdZxo2pDNnkrb2XG3a9khCXWf0kiJm2abFWVA6Jd%2BEqBCA3BAA%3D"></iframe>
+
+
+
+
+<h1 id="页帧"><a href="#页帧" class="headerlink" title="页帧"></a>页帧</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">                       8 bytes                                       8 bytes</span><br><span class="line">              &lt;----------------------&gt;                      &lt;----------------------&gt;</span><br><span class="line"></span><br><span class="line">              +----------------------+                      +----------------------+</span><br><span class="line">              | memory argument      |                      | memory argument      |</span><br><span class="line">              +----------------------+                      +----------------------+</span><br><span class="line">              | memory argument      |     previous frame   | memory argument      |</span><br><span class="line">              +----------------------+         ^            +----------------------+</span><br><span class="line">     aligned  | memory argument      |         |            | memory argument      |</span><br><span class="line">     +-----------------------------------------------------------------------------+</span><br><span class="line">              |return address        |         |            |return address        |</span><br><span class="line">      rbp +--&gt;-----------------------+         v            +----------------------+</span><br><span class="line">              |previous %rbp value   |     current frame    |                      |</span><br><span class="line">              +----------------------+                      |  saved registers ... |</span><br><span class="line">              |                      |                      |  stack variables ... |</span><br><span class="line">              |  saved registers ... |                      |                      |</span><br><span class="line">              |  stack variables ... |                      |                      |</span><br><span class="line">              |                      |                      |                      |</span><br><span class="line">              |                      |              rsp +--&gt;-----------------------+</span><br><span class="line">      rsp +--&gt;-----------------------+                      |                      |</span><br><span class="line">              |                      |                      |                      |</span><br><span class="line">              |                      |                      |  red zone(128 bits)  |</span><br><span class="line">              |  red zone(128 bits)  |                      |                      |</span><br><span class="line">              |                      |                      v                      v</span><br><span class="line">              v                      v</span><br><span class="line">                                              rsp - 128 +---&gt;----------------------+</span><br><span class="line">rsp - 128 +---&gt;----------------------+</span><br></pre></td></tr></table></figure>
+<p>caller通过<code>call func</code>，即等价于<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">push return_address</span><br><span class="line">jmp  func</span><br></pre></td></tr></table></figure><br>将控制权转移给函数<code>func</code>后，此时<code>rsp</code>指向左图中<code>rbp</code>的位置。此时要求<code>rbp + 8</code>的位置，也就是栈上用来传递参数部分的末尾地址和16bytes对齐。</p>
+<p>控制权交给<code>func</code>后，<code>func</code>进行function prologue，将之前函数的stack-frame base pointer: <code>rbp</code>通过<code>push rbp</code>压栈，并将<code>rbp</code>的值变为当前函数的stack-frame base: <code>move rbp, rsp</code>。之后向下移动<code>rbp</code>以扩展当前栈的空间。</p>
+<p>AMD64规定<code>rbp</code>以下128bytes的大小为<strong>red zone</strong>，并保证该区域不会被signal和interrupt handler修改。但不保证该区域不被之后调用的函数修改。因此该区域常用作不再调用其他函数的<strong>leaf function</strong>来保存局部变量，且不用移动<code>rsp</code>。</p>
+<p>函数调用结束后要先回复之前的保存的caller的寄存器，之后进行function epilogue恢复之前的<code>rbp</code>，并跳转到<code>return_address</code>的位置。即<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">leave</span></span><br><span class="line"><span class="keyword">ret</span></span><br></pre></td></tr></table></figure><br>等价于<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">rsp</span>, <span class="built_in">rbp</span></span><br><span class="line"><span class="keyword">pop</span> <span class="built_in">rbp</span></span><br><span class="line"><span class="keyword">ret</span></span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>AMD64 ABI规定：可以不使用<code>rbp</code>寄存器保存caller的stack-frame base地址。现代编译器仅靠<code>rsp</code>就可以对栈上的变量进行定位了。不使用<code>rbp</code>可以节省function prelogue和function epilogue中的两条指令，并将<code>rbp</code>寄存器空出。gcc x86-64下，<code>-O</code>优化默认进行不保存<code>rbp</code>。使用<code>-fno-omit-frame-pointer</code>可以保存<code>rbp</code>。其效果可以对比下面使用不同编译参数的结果：</p>
+<iframe width="1000px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tLgGZSW9ABk8tTADljAI0zEQAVlIAHVAsLqtHqGJuY%2BfgF0tvZORq7uXkoqanQMBMzEBMHGppwWSZiqgWkZBNGOLm6eiumZ2aF5NaXlsfGeAJSKqAbEyBwA5OIessPAtAYgILSodqx2mEMAIkviAAwAgswGRADUwJgEAPqZEO1r6%2BIA7LIbO3c7dgQPO%2BJmizucrzfr9zvEBz1aA8vucrssNuctrsWKx2MRTqDrudfv8CIC9gdjgQEWZvmDQRDCet%2Bp1WCB%2Bh5%2BqRTP1VlTUOSdHI5DsFN1epgXpIzJwqQRyXT2p0ANaeVZCcncKlGLirVYAOjlSuVys41IF9PJVIUIHF/NpJNIcFgMEQKFQRm8eDh5EoaEt1qqwE4q0kpCo1oIbh1EGcGtIzjsGQAnuTeaR7UYtAQAPK0Vihg2kLBGETAdj%2B/D/IoAN0wOqTmAAHoVtgNw49lP65s5iCG9Fgw3ziHgZf1eZ0aPQmGwODx%2BCA3cJRChmTIhHhnDrIJ1UN4UrQCwBaGPhgpFDQQKz1XKWbQtSruNW%2BfwLneCE%2BRWgHuJVNXrhclOr6HKCB/FWpleatO9NZ8hXcFE/G82k4To2R6PouFJclKXVJMGX6IsAA4ADYl1Q7g9mQZAPgVSQdggXBCBILkeVIHY9AdOEyMkdpKLHaQ%2BQ1IVSFFDxxTJfopVIGUOPgulSEQ7VdVIfVBSNU0ICQe0rRtCgIFkx13GdV13U9b1KD9JNA1oEMmwjC0o3oOME0zTBU1EDMkyzQo1DzAtBOLUsvQMysuMEms62IYMG3LZtWybTs6EYGE%2B14AQ1WHMRGInKd4FnedAmXGNVh2JcqGmJcLUIDK6yjJdfErYhtWUOzAk0bRzzVKwQN/S8zxfBpwlPQI6qPRQyo3WgnyyJrAK6x9gO/Q830/aq/y/GJRrArpIL7GCKSpGlBMQlD0Mw7DcJdeUCKI/AiGIMi1Uoi05LcY76KZGQ5GYg1WIQTBmCwdxTglbjpTFATNX6ES9RYkUvq4sxlv9YSxIB97JFBhCtQh%2B7OjzYh/A0bggA%3D"></iframe>
+
+<hr>
+<p>AMD64 ABI中的<strong>red-zone</strong>：</p>
+<p>可以观察到上面例子中，使用<code>-fno-omit-frame-pointer</code>参数进行编译的结果中，<code>get_rt()</code>没有在function prelogue通过<code>sub rsp, xxx</code>来扩展当前栈的大小，也没有在function epilogue中使用<code>leave</code>来恢复<code>rsp</code>到之前的<code>rbp</code>。这时因为<code>get_rt()</code>是一个<strong>leaf function</strong>，他没有调用其他函数，并且栈上的需要的空间小于<strong>read zone</strong>的128bytes。因此使用<strong>read zone</strong>来保存栈上的局部变量，注意到<br><code>mov     DWORD PTR [rbp-4], 1</code>，因此<code>i</code>就被保存在<code>rbp-4</code>的位置上。这里刚好是<strong>read zone</strong>。<br>如果我们修改编译参数，加上<code>-mno-red-zone</code>来取消<strong>read zone</strong>，就可以看到函数进行完整的function prelogue和function epilogue了</p>
+<iframe width="1000px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tLry3oAMnlqYAcsYBGmYiAAcpAA6oFhdbT1DEzMvHz86a1sHI2dXDyUVNToGAmZiAkDjUx5FZUxVfxS0gkj7Jxd3RVT0zOCchWqSmzKYircASkVUA2JkDgBycQBWWRHgWgMQEFpUG1Zm4YARJfEABgBBZgMiAGpgTAIAfXSIdrX18QB2WQ2du52bAged8QBmRZ3ON5v1%2B53iA49WgPb7nK7LDbnLa7FisdjEU5g67nP4AghAvYHY4ERGvH7gsGQonrfqdVggfpDfqkUz9VbU1AUnRyOQ7BTdXqYF6SV6cakECn09qdADWICGqyEFO41KMXFWktp9NIjP61IUIElArppNIcFgMEQKFQRk8eHh5EoaFN5oqwE4q0kpCo5oILg1EEcgupjhsaQAnhS%2BaRrUYtAQAPK0ViBnWkLBGETAdje%2BN4AEFABumA1ccwAA98tsBsHHspU/NHMQA3osEH%2BcQ8HL%2BnzOjR6Ew2BwcgJOEIkygWTIhHhHBrIJ1UJ4krRcwBaCOrHZzqgzOcmwgr6thufeMvEdV5AoaCAWWrZJ0WUrRWJcV6hXwz89cJ3eR/%2Ba/lVyce8JfIzooan0LIX1yRJCkaT9Wm/X9GmfTgnQaYooNvH9OnZHo%2Bi4MkKSpGlU1VfM3AANjnYjuD2ZBkE%2BVYADpJB2CBcEIEhuV5Ugdj0G14TYzh2k4odpH5b1hVIBBMGYLBXFOUgxQlKV%2BhlUg5XkpUGQpdVNVIbUhT1Q0ICQa0zQtCgICM21XHtR1nVdd1KC9ONfVoAN6xDE0w3oKMY1TBMkxTON8AzNRs1zZUCyLN1XLLck40ratiH9WsSwbJt6zbOhGFhbteAEJ1hFEQcZDkEcx3gSdp38edF2XVdUHXIxNyobdMF3WZ6BcZcTDqgF0DnAAvOhMEPcCTzPYC6klK9mhvCo%2BzfcIAnG7IHwWlDZrA/8IOKeDJT/Y9aEApooi/QQkKAoJlrOo6WlQ9COSwviFLwtSVQpIjSPIyjqIdejGOYohiF4jiuOMjqpFeSR%2BOZIqZGEnVRPEySKhkmKlJUxUCI0xQtJ00lRXFSUYteakXtVOGhRw/pJBJzG1W0kTOmzYhfA0bggA"></iframe>
+
+<h1 id="参数分类"><a href="#参数分类" class="headerlink" title="参数分类"></a>参数分类</h1><h1 id="参数传递过程"><a href="#参数传递过程" class="headerlink" title="参数传递过程"></a>参数传递过程</h1><h1 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h1><hr>
+<p>参考：</p>
+<p><a href="https://stackoverflow.com/questions/18024672/what-registers-are-preserved-through-a-linux-x86-64-function-call" target="_blank" rel="noopener">What registers are preserved through a linux x86-64 function call</a></p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/b4b8ca20/" rel="prev" title="单例模式(Singleton)：使用与实现">
+      <i class="fa fa-chevron-left"></i> 单例模式(Singleton)：使用与实现
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#寄存器"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#页帧"><span class="nav-number">2.</span> <span class="nav-text">页帧</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数分类"><span class="nav-number">3.</span> <span class="nav-text">参数分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数传递过程"><span class="nav-number">4.</span> <span class="nav-text">参数传递过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#返回值"><span class="nav-number">5.</span> <span class="nav-text">返回值</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Xuanyi Fu</p>
+  <div class="site-description" itemprop="description">Xuanyi Fu的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xuanyi-fu" title="GitHub → https://github.com/xuanyi-fu" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5300073738" title="Weibo → https://weibo.com/5300073738" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xuanyi Fu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">154k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">2:20</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
