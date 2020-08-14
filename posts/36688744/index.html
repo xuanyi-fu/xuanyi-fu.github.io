@@ -46,15 +46,15 @@
   };
 </script>
 
-  <meta name="description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。">
+  <meta name="description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。 主要内容：  函数调用相关的常用寄存器 函数调用时的页帧：可省略的%rbp和red-zone 函数调用时参数的传递：参数分类，不同类型参数的传递方式 函数返回值的处理">
 <meta property="og:type" content="article">
 <meta property="og:title" content="System V AMD64 ABI - Calling Convention">
 <meta property="og:url" content="http://xyfu.me/posts/36688744/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。">
+<meta property="og:description" content="本文参考System V ABI: AMD64 Architecture Processor Supplement，并且不考虑__float128，__m128，__m256和__m512等类型的参数的传递和作为返回值的情况。 主要内容：  函数调用相关的常用寄存器 函数调用时的页帧：可省略的%rbp和red-zone 函数调用时参数的传递：参数分类，不同类型参数的传递方式 函数返回值的处理">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-08-14T04:48:26.000Z">
-<meta property="article:modified_time" content="2020-08-14T09:51:12.261Z">
+<meta property="article:modified_time" content="2020-08-14T13:37:15.174Z">
 <meta property="article:author" content="Xuanyi Fu">
 <meta name="twitter:card" content="summary">
 
@@ -195,7 +195,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-08-14 12:48:26 / Modified: 17:51:12" itemprop="dateCreated datePublished" datetime="2020-08-14T12:48:26+08:00">2020-08-14</time>
+              <time title="Created: 2020-08-14 12:48:26 / Modified: 21:37:15" itemprop="dateCreated datePublished" datetime="2020-08-14T12:48:26+08:00">2020-08-14</time>
             </span>
 
           <br>
@@ -204,7 +204,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.1k</span>
+              <span>3.7k</span>
             </span>
 
         </div>
@@ -217,6 +217,13 @@
 
       
         <p>本文参考<a href="https://github.com/hjl-tools/x86-psABI/wiki/x86-64-psABI-1.0.pdf" target="_blank" rel="noopener">System V ABI: AMD64 Architecture Processor Supplement</a>，并且不考虑<code>__float128</code>，<code>__m128</code>，<code>__m256</code>和<code>__m512</code>等类型的参数的传递和作为返回值的情况。</p>
+<p>主要内容：</p>
+<ul>
+<li>函数调用相关的常用寄存器</li>
+<li>函数调用时的页帧：可省略的<code>%rbp</code>和red-zone</li>
+<li>函数调用时参数的传递：参数分类，不同类型参数的传递方式</li>
+<li>函数返回值的处理</li>
+</ul>
 <a id="more"></a>
 <h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><p>AMD64架构有16个64bit的<strong>通用寄存器</strong>(%rax, %rbx, %rcx, %rdx, %rsp, %rbp, %rsi, %rdi, %r8 - %r15)和16个128bit的<strong>SSE寄存器</strong>(%xmm0 - %xmm15)。</p>
 <p>进行函数调用时，%rbp, %rbx, %r12 - %r15 属于caller，callee 要保管这6个寄存器的内容。<br>剩下的寄存器%rax, %rcx, %rdx, %rsp, %rbp,  %rdi, %r8 - %r11 和 %xmm0 - $xmm15 属于callee。<br>其中%rdi, %rsi, %rdx, %rcx, %r8, %r9 和 %xmm0 - %xmm7 可用来传递参数。%rax, %rdx，%xmm0, %xmm1 用来保存返回值。不能由寄存器保存的参数，将会被放置在栈上。</p>
@@ -294,7 +301,18 @@
 <iframe width="800px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAM1QDsCBlZAQwBtMQBGAFlICsupVs1qhkAUgBMAISnTSAZ0ztkBPHUqZa6AMKpWAVwC2tEAGZeW9ABk8tTADljAI0zEQ3AAykADqgWE6rR6hibmvH4BanS29k5Gru5eisqYqkEMBMzEBCHGphYpKtG0mdkEsY4ubh7eClk5eWGF9eWV8Ym1AJSKqAbEyBwA5FJmdsiGWADU4mY6yPX49LPY4p4Agmvr9cQGqlNGW%2BIA7LIbUxdTBnYEAGzcAPoEB5yzZ%2BuXVzdmkk8Hkm8jscACKAjZbCbMBQKKa0IHvHwGZysPDIEBbT60CA3KbMUhTHHOLogIyvU7ME7A/FGAGnZyUk6yEFgj6XLFoWj1WFSW5TVDE0mM1AAOhplOptOkIppUwAVFNaaDTgyzO9PgA/LFdRkqtWXa70e5/QWqjH676/Z5i03g5k2zbggCssmdwFoBhAIFoqDsKPs4kdoMDW2YBiIUxYrHYmAe3toT2IeAAbng2BBaFMfNrbXqLsRMAR%2BhmfKKAfaGeCnS7pG6PV6fbQ/ZgA0HQRtQ%2BHI9HY3QE8nU6wHvmqOmeZns5tledLvnC8Ri6WWRWHesO6gI2x2MQe/GCImU2mJzrpxc11NWDMzMDuadOPjFSzPrOixuo5gY3G%2BwfWBBWNry8ylarmG65dm4O5fgOQ6YCOR5Tqyp4geel7XnCt73rqZp5gWL5gR%2BvZ7v2bDQSOf5LoBK4BtWtaet6vp2M2wbBu2SF4ZBaZGOO8JYVMz7zpmi4AW2K5nmB26Ed%2BEBwbmuJIReszXoc6EKphJ68Th/FsRJA6/v%2B7yUkMPSsCAQyOkMpCmEMnjmagJk6HIchTAofQDJgMySGYnDmQQJnWV0PQANYgI63jGUM3DmUYXCeN4lnWaQtlDOZCggN4PlWYZpBwLASBoEYPh4Fu5CUHlBVbiAwCcJ4kikFQhUEG4KUQM4vnmc4djZAAniZXmkHlRhaAQADyjbdRlpBYEYIjAOwrUTXg%2BbpEmmApeNmAAB5pGGwy9TcyhzSizjEF1ehYD13mJlFQxeT0ND0EwbAcDw/CCMIogoA5MhCHgzgpZAPSoD4JSrQAtENZjJak6QaBAVhNKYd5WO01TuHekSBHQ8OCOjJTIwkNR3koxQZA0uT6PkghE2kJRlDkeOdITpNY4zbQMR0BM9M5/SDFwRkmWZFlzYl60ABy3CD9xTMAyDIFMVXCpIUwQLghAkO5nn4no%2BWFW46ucF0Uz2TIcjea1/mkAgmDMFg7hSaQQUhUIJkRaQUVVbFQsmclqWkOlfl80MkjmXFNle77Zs9MtxABBo3BAA%3D%3D"></iframe>
 
 
-<h1 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h1><hr>
+<h1 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h1><p>返回值的处理和参数传递类似。首先确定返回值的类型，之后根据返回值的类型决定如何返回：</p>
+<ul>
+<li>如果返回值是<strong>MEMORY</strong>类型，则由caller负责提供返回值的存储空间，并将返回值当作第一个参数，将地址存储在<code>%rdi</code>之中。在返回时，<code>%rax</code>中会保存<code>%rdi</code>里传来的地址。</li>
+<li>如果返回值是<strong>INTEGER</strong>类型，按顺序使用<code>%rax</code>, <code>%rdx</code>寄存器。</li>
+<li>如果返回值是<strong>SSE</strong>类型，按顺序使用<code>%xmm0</code>，<code>%xmm1</code>寄存器。</li>
+</ul>
+<hr>
+<p>在下面的例子中：<br><code>struct mm</code>因为大小大于16bytes，因此为<strong>MEMORY</strong>类型。在<code>caller_mm()</code>中，生成的汇编代码中第17行<code>mov rdi, rsp</code>，即将在<code>caller_mm()</code>栈上划给返回值的空间的地址传递存储在%rdi%中。在返回时，在生成的<code>callee_mm()</code>代码中第4行，将<code>%rdi</code>的内容又传递回了<code>%rax</code>。</p>
+<p><code>tuple&lt;int, int, int&gt;</code>作为一个12bytes大小的类型，应按照8,4分割给<code>%rax</code>和<code>%rdx</code>寄存器。在生成的代码中第15, 16行，的确看到将使用<code>%rdx</code>和<code>%rax</code>分别赋值。在<code>caller_integer</code>中，将<code>%rax</code>和<code>%rdx</code>直接相加存储在<code>%rax</code>中作为返回结果。</p>
+<iframe width="800px" height="600px" src="https://godbolt.org/e?readOnly=true&hideEditorToolbars=true#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:c%2B%2B,selection:(endColumn:2,endLineNumber:33,positionColumn:1,positionLineNumber:1,selectionStartColumn:2,selectionStartLineNumber:33,startColumn:1,startLineNumber:1),source:'%23include+%3Ccstdint%3E%0A%23include+%3Ctuple%3E%0A%0Astruct+mm%0A%7B%0A++++uint64_t+m1%3B%0A++++uint64_t+m2%3B%0A++++uint64_t+m3%3B%0A%7D%3B%0A%0A%5B%5Bgnu::noinline%5D%5D%0Aauto+callee_mm()%0A%7B%0A++++return+mm%7B1,+2,+3%7D%3B%0A%7D%0A%0Aauto+caller_mm()%0A%7B%0A++++auto+i+%3D+callee_mm()%3B%0A++++return+i.m1%3B%0A%7D%0A%0A%5B%5Bgnu::noinline%5D%5D%0Aauto+callee_integer()%0A%7B%0A++++return+std::make_tuple(1,+2,+3)%3B%0A%7D%0A%0Aauto+caller_integer()%0A%7B%0A++++auto+p+%3D+callee_integer()%3B%0A++++return+std::get%3C0%3E(p)%3B%0A%7D'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:g102,filters:(b:'0',binary:'1',commentOnly:'0',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'1',trim:'1'),fontScale:14,j:1,lang:c%2B%2B,libs:!(),options:'-O3',selection:(endColumn:25,endLineNumber:17,positionColumn:25,positionLineNumber:17,selectionStartColumn:25,selectionStartLineNumber:17,startColumn:25,startLineNumber:17),source:1),l:'5',n:'0',o:'x86-64+gcc+10.2+(Editor+%231,+Compiler+%231)+C%2B%2B',t:'0')),header:(),k:50,l:'4',m:100,n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
+
+<hr>
 <p>参考：</p>
 <p><a href="https://stackoverflow.com/questions/18024672/what-registers-are-preserved-through-a-linux-x86-64-function-call" target="_blank" rel="noopener">What registers are preserved through a linux x86-64 function call</a><br><a href="https://itanium-cxx-abi.github.io/cxx-abi/abi.html#calls" target="_blank" rel="noopener">Itanium C++ ABI</a><br><a href="https://github.com/hjl-tools/x86-psABI/wiki/x86-64-psABI-1.0.pdf" target="_blank" rel="noopener">System V ABI: AMD64 Architecture Processor Supplement</a></p>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
@@ -441,7 +459,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">155k</span>
+    <span title="Symbols count total">156k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
