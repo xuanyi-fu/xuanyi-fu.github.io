@@ -46,17 +46,17 @@
   };
 </script>
 
-  <meta name="description" content="LC726 原子的数量">
+  <meta name="description" content="LC726 原子的数量LC385 迷你语法分析器  常用的字母&#x2F;数字&#x2F;大小写判断转换函数 &lt;charconv&gt;的使用 设计parser的最佳实践">
 <meta property="og:type" content="article">
-<meta property="og:title" content="字符串：parser">
+<meta property="og:title" content="如何设计parser">
 <meta property="og:url" content="http://xyfu.me/posts/de9ec62b/index.html">
 <meta property="og:site_name" content="Xuanyi Fu Blog">
-<meta property="og:description" content="LC726 原子的数量">
+<meta property="og:description" content="LC726 原子的数量LC385 迷你语法分析器  常用的字母&#x2F;数字&#x2F;大小写判断转换函数 &lt;charconv&gt;的使用 设计parser的最佳实践">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-06-21T03:38:01.000Z">
-<meta property="article:modified_time" content="2020-06-21T05:21:23.252Z">
+<meta property="article:modified_time" content="2020-08-21T10:25:39.705Z">
 <meta property="article:author" content="Xuanyi Fu">
-<meta property="article:tag" content="二叉树">
+<meta property="article:tag" content="parser">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://xyfu.me/posts/de9ec62b/">
@@ -71,7 +71,7 @@
   };
 </script>
 
-  <title>字符串：parser | Xuanyi Fu Blog</title>
+  <title>如何设计parser | Xuanyi Fu Blog</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-173379461-1"></script>
     <script>
@@ -192,7 +192,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          字符串：parser
+          如何设计parser
         </h1>
 
         <div class="post-meta">
@@ -203,10 +203,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-06-21 11:38:01 / Modified: 13:21:23" itemprop="dateCreated datePublished" datetime="2020-06-21T11:38:01+08:00">2020-06-21</time>
+              <time title="Created: 2020-06-21 11:38:01" itemprop="dateCreated datePublished" datetime="2020-06-21T11:38:01+08:00">2020-06-21</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-08-21 18:25:39" itemprop="dateModified" datetime="2020-08-21T18:25:39+08:00">2020-08-21</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -225,7 +231,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.4k</span>
+              <span>1.9k</span>
             </span>
 
         </div>
@@ -237,7 +243,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://xyfu.me/posts/de9ec62b/#%E5%8E%9F%E5%AD%90%E7%9A%84%E6%95%B0%E9%87%8F">LC726 原子的数量</a></p>
+        <p><a href="https://xyfu.me/posts/de9ec62b/#%E5%8E%9F%E5%AD%90%E7%9A%84%E6%95%B0%E9%87%8F">LC726 原子的数量</a><br><a href="https://leetcode-cn.com/problems/mini-parser/" target="_blank" rel="noopener">LC385 迷你语法分析器</a></p>
+<ul>
+<li>常用的字母/数字/大小写判断转换函数</li>
+<li><code>&lt;charconv&gt;</code>的使用</li>
+<li>设计parser的最佳实践</li>
+</ul>
 <a id="more"></a>
 <h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><h2 id="大小写和数字"><a href="#大小写和数字" class="headerlink" title="大小写和数字"></a>大小写和数字</h2><p>标准库头文件<code>&lt;ccype&gt;</code></p>
 <ul>
@@ -260,15 +271,15 @@
 </ul>
 <h2 id="建议"><a href="#建议" class="headerlink" title="建议"></a>建议</h2><ul>
 <li>写复杂的parser的时候，可以由小到大。先尝试写能parse一部分的小parser，再将这些小的parser组合成一个大的parser。</li>
-<li><p>parser的函数签名：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">parser</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, <span class="comment">/*out params*/</span>... args)</span></span></span><br></pre></td></tr></table></figure>
-<p><code>first</code>和<code>last</code>两个指针确定要parse的区间。parse的结果通过引用由outparam输出。返回已经parse的最后位置+1。<br>写每一个小parser的时候，为了方便逻辑处理，尽量对传入的内容作出假设。这些假设可以在调用小parser的大parser中保证。</p>
+<li>parser的函数签名：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[[nodiscard]]</span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">parser</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, <span class="comment">/*out params*/</span>... args)</span></span></span><br></pre></td></tr></table></figure>
+<code>first</code>和<code>last</code>两个指针确定要parse的区间。parse的结果通过引用由outparam输出。返回已经parse的最后位置+1。这样设计parser的好处是：</li>
+<li>避免使用<code>char**</code>，<code>char *&amp;</code>等，造成不必要的麻烦。</li>
+<li><p>和<code>from_chars</code>函数的返回值形式类似，整体思路更清晰。<br>写每一个小parser的时候，为了方便逻辑处理，尽量对传入的内容作出假设。这些假设可以在调用小parser的大parser中保证。</p>
 </li>
 <li><p>大parser的主循环可以由下面的构成</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(first &lt; last)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(*first == <span class="comment">/*case 1*/</span>)</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(*first == <span class="comment">/*case 2*/</span>)</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* ...... */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<hr>
 <h1 id="原子的数量"><a href="#原子的数量" class="headerlink" title="原子的数量"></a>原子的数量</h1><p><a href="https://leetcode-cn.com/problems/number-of-atoms/" target="_blank" rel="noopener">LC726 原子的数量</a></p>
 <p>统计一个给定化学式中所有原子的数量。给定的化学式一定是合法的。化学式中含有括号。<br>首先我们需要先写能够parse一个元素和其数量的小parser。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* preconditions:</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * !(first &lt; last)</span></span><br><span class="line"><span class="comment"> * is_upper(*first) </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">element_parser</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, string_view&amp; element, <span class="keyword">int</span>&amp; number)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// string is not empty, number is at least 1</span></span><br><span class="line">  number = <span class="number">1</span>;</span><br><span class="line">  <span class="comment">// find the first lower case letter</span></span><br><span class="line">  <span class="keyword">auto</span> element_start = first;</span><br><span class="line">  ++first;</span><br><span class="line">  <span class="keyword">while</span>(first != last &amp;&amp; <span class="built_in">islower</span>(*first))</span><br><span class="line">  &#123;</span><br><span class="line">    ++first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  element = string_view&#123;element_start, <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(first - element_start)&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> [ptr, err] = from_chars(first, last, number);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ptr;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>这个parser不考虑括号，并假设传入的<code>[first, last)</code>一定是非空的，合法的。再假设<code>*first</code>一定是一个大写字母。</p>
 <ul>
@@ -295,6 +306,22 @@
 <pre><code>- 我们最初对formula调用parse
 - 我们因为遇到左括号调用parse
 </code></pre><p>在这两种情况中，只有因为遇到左括号而调用parse时，才可能遇到右括号。而一旦遇到右括号，我们就没必要再parse下去了，之后的parse应该交给调用他的parser。</p>
+<h1 id="迷你语法分析器"><a href="#迷你语法分析器" class="headerlink" title="迷你语法分析器"></a>迷你语法分析器</h1><p><a href="https://leetcode-cn.com/problems/mini-parser/" target="_blank" rel="noopener">LC385 迷你语法分析器</a></p>
+<p>仍然按照写parser的一般形式设计parser<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[[nodiscard]]</span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">parser</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, <span class="comment">/*out params*/</span>... args)</span></span></span><br></pre></td></tr></table></figure><br>在本题目中则是<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[[nodiscard]]</span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">deserialize</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, NestedInteger&amp; output)</span></span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>遇到<code>&#39;[&#39;</code>时，则建立一个新的<code>NestedInteger</code>，并将其作为output param递归调用<code>::deserialize</code>，将<code>first</code>移动到<code>::deserialize</code>返回的指针位置处。</li>
+<li>遇到<code>&#39;-&#39;</code>或数字时，则解析该数字，并在<code>output</code>中<code>add</code>一个只有数组的<code>NestedInteger</code>，将<code>first</code>移动到<code>from_chars</code>返回的指针位置处。</li>
+<li>遇到<code>&#39;,&#39;</code>，忽略，并将<code>first</code>往前移动一位。</li>
+<li>遇到<code>&#39;]&#39;</code>，忽略，将<code>first</code>往前移动一位，结束parse，返回。</li>
+</ul>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        code
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * // This is the interface that allows for creating nested lists.</span></span><br><span class="line"><span class="comment"> * // You should not implement it, or speculate about its implementation</span></span><br><span class="line"><span class="comment"> * class NestedInteger &#123;</span></span><br><span class="line"><span class="comment"> *   public:</span></span><br><span class="line"><span class="comment"> *     // Constructor initializes an empty nested list.</span></span><br><span class="line"><span class="comment"> *     NestedInteger();</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *     // Constructor initializes a single integer.</span></span><br><span class="line"><span class="comment"> *     NestedInteger(int value);</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *     // Return true if this NestedInteger holds a single integer, rather than a nested list.</span></span><br><span class="line"><span class="comment"> *     bool isInteger() const;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *     // Return the single integer that this NestedInteger holds, if it holds a single integer</span></span><br><span class="line"><span class="comment"> *     // The result is undefined if this NestedInteger holds a nested list</span></span><br><span class="line"><span class="comment"> *     int getInteger() const;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *     // Set this NestedInteger to hold a single integer.</span></span><br><span class="line"><span class="comment"> *     void setInteger(int value);</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *     // Set this NestedInteger to hold a nested list and adds a nested integer to it.</span></span><br><span class="line"><span class="comment"> *     void add(const NestedInteger &amp;ni);</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *     // Return the nested list that this NestedInteger holds, if it holds a nested list</span></span><br><span class="line"><span class="comment"> *     // The result is undefined if this NestedInteger holds a single integer</span></span><br><span class="line"><span class="comment"> *     const vector&lt;NestedInteger&gt; &amp;getList() const;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">namespace</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">[[nodiscard]]</span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">deserialize</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last, NestedInteger&amp; output)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">while</span>(first &lt; last)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">auto</span> c = *first;</span><br><span class="line">    c == <span class="string">'['</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">auto</span> n = NestedInteger&#123;&#125;;</span><br><span class="line">      first = deserialize(++first, last, n);</span><br><span class="line">      output.add(n);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(<span class="built_in">isdigit</span>(c) || c == <span class="string">'-'</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">auto</span> num = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">auto</span> [next, er] = from_chars(first, last, num);</span><br><span class="line">      output.add(NestedInteger&#123;num&#125;);</span><br><span class="line">      first = next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">','</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      ++first;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// c == ']'</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      ++first;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> first;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">NestedInteger <span class="title">deserialize</span><span class="params">(string_view s)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">auto</span> res = NestedInteger&#123;&#125;;</span><br><span class="line">      ::deserialize(s.data(), s.data() + s.size(), res);</span><br><span class="line">      <span class="keyword">return</span> res.getList().front();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+</div>
 <link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
     </div>
 
@@ -304,7 +331,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag"># 二叉树</a>
+              <a href="/tags/parser/" rel="tag"># parser</a>
           </div>
 
         
@@ -379,7 +406,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常用工具"><span class="nav-number">1.</span> <span class="nav-text">常用工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#大小写和数字"><span class="nav-number">1.1.</span> <span class="nav-text">大小写和数字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建议"><span class="nav-number">1.2.</span> <span class="nav-text">建议</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原子的数量"><span class="nav-number">2.</span> <span class="nav-text">原子的数量</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常用工具"><span class="nav-number">1.</span> <span class="nav-text">常用工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#大小写和数字"><span class="nav-number">1.1.</span> <span class="nav-text">大小写和数字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建议"><span class="nav-number">1.2.</span> <span class="nav-text">建议</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原子的数量"><span class="nav-number">2.</span> <span class="nav-text">原子的数量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#迷你语法分析器"><span class="nav-number">3.</span> <span class="nav-text">迷你语法分析器</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -403,7 +430,7 @@
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">33</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
